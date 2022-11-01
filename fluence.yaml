@@ -37,4 +37,9 @@ dependencies:
   cargo:
     marine: 0.12.4
     mrepl: 0.18.6
+services:
+  spell:
+    get: src/spell
+    deploy:
+      - deployId: default
 
