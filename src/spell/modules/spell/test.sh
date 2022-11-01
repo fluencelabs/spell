@@ -6,6 +6,8 @@ set -o pipefail
 
 cd "$(dirname "$0")"
 
+rm -f /tmp/spell.sqlite
+
 marine build --release
 cp target/wasm32-wasi/release/spell.wasm tests_artifacts
-cargo test --release -- --nocapture
+cargo test --release -- --nocapture --test-threads 1

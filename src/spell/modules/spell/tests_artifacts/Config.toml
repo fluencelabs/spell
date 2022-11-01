@@ -1,7 +1,4 @@
-modules_dir = "tests_artifacts/"
-
-[[module]]
-    name = "spell"
+modules_dir = "."
 
 [[module]]
     name = "sqlite3"
@@ -10,4 +7,9 @@ modules_dir = "tests_artifacts/"
 
     [module.wasi]
     preopened_files = ["/tmp"]
-    mapped_dirs = { "tmp" = "/tmp" }
+    mapped_dirs = { "tmp" = "." }
+
+[[module]]
+    name = "spell"
+
+
