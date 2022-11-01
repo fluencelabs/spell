@@ -12,26 +12,26 @@ fn check_env() {
 
 #[marine]
 pub struct Script {
-    source_code: String,
-    success: bool,
-    error: String
+    pub source_code: String,
+    pub success: bool,
+    pub error: String
 }
 
 #[marine]
-pub fn setScriptSourceToFile(script: String) -> bool {
-    std::fs::write(SCRIPT_FILE, script).ok()
+pub fn set_script_source_to_file(script: String) -> bool {
+    std::fs::write(SCRIPT_FILE, script).is_ok()
 }
 
 #[marine]
-pub fn getScriptSourceFromFile() -> Script {
+pub fn get_script_source_from_file() -> Script {
     match std::fs::read_to_string(SCRIPT_FILE) {
-        Ok(script) => Script { source_code, success: true, error: <_>::default() },
+        Ok(source_code) => Script { source_code, success: true, error: <_>::default() },
         Err(e) => Script { source_code: <_>::default(), success: false, error: e.to_string() }
     }
 }
 
 #[marine]
-pub fn getScriptSourceFromEnv() -> Script {
+pub fn get_script_source_from_env() -> Script {
     match std::env::var(SCRIPT_ENV) {
         Ok(source_code) => Script { source_code, success: true, error: <_>::default() },
         Err(e) => Script { source_code: <_>::default(), success: false, error: e.to_string() }

@@ -1,4 +1,4 @@
-mod script;
+pub mod script;
 
 extern crate core;
 
@@ -31,3 +31,13 @@ fn db() -> Connection {
     sqlite::open("/tmp/spell.sqlite").expect("open sqlite db")
 }
 
+#[cfg(test)]
+mod tests {
+    use marine_rs_sdk_test::marine_test;
+
+    #[marine_test(config_path = "../tests_artifacts/Config.toml", modules_dir = "../tests_artifacts")]
+    fn test_set_script_source_to_file(spell: marine_test_env::spell::ModuleInterface) {
+        assert!(spell.set_script_source_to_file("(null)".to_string()), "set_script_source_to_file returned false");
+        assert_eq!(spell.get_script_source_from_file().source_code, "(null)");
+    }
+}

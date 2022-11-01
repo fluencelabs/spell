@@ -1,0 +1,13 @@
+modules_dir = "tests_artifacts/"
+
+[[module]]
+    name = "spell"
+
+[[module]]
+    name = "sqlite3"
+    mem_pages_count = 100
+    logger_enabled = false
+
+    [module.wasi]
+    preopened_files = ["/tmp"]
+    mapped_dirs = { "tmp" = "/tmp" }
