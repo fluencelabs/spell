@@ -1,0 +1,47 @@
+module Main
+
+-- import App from "deployed.app.aqua"
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+-- export App
+
+-- DOCUMENTATION:
+-- https://fluence.dev
+
+-- local
+func hello_world(name: string) -> string:
+    <- Op.concat_strings("Hello, ", name)
+
+-- remote
+func hello_world_remote(name: string) -> string:
+    on HOST_PEER_ID:
+        hello_msg <- hello_world(name)
+        from_msg <- Op.concat_strings(hello_msg, "! From ")
+        from_peer_msg <- Op.concat_strings(from_msg, HOST_PEER_ID)
+    <- from_peer_msg
+
+-- request response
+func get_info() -> Info, PeerId:
+    on HOST_PEER_ID:
+        info <- Peer.identify()
+    <- info, HOST_PEER_ID
+
+-- iterate through several peers
+func get_infos(peers: []PeerId) -> []Info:
+    infos: *Info
+    for p <- peers:
+        on p:
+            infos <- Peer.identify()
+    <- infos
+
+-- parallel computation
+func get_infos_par(peers: []PeerId) -> []Info:
+    infos: *Info
+    for p <- peers par:
+        on p:
+            infos <- Peer.identify()
+
+    join infos[Op.array_length(peers) - 1] -- "-1" because it's 0-based
+    par Peer.timeout(PARTICLE_TTL / 2, "")
+
+    <- infos
