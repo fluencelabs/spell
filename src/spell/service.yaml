@@ -32,4 +32,6 @@ name: spell
 modules:
   facade:
     get: modules/spell
+  sqlite3:
+    get: https://github.com/fluencelabs/sqlite/releases/download/v0.15.0_w/sqlite3.tar.gz
 
