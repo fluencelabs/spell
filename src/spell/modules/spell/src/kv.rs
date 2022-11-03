@@ -1,44 +1,39 @@
 use marine_rs_sdk::marine;
 use marine_sqlite_connector as sqlite;
-use marine_sqlite_connector::{Connection, State}; //, Statement, Value};
+use marine_sqlite_connector::{Connection, State};
+
 use crate::error::SpellError::*;
+use crate::result::UnitResult;
 
 pub fn db() -> Connection {
     sqlite::open("/tmp/spell.sqlite").expect("open sqlite db")
 }
 
 pub fn create_db() {
-    db()
-        .execute(
-            r#"
+    db().execute(
+        r#"
             CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER);
             "#,
-        )
-        .expect("init sqlite db");
+    )
+    .expect("init sqlite db");
 }
 
 #[marine]
 pub struct StringValue {
     pub str: String,
     pub success: bool,
-    pub error: String
+    pub error: String,
 }
 
 #[marine]
 pub struct U32Value {
     pub num: u32,
     pub success: bool,
-    pub error: String
+    pub error: String,
 }
 
 #[marine]
-pub struct SetResult {
-    pub success: bool,
-    pub error: String
-}
-
-#[marine]
-pub fn set_string(key: String, value: String) -> SetResult {
+pub fn set_string(key: String, value: String) -> UnitResult {
     let result: anyhow::Result<()> = try {
         let mut statement = db().prepare("INSERT INTO kv (key, string) VALUES (?, ?)")?;
         statement.bind(1, key.as_str())?;
@@ -47,8 +42,8 @@ pub fn set_string(key: String, value: String) -> SetResult {
     };
 
     match result {
-        Ok(_) => SetResult { success: true, error: <_>::default() },
-        Err(e) => SetResult { success: false, error: e.to_string() },
+        Ok(_) => UnitResult::ok(),
+        Err(e) => UnitResult::error(e),
     }
 }
 
@@ -65,13 +60,21 @@ pub fn get_string(key: String) -> StringValue {
     };
 
     match result {
-        Ok(str) => StringValue { str, success: true, error: <_>::default() },
-        Err(e) => StringValue { str: <_>::default(), success: false, error: e.to_string() },
+        Ok(str) => StringValue {
+            str,
+            success: true,
+            error: <_>::default(),
+        },
+        Err(e) => StringValue {
+            str: <_>::default(),
+            success: false,
+            error: e.to_string(),
+        },
     }
 }
 
 #[marine]
-pub fn set_u32(key: String, value: u32) -> SetResult {
+pub fn set_u32(key: String, value: u32) -> UnitResult {
     let result: anyhow::Result<()> = try {
         let mut statement = db().prepare("INSERT INTO kv (key, u32) VALUES (?, ?)")?;
         statement.bind(1, key.as_str())?;
@@ -80,8 +83,8 @@ pub fn set_u32(key: String, value: u32) -> SetResult {
     };
 
     match result {
-        Ok(_) => SetResult { success: true, error: <_>::default() },
-        Err(e) => SetResult { success: false, error: e.to_string() },
+        Ok(_) => UnitResult::ok(),
+        Err(e) => UnitResult::error(e),
     }
 }
 
@@ -98,8 +101,16 @@ pub fn get_u32(key: String) -> U32Value {
     };
 
     match result {
-        Ok(num) => U32Value { num, success: true, error: <_>::default() },
-        Err(e) => U32Value { num: <_>::default(), success: false, error: e.to_string() },
+        Ok(num) => U32Value {
+            num,
+            success: true,
+            error: <_>::default(),
+        },
+        Err(e) => U32Value {
+            num: <_>::default(),
+            success: false,
+            error: e.to_string(),
+        },
     }
 }
 
@@ -107,7 +118,10 @@ pub fn get_u32(key: String) -> U32Value {
 mod tests {
     use marine_rs_sdk_test::marine_test;
 
-    #[marine_test(config_path = "../tests_artifacts/Config.toml", modules_dir = "../tests_artifacts")]
+    #[marine_test(
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
+    )]
     fn test_string(spell: marine_test_env::spell::ModuleInterface) {
         let key = "str".to_string();
         let str = "b".to_string();
@@ -117,7 +131,10 @@ mod tests {
         assert_eq!(get.str, "b", "get_string failed: {}", get.error);
     }
 
-    #[marine_test(config_path = "../tests_artifacts/Config.toml", modules_dir = "../tests_artifacts")]
+    #[marine_test(
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
+    )]
     fn test_u32(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num".to_string();
         let num = 123;

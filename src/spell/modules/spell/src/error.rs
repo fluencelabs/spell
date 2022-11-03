@@ -1,5 +1,5 @@
-use thiserror::Error as ThisError;
 use marine_sqlite_connector::Error as SqliteError;
+use thiserror::Error as ThisError;
 
 #[derive(ThisError, Debug)]
 pub enum SpellError {
