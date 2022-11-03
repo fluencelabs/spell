@@ -1,3 +1,5 @@
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 use std::convert::TryFrom;
 
 use eyre::WrapErr;
@@ -115,39 +117,40 @@ pub fn get_errors(particle_id: String) -> Vec<LastErrorEntry> {
 
 #[marine]
 pub fn get_all_errors() -> Vec<ParticleErrors> {
-    // let result: eyre::Result<Vec<LastErrorEntry>> = try {
-    //     let mut statement = db().prepare(
-    //         r#"
-    //         SELECT
-    //             (error_idx, error_code, instruction, message, peer_id, particle_id)
-    //         FROM
-    //             errors
-    //     "#,
-    //     )?;
-    //     std::iter::from_fn(move || {
-    //         let r: eyre::Result<Option<(String, LastErrorEntry)>> = try {
-    //             if let State::Row = statement.next()? {
-    //                 let err = LastErrorEntry::try_from(&mut statement)?;
-    //                 let particle_id = statement.read::<String>(5)?;
-    //                 Some((particle_id, err))
-    //             } else {
-    //                 None
-    //             }
-    //         };
-    //         r.context("error fetching error row from sqlite")
-    //             .transpose()
-    //     })
-    //     .filter_map(|r| r.ok())
-    //     .group_by(|(pid, _)| pid)
-    //     .map(|(particle_id, errors)|
-    //         ParticleErrors {
-    //             particle_id,
-    //             errors: errors.into_iter().map(|(_, err)| err).collect()
-    //         })
-    //     .collect()
-    // };
-    //
-    // result.unwrap_or_default()
+    let result: eyre::Result<Vec<ParticleErrors>> = try {
+        let mut statement = db().prepare(
+            r#"
+            SELECT
+                (error_idx, error_code, instruction, message, peer_id, particle_id)
+            FROM
+                errors
+        "#,
+        )?;
+        std::iter::from_fn(move || {
+            let r: eyre::Result<Option<(String, LastErrorEntry)>> = try {
+                if let State::Row = statement.next()? {
+                    let err = LastErrorEntry::try_from(&mut statement)?;
+                    let particle_id = statement.read::<String>(5)?;
+                    Some((particle_id, err))
+                } else {
+                    None
+                }
+            };
+            r.context("error fetching error row from sqlite")
+                .transpose()
+        })
+        .filter_map(|r| r.ok())
+        .fold(HashMap::new(), |mut hm, (particle_id, error)| {
+            hm.entry(particle_id).or_insert(Vec::new()).push(error);
+            hm
+        })
+        .into_iter()
+        .map(|(particle_id, errors)| ParticleErrors {
+            particle_id,
+            errors,
+        })
+        .collect()
+    };
 
-    todo!()
+    result.unwrap_or_default()
 }
