@@ -1,22 +1,9 @@
 use marine_rs_sdk::marine;
-use marine_sqlite_connector as sqlite;
-use marine_sqlite_connector::{Connection, State};
+use marine_sqlite_connector::State;
 
 use crate::error::SpellError::*;
 use crate::result::UnitResult;
-
-pub fn db() -> Connection {
-    sqlite::open("/tmp/spell.sqlite").expect("open sqlite db")
-}
-
-pub fn create_db() {
-    db().execute(
-        r#"
-            CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER);
-            "#,
-    )
-    .expect("init sqlite db");
-}
+use crate::schema::db;
 
 #[marine]
 pub struct StringValue {
@@ -34,7 +21,7 @@ pub struct U32Value {
 
 #[marine]
 pub fn set_string(key: String, value: String) -> UnitResult {
-    let result: anyhow::Result<()> = try {
+    let result: eyre::Result<()> = try {
         let mut statement = db().prepare("INSERT INTO kv (key, string) VALUES (?, ?)")?;
         statement.bind(1, key.as_str())?;
         statement.bind(2, value.as_str())?;
@@ -49,7 +36,7 @@ pub fn set_string(key: String, value: String) -> UnitResult {
 
 #[marine]
 pub fn get_string(key: String) -> StringValue {
-    let result: anyhow::Result<String> = try {
+    let result: eyre::Result<String> = try {
         let mut statement = db().prepare("SELECT string FROM kv WHERE key = ?")?;
         statement.bind(1, key.as_str())?;
         if let State::Row = statement.next()? {
@@ -75,7 +62,7 @@ pub fn get_string(key: String) -> StringValue {
 
 #[marine]
 pub fn set_u32(key: String, value: u32) -> UnitResult {
-    let result: anyhow::Result<()> = try {
+    let result: eyre::Result<()> = try {
         let mut statement = db().prepare("INSERT INTO kv (key, u32) VALUES (?, ?)")?;
         statement.bind(1, key.as_str())?;
         statement.bind(2, value as f64)?;
@@ -90,7 +77,7 @@ pub fn set_u32(key: String, value: u32) -> UnitResult {
 
 #[marine]
 pub fn get_u32(key: String) -> U32Value {
-    let result: anyhow::Result<u32> = try {
+    let result: eyre::Result<u32> = try {
         let mut statement = db().prepare("SELECT u32 FROM kv WHERE key = ?")?;
         statement.bind(1, key.as_str())?;
         if let State::Row = statement.next()? {
