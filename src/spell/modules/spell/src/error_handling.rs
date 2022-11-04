@@ -1,7 +1,7 @@
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 
+use crate::auth::is_by_spell;
 use eyre::WrapErr;
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
@@ -11,7 +11,7 @@ use crate::schema::db;
 
 /// The `%last_error%` content.
 #[marine]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct LastError {
     /// The error code.
     pub error_code: u32,
@@ -24,7 +24,7 @@ pub struct LastError {
 }
 
 #[marine]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct LastErrorEntry {
     /// The reported error.
     pub last_error: LastError,
@@ -33,16 +33,34 @@ pub struct LastErrorEntry {
 }
 
 impl TryFrom<&mut Statement> for LastErrorEntry {
-    type Error = marine_sqlite_connector::Error;
+    type Error = eyre::Error;
 
+    /*
+    particle_id
+    timestamp
+    error_idx
+    error_code
+    instruction
+    message
+    peer_id
+    */
     fn try_from(statement: &mut Statement) -> Result<Self, Self::Error> {
         Ok(Self {
-            error_idx: statement.read::<f64>(0)? as u32,
+            error_idx: statement.read::<f64>(2)? as u32,
             last_error: LastError {
-                error_code: statement.read::<f64>(1)? as u32,
-                instruction: statement.read(2)?,
-                message: statement.read(3)?,
-                peer_id: statement.read(4)?,
+                error_code: statement
+                    .read::<f64>(3)
+                    .context("error reading error_code from row")?
+                    as u32,
+                instruction: statement
+                    .read(4)
+                    .context("error reading instruction from row")?,
+                message: statement
+                    .read(5)
+                    .context("error reading message from row")?,
+                peer_id: statement
+                    .read(6)
+                    .context("error reading peer_id from row")?,
             },
         })
     }
@@ -56,8 +74,19 @@ pub struct ParticleErrors {
 }
 
 #[marine]
+pub struct AllErrorsResult {
+    particle_errors: Vec<ParticleErrors>,
+    success: bool,
+    error: String,
+}
+
+#[marine]
 pub fn store_error(error: LastError, particle_timestamp: u64, error_idx: u32) -> UnitResult {
     let call_parameters = marine_rs_sdk::get_call_parameters();
+
+    if !is_by_spell(&call_parameters) {
+        return UnitResult::error("store_error can be called only by the associated spell script");
+    }
 
     let result: eyre::Result<()> = try {
         let mut statement = db().prepare(
@@ -91,7 +120,7 @@ pub fn get_errors(particle_id: String) -> Vec<LastErrorEntry> {
         let mut statement = db().prepare(
             r#"
             SELECT
-                (error_idx, error_code, instruction, message, peer_id)
+                *
             FROM
                 errors WHERE particle_id = ?
         "#,
@@ -116,21 +145,17 @@ pub fn get_errors(particle_id: String) -> Vec<LastErrorEntry> {
 }
 
 #[marine]
-pub fn get_all_errors() -> Vec<ParticleErrors> {
+pub fn get_all_errors() -> AllErrorsResult {
     let result: eyre::Result<Vec<ParticleErrors>> = try {
-        let mut statement = db().prepare(
-            r#"
-            SELECT
-                (error_idx, error_code, instruction, message, peer_id, particle_id)
-            FROM
-                errors
-        "#,
-        )?;
+        let mut statement = db().prepare(r#"SELECT * FROM errors"#)?;
         std::iter::from_fn(move || {
             let r: eyre::Result<Option<(String, LastErrorEntry)>> = try {
                 if let State::Row = statement.next()? {
-                    let err = LastErrorEntry::try_from(&mut statement)?;
-                    let particle_id = statement.read::<String>(5)?;
+                    let particle_id = statement
+                        .read::<String>(0)
+                        .context("error reading particle_id from row")?;
+                    let err = LastErrorEntry::try_from(&mut statement)
+                        .context("error reading LastErrorEntry from row")?;
                     Some((particle_id, err))
                 } else {
                     None
@@ -152,5 +177,112 @@ pub fn get_all_errors() -> Vec<ParticleErrors> {
         .collect()
     };
 
-    result.unwrap_or_default()
+    match result {
+        Ok(particle_errors) => AllErrorsResult {
+            particle_errors,
+            success: true,
+            error: <_>::default(),
+        },
+        Err(err) => AllErrorsResult {
+            particle_errors: <_>::default(),
+            success: false,
+            error: format!("{:?}", err),
+        },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use marine_rs_sdk::CallParameters;
+    use marine_rs_sdk_test::marine_test;
+    use uuid::Uuid;
+
+    fn cp(service_id: String, particle_id: String) -> CallParameters {
+        CallParameters {
+            init_peer_id: "folex".to_string(),
+            service_creator_peer_id: "not folex".to_string(),
+            service_id,
+            host_id: "".to_string(),
+            particle_id,
+            tetraplets: vec![],
+        }
+    }
+
+    #[marine_test(
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
+    )]
+    fn test_store_error(spell: marine_test_env::spell::ModuleInterface) {
+        use marine_test_env::spell::{LastError, LastErrorEntry};
+
+        let timestamp = 123;
+        let error_idx = 321;
+        let service_id = Uuid::new_v4();
+        let particle_id = format!("spell_{}_123", service_id);
+        let cp = cp(service_id.to_string(), particle_id.clone());
+        let error = LastError {
+            error_code: 1,
+            instruction: "(null)".to_string(),
+            message: "oh my god".to_string(),
+            peer_id: "peerid".to_string(),
+        };
+
+        assert!(
+            spell
+                .store_error_cp(error.clone(), timestamp, error_idx, cp)
+                .success
+        );
+
+        let errors = spell.get_all_errors();
+        assert!(errors.success);
+        let errors = errors.particle_errors;
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].particle_id, particle_id);
+        assert_eq!(errors[0].errors.len(), 1);
+
+        let e = &errors[0].errors[0];
+        assert_eq!(e.error_idx, error_idx);
+        assert_eq!(e.last_error.error_code, error.error_code);
+        assert_eq!(e.last_error.instruction, error.instruction);
+        assert_eq!(e.last_error.message, error.message);
+        assert_eq!(e.last_error.peer_id, error.peer_id);
+    }
+
+    #[marine_test(
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
+    )]
+    fn test_store_error_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
+        use marine_test_env::spell::LastError;
+
+        let timestamp = 111;
+        let error_idx = 2;
+        let service_id = Uuid::new_v4();
+        let cp = cp(service_id.to_string(), "spell_WRONG_123".to_string());
+
+        let errors_before: Vec<_> = spell.get_all_errors().particle_errors;
+
+        assert!(
+            !spell
+                .store_error_cp(
+                    LastError {
+                        error_code: 3,
+                        instruction: "(null)".to_string(),
+                        message: "oh my god".to_string(),
+                        peer_id: "peerid".to_string(),
+                    },
+                    timestamp,
+                    error_idx,
+                    cp
+                )
+                .success
+        );
+
+        // make sure no error was inserted
+        let errors_after: Vec<_> = spell.get_all_errors().particle_errors;
+        assert_eq!(errors_before.len(), errors_after.len());
+        for (before, after) in errors_before.into_iter().zip(errors_after) {
+            assert_eq!(before.errors.len(), after.errors.len())
+        }
+    }
 }
