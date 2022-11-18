@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 use std::convert::TryFrom;
 
-use crate::auth::is_by_spell;
 use eyre::WrapErr;
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
+use crate::auth::is_by_spell;
 use crate::result::UnitResult;
 use crate::schema::db;
 
@@ -192,10 +192,27 @@ pub fn get_all_errors() -> AllErrorsResult {
 }
 
 #[cfg(test)]
+use test_env_helpers::*;
+
+#[after_each]
+#[cfg(test)]
 mod tests {
     use marine_rs_sdk::CallParameters;
     use marine_rs_sdk_test::marine_test;
     use uuid::Uuid;
+
+    use crate::schema::DEFAULT_MAX_ERR_PARTICLES;
+
+    #[ctor::ctor]
+    /// usage of 'ctor' makes this functio nto run only once
+    fn before_all_tests() {
+        std::fs::remove_file("/tmp/spell.sqlite").ok();
+    }
+
+    /// after_each macro copy-pastes this function into every test
+    fn after_each() {
+        std::fs::remove_file("/tmp/spell.sqlite").ok();
+    }
 
     fn cp(service_id: String, particle_id: String) -> CallParameters {
         CallParameters {
@@ -215,6 +232,8 @@ mod tests {
     fn test_store_error(spell: marine_test_env::spell::ModuleInterface) {
         use marine_test_env::spell::{LastError, LastErrorEntry};
 
+        println!("test_store_error started");
+
         let timestamp = 123;
         let error_idx = 321;
         let service_id = Uuid::new_v4();
@@ -227,11 +246,8 @@ mod tests {
             peer_id: "peerid".to_string(),
         };
 
-        assert!(
-            spell
-                .store_error_cp(error.clone(), timestamp, error_idx, cp)
-                .success
-        );
+        let store = spell.store_error_cp(error.clone(), timestamp, error_idx, cp);
+        assert!(store.success, "{}", store.error);
 
         let errors = spell.get_all_errors();
         assert!(errors.success);
@@ -252,7 +268,7 @@ mod tests {
         config_path = "../tests_artifacts/Config.toml",
         modules_dir = "../tests_artifacts"
     )]
-    fn test_store_error_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
+    fn test_store_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
         use marine_test_env::spell::LastError;
 
         let timestamp = 111;
@@ -283,6 +299,39 @@ mod tests {
         assert_eq!(errors_before.len(), errors_after.len());
         for (before, after) in errors_before.into_iter().zip(errors_after) {
             assert_eq!(before.errors.len(), after.errors.len())
+        }
+    }
+
+    #[marine_test(
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
+    )]
+    fn test_error_lru(spell: marine_test_env::spell::ModuleInterface) {
+        use marine_test_env::spell::{LastError, LastErrorEntry};
+
+        let timestamp = 123;
+        let error_idx = 321;
+        let service_id = Uuid::new_v4();
+        let error = LastError {
+            error_code: 1,
+            instruction: "(null)".to_string(),
+            message: "oh my god".to_string(),
+            peer_id: "peerid".to_string(),
+        };
+
+        for i in 0..(DEFAULT_MAX_ERR_PARTICLES + 5) {
+            let particle_id = format!("spell_{}_{}", service_id, i);
+            let cp = cp(service_id.to_string(), particle_id.clone());
+            for _ in 0..2 {
+                let store = spell.store_error_cp(error.clone(), timestamp, error_idx, cp.clone());
+                assert!(store.success, "{} {}", i, store.error);
+            }
+        }
+
+        let errors: Vec<_> = spell.get_all_errors().particle_errors;
+        assert_eq!(errors.len(), DEFAULT_MAX_ERR_PARTICLES);
+        for err in errors {
+            assert_eq!(err.errors.len(), 2);
         }
     }
 }

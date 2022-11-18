@@ -13,7 +13,10 @@ marine-sqlite-connector = "0.6.0"
 eyre = "0.6.8"
 cid = "0.8.6"
 thiserror = "1.0.37"
+fstrings = "0.2.3"
 
 [dev-dependencies]
 marine-rs-sdk-test = "0.8.1"
 uuid = "1.2.1"
+test-env-helpers = "0.2.2"
+ctor = "0.1.26"
