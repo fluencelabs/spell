@@ -191,10 +191,7 @@ pub fn get_all_errors() -> AllErrorsResult {
     }
 }
 
-#[cfg(test)]
-use test_env_helpers::*;
-
-#[after_each]
+#[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
     use marine_rs_sdk::CallParameters;
@@ -204,7 +201,7 @@ mod tests {
     use crate::schema::DEFAULT_MAX_ERR_PARTICLES;
 
     #[ctor::ctor]
-    /// usage of 'ctor' makes this functio nto run only once
+    /// usage of 'ctor' makes this function run only once
     fn before_all_tests() {
         std::fs::remove_file("/tmp/spell.sqlite").ok();
     }
