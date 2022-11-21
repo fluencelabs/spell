@@ -9,6 +9,6 @@ pub enum SpellError {
         #[source]
         SqliteError,
     ),
-    #[error("Key {0} does not exist")]
+    #[error("Key '{0}' does not exist")]
     KeyNotExists(String),
 }

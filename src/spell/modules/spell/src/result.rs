@@ -24,3 +24,12 @@ impl UnitResult {
         }
     }
 }
+
+impl From<eyre::Result<()>> for UnitResult {
+    fn from(value: eyre::Result<()>) -> Self {
+        match value {
+            Ok(_) => UnitResult::ok(),
+            Err(e) => UnitResult::error(e),
+        }
+    }
+}
