@@ -5,7 +5,7 @@ use std::io::Write;
 use marine_rs_sdk::marine;
 
 use crate::auth::is_by_creator;
-use crate::result::UnitResult;
+use crate::value::UnitValue;
 
 const SCRIPT_ENV: &str = "script";
 const SCRIPT_FILE: &str = "/tmp/script.air";
@@ -32,9 +32,9 @@ pub struct CID {
 }
 
 #[marine]
-pub fn set_script_source_to_file(script: String) -> UnitResult {
+pub fn set_script_source_to_file(script: String) -> UnitValue {
     if !is_by_creator() {
-        return UnitResult::error("Only owner of the service can set the script");
+        return UnitValue::error("Only owner of the service can set the script");
     }
 
     let write = OpenOptions::new()
@@ -44,11 +44,11 @@ pub fn set_script_source_to_file(script: String) -> UnitResult {
         .map(|mut f| f.write_all(script.as_bytes()));
 
     match write {
-        Ok(_) => UnitResult::ok(),
+        Ok(_) => UnitValue::ok(),
         Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
-            UnitResult::error("Script can be set only once, and it was already set")
+            UnitValue::error("Script can be set only once, and it was already set")
         }
-        Err(e) => UnitResult::error(format!("Error writing script to {}: {}", SCRIPT_FILE, e)),
+        Err(e) => UnitValue::error(format!("Error writing script to {}: {}", SCRIPT_FILE, e)),
     }
 }
 

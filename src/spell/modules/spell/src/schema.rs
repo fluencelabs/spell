@@ -17,7 +17,7 @@ pub fn db() -> Connection {
 pub fn create() {
     db().execute(
         f!(r#"
-            CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER);
+            CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER, list_index INTEGER);
 
             -- particles stored in the database, LRU-like
             CREATE TABLE IF NOT EXISTS particles (particle_id TEXT PRIMARY KEY, timestamp INTEGER);

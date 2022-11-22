@@ -4,10 +4,11 @@
 extern crate fstrings;
 
 pub mod auth;
+pub mod collection_kv;
 pub mod error;
 pub mod error_handling;
 pub mod kv;
-pub mod result;
+pub mod value;
 pub mod schema;
 pub mod script;
 

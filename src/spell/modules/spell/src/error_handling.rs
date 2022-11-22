@@ -6,7 +6,7 @@ use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
 use crate::auth::is_by_spell;
-use crate::result::UnitResult;
+use crate::value::UnitValue;
 use crate::schema::db;
 
 /// The `%last_error%` content.
@@ -69,23 +69,23 @@ impl TryFrom<&mut Statement> for LastErrorEntry {
 #[marine]
 #[derive(Clone, Debug)]
 pub struct ParticleErrors {
-    particle_id: String,
-    errors: Vec<LastErrorEntry>,
+    pub particle_id: String,
+    pub errors: Vec<LastErrorEntry>,
 }
 
 #[marine]
 pub struct AllErrorsResult {
-    particle_errors: Vec<ParticleErrors>,
-    success: bool,
-    error: String,
+    pub particle_errors: Vec<ParticleErrors>,
+    pub success: bool,
+    pub error: String,
 }
 
 #[marine]
-pub fn store_error(error: LastError, particle_timestamp: u64, error_idx: u32) -> UnitResult {
+pub fn store_error(error: LastError, particle_timestamp: u64, error_idx: u32) -> UnitValue {
     let call_parameters = marine_rs_sdk::get_call_parameters();
 
     if !is_by_spell(&call_parameters) {
-        return UnitResult::error("store_error can be called only by the associated spell script");
+        return UnitValue::error("store_error can be called only by the associated spell script");
     }
 
     let result: eyre::Result<()> = try {
@@ -109,8 +109,8 @@ pub fn store_error(error: LastError, particle_timestamp: u64, error_idx: u32) ->
     };
 
     match result {
-        Ok(_) => UnitResult::ok(),
-        Err(e) => UnitResult::error(format!("Error storing error: {}", e)),
+        Ok(_) => UnitValue::ok(),
+        Err(e) => UnitValue::error(format!("Error storing error: {}", e)),
     }
 }
 

@@ -1,26 +1,12 @@
 use marine_rs_sdk::marine;
-use marine_sqlite_connector::State;
+use marine_sqlite_connector::{State, Statement};
 
 use crate::error::SpellError::*;
-use crate::result::UnitResult;
+use crate::value::{StringValue, U32Value, UnitValue};
 use crate::schema::db;
 
 #[marine]
-pub struct StringValue {
-    pub str: String,
-    pub success: bool,
-    pub error: String,
-}
-
-#[marine]
-pub struct U32Value {
-    pub num: u32,
-    pub success: bool,
-    pub error: String,
-}
-
-#[marine]
-pub fn set_string(key: &str, value: String) -> UnitResult {
+pub fn set_string(key: &str, value: String) -> UnitValue {
     let result: eyre::Result<()> = try {
         let mut statement = db().prepare("INSERT INTO kv (key, string) VALUES (?, ?)")?;
         statement.bind(1, key)?;
@@ -28,9 +14,14 @@ pub fn set_string(key: &str, value: String) -> UnitResult {
         statement.next()?;
     };
 
-    match result {
-        Ok(_) => UnitResult::ok(),
-        Err(e) => UnitResult::error(e),
+    result.into()
+}
+
+pub fn read_string(statement: &mut Statement, key: &str, idx: usize) -> eyre::Result<String> {
+    if let State::Row = statement.next()? {
+        Ok(statement.read::<String>(idx)?)
+    } else {
+        Err(KeyNotExists(key.to_string()))?
     }
 }
 
@@ -39,29 +30,14 @@ pub fn get_string(key: &str) -> StringValue {
     let result: eyre::Result<String> = try {
         let mut statement = db().prepare("SELECT string FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
-        if let State::Row = statement.next()? {
-            statement.read::<String>(0)?
-        } else {
-            Err(KeyNotExists(key.to_string()))?
-        }
+        read_string(&mut statement, key, 0)?
     };
 
-    match result {
-        Ok(str) => StringValue {
-            str,
-            success: true,
-            error: <_>::default(),
-        },
-        Err(e) => StringValue {
-            str: <_>::default(),
-            success: false,
-            error: e.to_string(),
-        },
-    }
+    result.into()
 }
 
 #[marine]
-pub fn set_u32(key: &str, value: u32) -> UnitResult {
+pub fn set_u32(key: &str, value: u32) -> UnitValue {
     let result: eyre::Result<()> = try {
         let mut statement = db().prepare("INSERT INTO kv (key, u32) VALUES (?, ?)")?;
         statement.bind(1, key)?;
@@ -84,24 +60,13 @@ pub fn get_u32(key: &str) -> U32Value {
         }
     };
 
-    match result {
-        Ok(num) => U32Value {
-            num,
-            success: true,
-            error: <_>::default(),
-        },
-        Err(e) => U32Value {
-            num: <_>::default(),
-            success: false,
-            error: e.to_string(),
-        },
-    }
+    result.into()
 }
 
 #[marine]
 /// Deletes a key (and associated value) from K/V.
 /// Always succeeds.
-pub fn remove_key(key: &str) -> UnitResult {
+pub fn remove_key(key: &str) -> UnitValue {
     let result: eyre::Result<()> = try {
         let mut statement = db().prepare("DELETE FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
@@ -111,9 +76,21 @@ pub fn remove_key(key: &str) -> UnitResult {
     result.into()
 }
 
+#[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
     use marine_rs_sdk_test::marine_test;
+
+    #[ctor::ctor]
+    /// usage of 'ctor' makes this function run only once
+    fn before_all_tests() {
+        std::fs::remove_file("/tmp/spell.sqlite").ok();
+    }
+
+    /// after_each macro copy-pastes this function into every test
+    fn after_each() {
+        std::fs::remove_file("/tmp/spell.sqlite").ok();
+    }
 
     #[marine_test(
         config_path = "../tests_artifacts/Config.toml",
