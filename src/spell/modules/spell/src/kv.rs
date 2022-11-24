@@ -141,7 +141,7 @@ mod tests {
 
             let get = spell.get_u32(key.into());
             assert!(!get.success);
-            assert_eq!(get.error, format!("Key '{}' does not exist", key));
+            assert!(get.error.starts_with(format!("Key '{}' does not exist", key).as_str()));
         }
     }
 }

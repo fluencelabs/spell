@@ -1,4 +1,4 @@
-use marine_rs_sdk::marine;
+use marine_rs_sdk::{marine, CallParameters};
 
 fn format_error(e: eyre::Report) -> String {
     format!("{:?}", e)
@@ -105,6 +105,38 @@ impl From<eyre::Result<u32>> for U32Value {
                 success: false,
                 error: format_error(e),
             },
+        }
+    }
+}
+
+#[marine]
+pub struct LocationValue {
+    pub relay: String,
+    pub host: String,
+    pub service_id: String,
+
+    pub success: bool,
+    pub error: String
+}
+
+impl LocationValue {
+    pub fn error(error: eyre::Report) -> Self {
+        Self {
+            relay: <_>::default(),
+            host: <_>::default(),
+            service_id: <_>::default(),
+            success: false,
+            error: format_error(error),
+        }
+    }
+
+    pub fn success(relay: String, params: CallParameters) -> Self {
+        Self {
+            relay,
+            host: params.host_id,
+            service_id: params.service_id,
+            success: true,
+            error: <_>::default(),
         }
     }
 }

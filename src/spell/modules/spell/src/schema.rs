@@ -17,6 +17,8 @@ pub fn db() -> Connection {
 pub fn create() {
     db().execute(
         f!(r#"
+            CREATE TABLE IF NOT EXISTS relay (relay TEXT);
+
             CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER, list_index INTEGER);
 
             -- particles stored in the database, LRU-like

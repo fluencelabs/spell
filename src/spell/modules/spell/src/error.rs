@@ -11,4 +11,6 @@ pub enum SpellError {
     ),
     #[error("Key '{0}' does not exist")]
     KeyNotExists(String),
+    #[error("Location not available: relay was not set")]
+    NoRelay
 }

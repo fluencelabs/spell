@@ -6,8 +6,8 @@ use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
 use crate::auth::is_by_spell;
-use crate::value::UnitValue;
 use crate::schema::db;
+use crate::value::UnitValue;
 
 /// The `%last_error%` content.
 #[marine]
@@ -227,7 +227,7 @@ mod tests {
         modules_dir = "../tests_artifacts"
     )]
     fn test_store_error(spell: marine_test_env::spell::ModuleInterface) {
-        use marine_test_env::spell::{LastError, LastErrorEntry};
+        use marine_test_env::spell::LastError;
 
         println!("test_store_error started");
 
@@ -304,7 +304,7 @@ mod tests {
         modules_dir = "../tests_artifacts"
     )]
     fn test_error_lru(spell: marine_test_env::spell::ModuleInterface) {
-        use marine_test_env::spell::{LastError, LastErrorEntry};
+        use marine_test_env::spell::LastError;
 
         let timestamp = 123;
         let error_idx = 321;

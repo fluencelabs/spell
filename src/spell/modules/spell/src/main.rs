@@ -11,6 +11,7 @@ pub mod kv;
 pub mod value;
 pub mod schema;
 pub mod script;
+pub mod location;
 
 extern crate core;
 

@@ -90,9 +90,21 @@ pub fn list_get_strings(key: &str) -> StringListValue {
     result.into()
 }
 
+#[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
     use marine_rs_sdk_test::marine_test;
+
+    #[ctor::ctor]
+    /// usage of 'ctor' makes this function run only once
+    fn before_all_tests() {
+        std::fs::remove_file("/tmp/spell.sqlite").ok();
+    }
+
+    /// after_each macro copy-pastes this function into every test
+    fn after_each() {
+        std::fs::remove_file("/tmp/spell.sqlite").ok();
+    }
 
     #[marine_test(
         config_path = "../tests_artifacts/Config.toml",
