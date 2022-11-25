@@ -18,3 +18,7 @@ Cargo.lock
 .repl_history
 .vscode/settings.json
 src/aqua/*.ts
+
+**/artifacts
+**/tests_artifacts
+**/*.tar.gz
