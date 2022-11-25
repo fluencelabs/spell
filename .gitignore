@@ -19,6 +19,6 @@ Cargo.lock
 .vscode/settings.json
 src/aqua/*.ts
 
-**/artifacts
-**/tests_artifacts
+**/tests_artifacts/*.wasm
+**/artifacts/*.wasm
 **/*.tar.gz
