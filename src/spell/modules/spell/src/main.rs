@@ -1,7 +1,10 @@
 #![feature(try_blocks)]
 
+extern crate core;
 #[macro_use]
 extern crate fstrings;
+
+use marine_rs_sdk::module_manifest;
 
 pub mod auth;
 pub mod collection_kv;
@@ -13,10 +16,6 @@ pub mod schema;
 pub mod script;
 pub mod trigger_config;
 pub mod value;
-
-extern crate core;
-
-use marine_rs_sdk::module_manifest;
 
 module_manifest!();
 

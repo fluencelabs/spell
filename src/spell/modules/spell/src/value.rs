@@ -1,5 +1,6 @@
-use crate::error::SpellError;
 use marine_rs_sdk::{marine, CallParameters};
+
+use crate::error::SpellError;
 
 pub fn format_error(e: impl std::fmt::Debug) -> String {
     format!("{:?}", e)

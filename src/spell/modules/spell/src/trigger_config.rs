@@ -1,8 +1,8 @@
-use crate::auth::is_by_creator;
-use crate::error::SpellError::{NoTriggerConfig, SetTriggerConfigForbidden};
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::State;
 
+use crate::auth::is_by_creator;
+use crate::error::SpellError::{NoTriggerConfig, SetTriggerConfigForbidden};
 use crate::schema::db;
 use crate::value::{format_error, UnitValue};
 
@@ -170,7 +170,10 @@ mod tests {
     )]
     fn get_no_trigger_config(spell: marine_test_env::spell::ModuleInterface) {
         let get = spell.get_trigger_config();
-        assert_eq!(get.success, false, "get succeeded without trigger config! wrong!");
+        assert_eq!(
+            get.success, false,
+            "get succeeded without trigger config! wrong!"
+        );
     }
 
     #[marine_test(
@@ -179,7 +182,8 @@ mod tests {
     )]
     fn set_empty_trigger_config(spell: marine_test_env::spell::ModuleInterface) {
         let empty_config: crate::trigger_config::TriggerConfig = <_>::default();
-        let empty_config: marine_test_env::spell::TriggerConfig = unsafe { std::mem::transmute(empty_config) };
+        let empty_config: marine_test_env::spell::TriggerConfig =
+            unsafe { std::mem::transmute(empty_config) };
 
         let set = spell.set_trigger_config(empty_config);
         assert!(set.success, "set empty config failed: {}", set.error);
@@ -188,7 +192,8 @@ mod tests {
         assert!(get.success, "get empty config failed: {}", get.error);
 
         let empty_config: crate::trigger_config::TriggerConfig = <_>::default();
-        let config: crate::trigger_config::TriggerConfig = unsafe { std::mem::transmute(get.config) };
+        let config: crate::trigger_config::TriggerConfig =
+            unsafe { std::mem::transmute(get.config) };
         assert_eq!(config, empty_config);
     }
 
@@ -197,7 +202,9 @@ mod tests {
         modules_dir = "../tests_artifacts"
     )]
     fn set_trigger_config(spell: marine_test_env::spell::ModuleInterface) {
-        use marine_test_env::spell::{TriggerConfig, ClockConfig, ConnectionPoolConfig, BlockChainConfig};
+        use marine_test_env::spell::{
+            BlockChainConfig, ClockConfig, ConnectionPoolConfig, TriggerConfig,
+        };
 
         let config = TriggerConfig {
             clock: ClockConfig {
@@ -221,8 +228,10 @@ mod tests {
         let get = spell.get_trigger_config();
         assert!(get.success, "get config failed: {}", get.error);
 
-        let expected_config: crate::trigger_config::TriggerConfig = unsafe { std::mem::transmute(config) };
-        let loaded_config: crate::trigger_config::TriggerConfig = unsafe { std::mem::transmute(get.config) };
+        let expected_config: crate::trigger_config::TriggerConfig =
+            unsafe { std::mem::transmute(config) };
+        let loaded_config: crate::trigger_config::TriggerConfig =
+            unsafe { std::mem::transmute(get.config) };
         assert_eq!(expected_config, loaded_config);
     }
 }
