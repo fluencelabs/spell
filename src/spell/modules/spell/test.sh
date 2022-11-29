@@ -9,5 +9,5 @@ cd "$(dirname "$0")"
 rm -f /tmp/spell.sqlite
 
 marine build --release
-cp target/wasm32-wasi/release/spell.wasm tests_artifacts
+cp target/wasm32-wasi/release/spell.wasm artifacts/
 cargo test --release -- --nocapture --test-threads 1
