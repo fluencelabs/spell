@@ -1,6 +1,5 @@
 #![feature(try_blocks)]
 
-extern crate core;
 #[macro_use]
 extern crate fstrings;
 
