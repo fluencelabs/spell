@@ -3,8 +3,8 @@ use marine_rs_sdk::marine;
 use marine_sqlite_connector::State;
 
 use crate::kv::read_string;
-use crate::value::{StringListValue, StringValue, UnitValue};
 use crate::schema::db;
+use crate::value::{StringListValue, StringValue, UnitValue};
 
 #[marine]
 pub fn list_push_string(key: &str, value: String) -> UnitValue {
@@ -33,11 +33,13 @@ pub fn list_push_string(key: &str, value: String) -> UnitValue {
 pub fn list_pop_string(key: &str) -> StringValue {
     let db = db();
     let result: eyre::Result<String> = try {
-        let mut get = db.prepare(r#"
+        let mut get = db.prepare(
+            r#"
             SELECT * FROM kv
                 WHERE key = ?
                 AND list_index = ((SELECT COUNT(*) FROM kv WHERE key = ?) - 1)
-        "#)?;
+        "#,
+        )?;
         get.bind(1, key)?;
         get.bind(2, key)?;
         let string = read_string(&mut get, key, 1)?;
@@ -136,7 +138,13 @@ mod tests {
         let check_len = |spell: &mut SPELL, len| {
             let get = spell.list_get_strings(key.into());
             assert!(get.success, "list_get_strings failed {}", get.error);
-            assert_eq!(get.strings.len(), len, "expected {}, got {}", len, get.strings.len());
+            assert_eq!(
+                get.strings.len(),
+                len,
+                "expected {}, got {}",
+                len,
+                get.strings.len()
+            );
         };
 
         let pop = |spell: &mut SPELL, expectation| {

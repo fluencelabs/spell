@@ -1,6 +1,7 @@
+use crate::error::SpellError;
 use marine_rs_sdk::{marine, CallParameters};
 
-fn format_error(e: eyre::Report) -> String {
+pub fn format_error(e: impl std::fmt::Debug) -> String {
     format!("{:?}", e)
 }
 
@@ -26,6 +27,10 @@ impl UnitValue {
             error: error.as_ref().to_string(),
         }
     }
+
+    pub fn spell_error(error: SpellError) -> Self {
+        Self::error(format_error(error))
+    }
 }
 
 impl From<eyre::Result<()>> for UnitValue {
@@ -34,6 +39,12 @@ impl From<eyre::Result<()>> for UnitValue {
             Ok(_) => UnitValue::ok(),
             Err(e) => UnitValue::error(format_error(e)),
         }
+    }
+}
+
+impl From<SpellError> for UnitValue {
+    fn from(error: SpellError) -> Self {
+        UnitValue::spell_error(error)
     }
 }
 
@@ -116,7 +127,7 @@ pub struct LocationValue {
     pub service_id: String,
 
     pub success: bool,
-    pub error: String
+    pub error: String,
 }
 
 impl LocationValue {

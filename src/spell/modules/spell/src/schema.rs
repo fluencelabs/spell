@@ -17,6 +17,15 @@ pub fn db() -> Connection {
 pub fn create() {
     db().execute(
         f!(r#"
+            CREATE TABLE IF NOT EXISTS trigger_config (
+                -- clock config
+                start_sec INTEGER, end_sec INTEGER, period_sec INTEGER,
+                -- connection pool config
+                connect INTEGER, disconnect INTEGER,
+                -- blockchain config
+                start_block INTEGER, end_block INTEGER
+            );
+
             CREATE TABLE IF NOT EXISTS relay (relay TEXT);
 
             CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER, list_index INTEGER);

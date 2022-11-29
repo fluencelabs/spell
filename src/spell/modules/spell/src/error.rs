@@ -12,5 +12,13 @@ pub enum SpellError {
     #[error("Key '{0}' does not exist")]
     KeyNotExists(String),
     #[error("Location not available: relay was not set")]
-    NoRelay
+    NoRelay,
+    #[error("Only owner of the spell can set relay peer id")]
+    SetRelayForbidden,
+    #[error("Relay was already set and cannot be changed")]
+    RelayAlreadySet,
+    #[error("Only owner of the spell can set trigger config")]
+    SetTriggerConfigForbidden,
+    #[error("Trigger Config is not set. Use set_trigger_config to set it.")]
+    NoTriggerConfig,
 }

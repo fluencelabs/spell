@@ -8,10 +8,11 @@ pub mod collection_kv;
 pub mod error;
 pub mod error_handling;
 pub mod kv;
-pub mod value;
+pub mod location;
 pub mod schema;
 pub mod script;
-pub mod location;
+pub mod trigger_config;
+pub mod value;
 
 extern crate core;
 

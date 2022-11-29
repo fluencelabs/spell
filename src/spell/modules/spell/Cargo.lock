@@ -599,6 +599,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "fluence-spell"
+version = "0.1.0"
+dependencies = [
+ "cid",
+ "ctor",
+ "eyre",
+ "fstrings",
+ "marine-rs-sdk",
+ "marine-rs-sdk-test",
+ "marine-sqlite-connector",
+ "test-env-helpers",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1669,22 +1685,6 @@ name = "smallvec"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0"
-
-[[package]]
-name = "spell"
-version = "0.1.0"
-dependencies = [
- "cid",
- "ctor",
- "eyre",
- "fstrings",
- "marine-rs-sdk",
- "marine-rs-sdk-test",
- "marine-sqlite-connector",
- "test-env-helpers",
- "thiserror",
- "uuid",
-]
 
 [[package]]
 name = "static_assertions"

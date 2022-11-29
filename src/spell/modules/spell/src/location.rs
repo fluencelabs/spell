@@ -2,7 +2,7 @@ use marine_rs_sdk::{get_call_parameters, marine};
 use marine_sqlite_connector::State;
 
 use crate::auth::is_by_creator;
-use crate::error::SpellError::NoRelay;
+use crate::error::SpellError::{NoRelay, RelayAlreadySet, SetRelayForbidden};
 use crate::schema::db;
 use crate::value::{LocationValue, UnitValue};
 
@@ -18,11 +18,11 @@ fn get_relay() -> eyre::Result<String> {
 #[marine]
 pub fn set_relay_peer_id(relay_peer_id: String) -> UnitValue {
     if !is_by_creator() {
-        return UnitValue::error("Only owner of the service can set relay peer id");
+        return SetRelayForbidden.into();
     }
 
     if get_relay().is_ok() {
-        return UnitValue::error("Relay was already set and cannot be changed");
+        return RelayAlreadySet.into();
     }
 
     let result: eyre::Result<()> = try {
@@ -31,7 +31,7 @@ pub fn set_relay_peer_id(relay_peer_id: String) -> UnitValue {
         loop {
             match statement.next()? {
                 State::Done => break,
-                State::Row => continue
+                State::Row => continue,
             }
         }
     };
@@ -43,7 +43,7 @@ pub fn set_relay_peer_id(relay_peer_id: String) -> UnitValue {
 pub fn get_location() -> LocationValue {
     match get_relay() {
         Ok(relay) => LocationValue::success(relay, get_call_parameters()),
-        Err(e) => return LocationValue::error(e)
+        Err(e) => return LocationValue::error(e),
     }
 }
 
