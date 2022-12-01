@@ -4,8 +4,9 @@ use std::io::Write;
 
 use marine_rs_sdk::marine;
 
+use fluence_spell_dtos::value::UnitValue;
+
 use crate::auth::is_by_creator;
-use crate::value::UnitValue;
 
 const SCRIPT_ENV: &str = "script";
 const SCRIPT_FILE: &str = "/tmp/script.air";

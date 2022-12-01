@@ -5,9 +5,10 @@ use eyre::WrapErr;
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
+use fluence_spell_dtos::value::UnitValue;
+
 use crate::auth::is_by_spell;
 use crate::schema::db;
-use crate::value::UnitValue;
 
 /// The `%last_error%` content.
 #[marine]

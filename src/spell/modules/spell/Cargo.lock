@@ -605,6 +605,7 @@ dependencies = [
  "cid",
  "ctor",
  "eyre",
+ "fluence-spell-dtos",
  "fstrings",
  "marine-rs-sdk",
  "marine-rs-sdk-test",
@@ -612,6 +613,16 @@ dependencies = [
  "test-env-helpers",
  "thiserror",
  "uuid",
+]
+
+[[package]]
+name = "fluence-spell-dtos"
+version = "0.1.0"
+dependencies = [
+ "eyre",
+ "marine-rs-sdk",
+ "marine-sqlite-connector",
+ "thiserror",
 ]
 
 [[package]]

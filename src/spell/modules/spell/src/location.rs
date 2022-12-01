@@ -1,10 +1,11 @@
 use marine_rs_sdk::{get_call_parameters, marine};
 use marine_sqlite_connector::State;
 
+use fluence_spell_dtos::error::SpellError::{NoRelay, RelayAlreadySet, SetRelayForbidden};
+use fluence_spell_dtos::value::{LocationValue, UnitValue};
+
 use crate::auth::is_by_creator;
-use crate::error::SpellError::{NoRelay, RelayAlreadySet, SetRelayForbidden};
 use crate::schema::db;
-use crate::value::{LocationValue, UnitValue};
 
 fn get_relay() -> eyre::Result<String> {
     let mut statement = db().prepare("SELECT relay FROM relay LIMIT 1")?;

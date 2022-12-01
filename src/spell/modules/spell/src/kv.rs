@@ -1,9 +1,10 @@
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
-use crate::error::SpellError::*;
+use fluence_spell_dtos::error::SpellError::*;
+use fluence_spell_dtos::value::{StringValue, U32Value, UnitValue};
+
 use crate::schema::db;
-use crate::value::{StringValue, U32Value, UnitValue};
 
 #[marine]
 pub fn set_string(key: &str, value: String) -> UnitValue {

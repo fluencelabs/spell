@@ -2,9 +2,10 @@ use eyre::WrapErr;
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::State;
 
+use fluence_spell_dtos::value::{StringListValue, StringValue, UnitValue};
+
 use crate::kv::read_string;
 use crate::schema::db;
-use crate::value::{StringListValue, StringValue, UnitValue};
 
 #[marine]
 pub fn list_push_string(key: &str, value: String) -> UnitValue {
