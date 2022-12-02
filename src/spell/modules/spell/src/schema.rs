@@ -11,7 +11,10 @@ pub fn db() -> Connection {
     // } else {
     //     format!("/tmp/spell.sqlite")
     // };
-    marine_sqlite_connector::open("/tmp/spell.sqlite").expect("open sqlite db")
+    use marine_rs_sdk::get_call_parameters;
+    let path = format!("/tmp/{}/spell.sqlite", get_call_parameters().service_id);
+
+    marine_sqlite_connector::open(path).expect("open sqlite db")
 }
 
 pub fn create() {
