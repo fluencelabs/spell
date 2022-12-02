@@ -204,12 +204,12 @@ mod tests {
     #[ctor::ctor]
     /// usage of 'ctor' makes this function run only once
     fn before_all_tests() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file("/tmp/spell_.sqlite").ok();
     }
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file("/tmp/spell_.sqlite").ok();
     }
 
     fn cp(service_id: String, particle_id: String) -> CallParameters {
@@ -230,8 +230,6 @@ mod tests {
     fn test_store_error(spell: marine_test_env::spell::ModuleInterface) {
         use marine_test_env::spell::LastError;
 
-        println!("test_store_error started");
-
         let timestamp = 123;
         let error_idx = 321;
         let service_id = Uuid::new_v4();
@@ -244,10 +242,10 @@ mod tests {
             peer_id: "peerid".to_string(),
         };
 
-        let store = spell.store_error_cp(error.clone(), timestamp, error_idx, cp);
+        let store = spell.store_error_cp(error.clone(), timestamp, error_idx, cp.clone());
         assert!(store.success, "{}", store.error);
 
-        let errors = spell.get_all_errors();
+        let errors = spell.get_all_errors_cp(cp);
         assert!(errors.success);
         let errors = errors.particle_errors;
         assert_eq!(errors.len(), 1);
@@ -326,7 +324,8 @@ mod tests {
             }
         }
 
-        let errors: Vec<_> = spell.get_all_errors().particle_errors;
+        let cp = cp(service_id.to_string(), "".to_string());
+        let errors: Vec<_> = spell.get_all_errors_cp(cp).particle_errors;
         assert_eq!(errors.len(), DEFAULT_MAX_ERR_PARTICLES);
         for err in errors {
             assert_eq!(err.errors.len(), 2);
