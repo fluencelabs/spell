@@ -1,4 +1,5 @@
 use marine_rs_sdk::{CallParameters, marine};
+use serde::Deserialize;
 
 use crate::error::SpellError;
 
@@ -7,7 +8,7 @@ pub fn format_error(e: impl std::fmt::Debug) -> String {
 }
 
 #[marine]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 pub struct UnitValue {
     pub success: bool,
@@ -50,6 +51,7 @@ impl From<SpellError> for UnitValue {
 }
 
 #[marine]
+#[derive(Deserialize)]
 pub struct StringValue {
     pub str: String,
     pub success: bool,
@@ -74,6 +76,7 @@ impl From<eyre::Result<String>> for StringValue {
 }
 
 #[marine]
+#[derive(Deserialize)]
 pub struct StringListValue {
     pub strings: Vec<String>,
     pub success: bool,
@@ -98,6 +101,7 @@ impl From<eyre::Result<Vec<String>>> for StringListValue {
 }
 
 #[marine]
+#[derive(Deserialize)]
 pub struct U32Value {
     pub num: u32,
     pub success: bool,
@@ -122,6 +126,7 @@ impl From<eyre::Result<u32>> for U32Value {
 }
 
 #[marine]
+#[derive(Deserialize)]
 pub struct LocationValue {
     pub relay: String,
     pub host: String,
@@ -154,6 +159,7 @@ impl LocationValue {
 }
 
 #[marine]
+#[derive(Deserialize)]
 pub struct ScriptValue {
     pub source_code: String,
     pub success: bool,
@@ -161,6 +167,7 @@ pub struct ScriptValue {
 }
 
 #[marine]
+#[derive(Deserialize)]
 pub struct CIDValue {
     pub v1_str: String,
     pub success: bool,

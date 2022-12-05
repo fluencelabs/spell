@@ -1,7 +1,8 @@
 use marine_rs_sdk::marine;
+use serde::Deserialize;
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct TriggerConfigValue {
     pub config: TriggerConfig,
     pub success: bool,
@@ -9,7 +10,7 @@ pub struct TriggerConfigValue {
 }
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct TriggerConfig {
     /// Trigger spell by clock
     pub clock: ClockConfig,
@@ -20,7 +21,7 @@ pub struct TriggerConfig {
 }
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct ClockConfig {
     /// Defines when to start trigger spell.
     /// Unix time. 0 means 'do not subscribe'
@@ -35,7 +36,7 @@ pub struct ClockConfig {
 }
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct BlockChainConfig {
     /// Defines since what block to start trigger spell
     /// 0 means 'do not subscribe'
@@ -47,7 +48,7 @@ pub struct BlockChainConfig {
 }
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
 pub struct ConnectionPoolConfig {
     /// Defines whether to trigger spell on connect events
     pub connect: bool,
