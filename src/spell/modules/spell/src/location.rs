@@ -53,15 +53,17 @@ pub fn get_location() -> LocationValue {
 mod tests {
     use marine_rs_sdk_test::marine_test;
 
+    use crate::schema::DB_FILE;
+
     #[ctor::ctor]
     /// usage of 'ctor' makes this function run only once
     fn before_all_tests() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     #[marine_test(

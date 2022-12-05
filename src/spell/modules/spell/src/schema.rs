@@ -2,6 +2,7 @@ use fstrings::f;
 use marine_sqlite_connector::Connection;
 
 pub const DEFAULT_MAX_ERR_PARTICLES: usize = 50;
+pub const DB_FILE: &'static str = "/tmp/spell.sqlite";
 
 pub fn db() -> Connection {
     // use rand::prelude::*;
@@ -9,9 +10,9 @@ pub fn db() -> Connection {
     // let db_path = if std::path::Path::new("/tmp/this_is_test").exists() {
     //     format!("/tmp/{}_spell.sqlite", rand::random::<u32>())
     // } else {
-    //     format!("/tmp/spell.sqlite")
+    //     format!(DB_FILE)
     // };
-    marine_sqlite_connector::open("/tmp/spell.sqlite").expect("open sqlite db")
+    marine_sqlite_connector::open(DB_FILE).expect("open sqlite db")
 }
 
 pub fn create() {

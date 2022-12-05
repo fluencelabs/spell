@@ -6,16 +6,18 @@ use fluence_spell_dtos::value::{StringValue, U32Value, UnitValue};
 
 use crate::schema::db;
 
+pub fn store_string(key: &str, value: String) -> eyre::Result<()> {
+    let mut statement = db().prepare("INSERT OR REPLACE INTO kv (key, string) VALUES (?, ?)")?;
+    statement.bind(1, key)?;
+    statement.bind(2, value.as_str())?;
+    statement.next()?;
+
+    Ok(())
+}
+
 #[marine]
 pub fn set_string(key: &str, value: String) -> UnitValue {
-    let result: eyre::Result<()> = try {
-        let mut statement = db().prepare("INSERT OR REPLACE INTO kv (key, string) VALUES (?, ?)")?;
-        statement.bind(1, key)?;
-        statement.bind(2, value.as_str())?;
-        statement.next()?;
-    };
-
-    result.into()
+    store_string(key, value).into()
 }
 
 pub fn read_string(statement: &mut Statement, key: &str, idx: usize) -> eyre::Result<String> {
@@ -82,20 +84,22 @@ pub fn remove_key(key: &str) -> UnitValue {
 mod tests {
     use marine_rs_sdk_test::marine_test;
 
+    use crate::schema::DB_FILE;
+
     #[ctor::ctor]
     /// usage of 'ctor' makes this function run only once
     fn before_all_tests() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
+        config_path = "../../tests_artifacts/Config.toml",
+        modules_dir = "../../tests_artifacts"
     )]
     fn test_string(spell: marine_test_env::spell::ModuleInterface) {
         let key = "str".to_string();
@@ -107,8 +111,8 @@ mod tests {
     }
 
     #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
+        config_path = "../../tests_artifacts/Config.toml",
+        modules_dir = "../../tests_artifacts"
     )]
     fn test_u32(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num".to_string();
@@ -120,8 +124,8 @@ mod tests {
     }
 
     #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
+        config_path = "../../tests_artifacts/Config.toml",
+        modules_dir = "../../tests_artifacts"
     )]
     fn test_remove_key(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num";
@@ -149,8 +153,8 @@ mod tests {
     }
 
     #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
+        config_path = "../../tests_artifacts/Config.toml",
+        modules_dir = "../../tests_artifacts"
     )]
     fn test_u32_mutate(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num".to_string();

@@ -6,7 +6,6 @@ extern crate fstrings;
 use marine_rs_sdk::module_manifest;
 
 pub mod auth;
-pub mod collection_kv;
 pub mod error_handling;
 pub mod kv;
 pub mod location;

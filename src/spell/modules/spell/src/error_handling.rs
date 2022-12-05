@@ -199,17 +199,17 @@ mod tests {
     use marine_rs_sdk_test::marine_test;
     use uuid::Uuid;
 
-    use crate::schema::DEFAULT_MAX_ERR_PARTICLES;
+    use crate::schema::{DB_FILE, DEFAULT_MAX_ERR_PARTICLES};
 
     #[ctor::ctor]
     /// usage of 'ctor' makes this function run only once
     fn before_all_tests() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     fn cp(service_id: String, particle_id: String) -> CallParameters {

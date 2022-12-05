@@ -4,7 +4,7 @@ use marine_sqlite_connector::State;
 
 use fluence_spell_dtos::value::{StringListValue, StringValue, UnitValue};
 
-use crate::kv::read_string;
+use crate::kv::primitive::read_string;
 use crate::schema::db;
 
 #[marine]
@@ -98,20 +98,22 @@ pub fn list_get_strings(key: &str) -> StringListValue {
 mod tests {
     use marine_rs_sdk_test::marine_test;
 
+    use crate::schema::DB_FILE;
+
     #[ctor::ctor]
     /// usage of 'ctor' makes this function run only once
     fn before_all_tests() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file("/tmp/spell.sqlite").ok();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
+        config_path = "../../tests_artifacts/Config.toml",
+        modules_dir = "../../tests_artifacts"
     )]
     fn test_push_get(spell: marine_test_env::spell::ModuleInterface) {
         let key = "a";
@@ -129,8 +131,8 @@ mod tests {
     }
 
     #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
+        config_path = "../../tests_artifacts/Config.toml",
+        modules_dir = "../../tests_artifacts"
     )]
     fn test_push_pop_get(spell: marine_test_env::spell::ModuleInterface) {
         type SPELL = marine_test_env::spell::ModuleInterface;
