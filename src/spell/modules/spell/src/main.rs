@@ -16,4 +16,6 @@ pub mod trigger_config;
 
 module_manifest!();
 
-pub fn main() { }
+pub fn main() {
+    schema::create();
+}

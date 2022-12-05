@@ -105,12 +105,12 @@ mod tests {
     #[ctor::ctor]
     /// usage of 'ctor' makes this function run only once
     fn before_all_tests() {
-        std::fs::remove_file("/tmp/spell_.sqlite").ok();
+        std::fs::remove_file("/tmp/spell.sqlite").ok();
     }
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file("/tmp/spell_.sqlite").ok();
+        std::fs::remove_file("/tmp/spell.sqlite").ok();
     }
 
     #[marine_test(

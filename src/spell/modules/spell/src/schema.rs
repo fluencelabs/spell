@@ -1,4 +1,3 @@
-use std::path::Path;
 use fstrings::f;
 use marine_sqlite_connector::Connection;
 
@@ -12,22 +11,16 @@ pub fn db() -> Connection {
     // } else {
     //     format!("/tmp/spell.sqlite")
     // };
-
     use marine_rs_sdk::get_call_parameters;
-    let service_id = get_call_parameters().service_id;
-    let path = format!("/tmp/spell_{}.sqlite", service_id);
+    let path = format!("/tmp/{}/spell.sqlite", get_call_parameters().service_id);
 
-    if Path::new(&path).exists() {
-        return marine_sqlite_connector::open(&path).expect(format!("open sqlite db: {}", path).as_str());
-    } else {
-        let mut connection = marine_sqlite_connector::open(&path).expect(format!("open sqlite db: {}", path).as_str());
-        create(&mut connection);
-        return connection;
-    }
+    println!("SPELL. Path to DB is {}", path);
+
+    marine_sqlite_connector::open(path).expect("open sqlite db")
 }
 
-pub fn create(db: &mut Connection) {
-    db.execute(
+pub fn create() {
+    db().execute(
         f!(r#"
             CREATE TABLE IF NOT EXISTS trigger_config (
                 -- clock config
