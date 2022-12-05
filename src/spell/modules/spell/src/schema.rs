@@ -14,8 +14,6 @@ pub fn db() -> Connection {
     use marine_rs_sdk::get_call_parameters;
     let path = format!("/tmp/{}/spell.sqlite", get_call_parameters().service_id);
 
-    println!("SPELL. Path to DB is {}", path);
-
     marine_sqlite_connector::open(path).expect("open sqlite db")
 }
 

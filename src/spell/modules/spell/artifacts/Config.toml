@@ -11,7 +11,5 @@ modules_dir = "."
 
 [[module]]
     name = "spell"
-    logger_enabled = true
-
 
 
