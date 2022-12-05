@@ -114,11 +114,11 @@ jobs:
               throw e;
             }
 
-#      - name: Calculate SHA256
-#        run: |
-#          du -hs spell.tar.gz
-#          echo $(sha256sum spell.tar.gz)
-#          echo "SHA256=$(sha256sum spell.tar.gz | awk '{ print $1 }')" >> $GITHUB_ENV
+      - name: Calculate SHA256
+        run: |
+          du -hs spell.tar.gz
+          echo $(sha256sum spell.tar.gz)
+          echo "SHA256=$(sha256sum spell.tar.gz | awk '{ print $1 }')" >> $GITHUB_ENV
 
 #      - name: Update version in node-distro repo
 #        uses: benc-uk/workflow-dispatch@v1

@@ -1,4 +1,4 @@
-use marine_rs_sdk::{marine, CallParameters};
+use marine_rs_sdk::{CallParameters, marine};
 
 use crate::error::SpellError;
 
@@ -151,4 +151,18 @@ impl LocationValue {
             error: <_>::default(),
         }
     }
+}
+
+#[marine]
+pub struct ScriptValue {
+    pub source_code: String,
+    pub success: bool,
+    pub error: String,
+}
+
+#[marine]
+pub struct CIDValue {
+    pub v1_str: String,
+    pub success: bool,
+    pub error: String,
 }

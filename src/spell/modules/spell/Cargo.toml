@@ -14,7 +14,7 @@ eyre = "0.6.8"
 cid = "0.8.6"
 thiserror = "1.0.37"
 fstrings = "0.2.3"
-fluence-spell-dtos = { path = "spell-dtos", version = "0.1.0" }
+fluence-spell-dtos = { path = "spell-dtos", version = "0.1.1" }
 serde = "1.0.149"
 serde_json = "1.0.89"
 

@@ -4,7 +4,7 @@ use std::io::Write;
 
 use marine_rs_sdk::marine;
 
-use fluence_spell_dtos::value::UnitValue;
+use fluence_spell_dtos::value::{CIDValue, ScriptValue, UnitValue};
 
 use crate::auth::is_by_creator;
 
@@ -16,20 +16,6 @@ fn check_env() {
     if let Err(e) = std::env::var(SCRIPT_ENV) {
         panic!("Script was not found in env '{}': {}", SCRIPT_ENV, e)
     }
-}
-
-#[marine]
-pub struct Script {
-    pub source_code: String,
-    pub success: bool,
-    pub error: String,
-}
-
-#[marine]
-pub struct CID {
-    pub v1_str: String,
-    pub success: bool,
-    pub error: String,
 }
 
 #[marine]
@@ -54,14 +40,14 @@ pub fn set_script_source_to_file(script: String) -> UnitValue {
 }
 
 #[marine]
-pub fn get_script_source_from_file() -> Script {
+pub fn get_script_source_from_file() -> ScriptValue {
     match std::fs::read_to_string(SCRIPT_FILE) {
-        Ok(source_code) => Script {
+        Ok(source_code) => ScriptValue {
             source_code,
             success: true,
             error: <_>::default(),
         },
-        Err(e) => Script {
+        Err(e) => ScriptValue {
             source_code: <_>::default(),
             success: false,
             error: e.to_string(),
@@ -70,14 +56,14 @@ pub fn get_script_source_from_file() -> Script {
 }
 
 #[marine]
-pub fn get_script_source_from_env() -> Script {
+pub fn get_script_source_from_env() -> ScriptValue {
     match std::env::var(SCRIPT_ENV) {
-        Ok(source_code) => Script {
+        Ok(source_code) => ScriptValue {
             source_code,
             success: true,
             error: <_>::default(),
         },
-        Err(e) => Script {
+        Err(e) => ScriptValue {
             source_code: <_>::default(),
             success: false,
             error: e.to_string(),
@@ -88,7 +74,7 @@ pub fn get_script_source_from_env() -> Script {
 const SHA2_256: u64 = 0x12;
 
 #[marine]
-pub fn script_cid() -> CID {
+pub fn script_cid() -> CIDValue {
     use cid::multihash::{Code, MultihashDigest};
     use cid::Cid;
 
@@ -97,13 +83,13 @@ pub fn script_cid() -> CID {
         let digest = Code::Sha2_256.digest(script.source_code.as_bytes());
         let cid = Cid::new_v1(SHA2_256, digest);
 
-        CID {
+        CIDValue {
             v1_str: cid.to_string(),
             success: true,
             error: <_>::default(),
         }
     } else {
-        CID {
+        CIDValue {
             v1_str: <_>::default(),
             success: false,
             error: format!("error loading script: {}", script.error),
