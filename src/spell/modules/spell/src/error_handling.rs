@@ -82,7 +82,7 @@ pub struct AllErrorsResult {
 }
 
 #[marine]
-pub fn store_error(error: LastError, particle_timestamp: u64, error_idx: u32) -> UnitValue {
+pub fn store_error(error: LastError, error_idx: u32, particle_timestamp: u64) -> UnitValue {
     let call_parameters = marine_rs_sdk::get_call_parameters();
 
     if !is_by_spell(&call_parameters) {
@@ -244,7 +244,7 @@ mod tests {
             peer_id: "peerid".to_string(),
         };
 
-        let store = spell.store_error_cp(error.clone(), timestamp, error_idx, cp);
+        let store = spell.store_error_cp(error.clone(), error_idx, timestamp, cp);
         assert!(store.success, "{}", store.error);
 
         let errors = spell.get_all_errors();
@@ -285,8 +285,8 @@ mod tests {
                         message: "oh my god".to_string(),
                         peer_id: "peerid".to_string(),
                     },
-                    timestamp,
                     error_idx,
+                    timestamp,
                     cp
                 )
                 .success
@@ -321,7 +321,7 @@ mod tests {
             let particle_id = format!("spell_{}_{}", service_id, i);
             let cp = cp(service_id.to_string(), particle_id.clone());
             for _ in 0..2 {
-                let store = spell.store_error_cp(error.clone(), timestamp, error_idx, cp.clone());
+                let store = spell.store_error_cp(error.clone(), error_idx, timestamp, cp.clone());
                 assert!(store.success, "{} {}", i, store.error);
             }
         }
