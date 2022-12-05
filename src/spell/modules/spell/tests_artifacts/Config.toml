@@ -7,7 +7,7 @@ modules_dir = "."
 
     [module.wasi]
     preopened_files = ["/tmp"]
-    mapped_dirs = { "tmp" = "/tmp" }
+    mapped_dirs = { "tmp" = "." }
 
 [[module]]
     name = "spell"
