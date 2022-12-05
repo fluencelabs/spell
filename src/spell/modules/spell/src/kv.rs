@@ -9,7 +9,7 @@ use crate::schema::db;
 #[marine]
 pub fn set_string(key: &str, value: String) -> UnitValue {
     let result: eyre::Result<()> = try {
-        let mut statement = db().prepare("INSERT OR REPLACE INTO kv (key, string) VALUES (?, ?)")?;
+        let mut statement = db().prepare("INSERT INTO kv (key, string) VALUES (?, ?)")?;
         statement.bind(1, key)?;
         statement.bind(2, value.as_str())?;
         statement.next()?;
@@ -40,7 +40,7 @@ pub fn get_string(key: &str) -> StringValue {
 #[marine]
 pub fn set_u32(key: &str, value: u32) -> UnitValue {
     let result: eyre::Result<()> = try {
-        let mut statement = db().prepare("INSERT OR REPLACE INTO kv (key, u32) VALUES (?, ?)")?;
+        let mut statement = db().prepare("INSERT INTO kv (key, u32) VALUES (?, ?)")?;
         statement.bind(1, key)?;
         statement.bind(2, value as f64)?;
         statement.next()?;
@@ -146,24 +146,5 @@ mod tests {
                 .error
                 .starts_with(format!("Key '{}' does not exist", key).as_str()));
         }
-    }
-
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
-    fn test_u32_mutate(spell: marine_test_env::spell::ModuleInterface) {
-        let key = "num".to_string();
-        let num = 123;
-        let set = spell.set_u32(key.clone(), num);
-        assert!(set.success, "set_u32 failed: {}", set.error);
-        let get = spell.get_u32(key.clone());
-        assert_eq!(get.num, num, "get_u32 failed: {}", get.error);
-
-        let set = spell.set_u32(key.clone(), num * 2);
-        assert!(set.success, "set_u32 failed: {}", set.error);
-
-        let get = spell.get_u32(key);
-        assert_eq!(get.num, num * 2, "get_u32 failed: {}", get.error);
     }
 }

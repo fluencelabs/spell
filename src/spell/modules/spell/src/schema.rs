@@ -31,14 +31,7 @@ pub fn create() {
 
             CREATE TABLE IF NOT EXISTS relay (relay TEXT);
 
-            CREATE TABLE IF NOT EXISTS kv (
-                key TEXT NOT NULL,
-                string TEXT,
-                u32 INTEGER,
-                list_index INTEGER DEFAULT -1,
-
-                PRIMARY KEY(key, list_index)
-            );
+            CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER, list_index INTEGER);
 
             -- particles stored in the database, LRU-like
             CREATE TABLE IF NOT EXISTS particles (particle_id TEXT PRIMARY KEY, timestamp INTEGER);
