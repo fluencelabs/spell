@@ -19,4 +19,5 @@ fi
 
 cd ./artifacts
 tar --exclude="spell.tar.gz" -f spell.tar.gz -zcv ./*
+mkdir -p ../spell-distro/spell-service
 cp -v spell.wasm sqlite3.wasm Config.toml ../spell-distro/spell-service/
