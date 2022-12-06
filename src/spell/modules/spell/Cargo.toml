@@ -26,5 +26,6 @@ ctor = "0.1.26"
 
 [workspace]
 members = [
-    "spell-dtos"
+    "spell-dtos",
+    "spell-distro"
 ]

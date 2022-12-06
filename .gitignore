@@ -18,3 +18,4 @@ src/aqua/*.ts
 **/tests_artifacts/*.wasm
 **/artifacts/*.wasm
 **/*.tar.gz
+**/spell-service/*

@@ -1,0 +1,13 @@
+[package]
+name = "fluence-spell-distro"
+description = "distribution of a fuence spell service"
+version = "0.1.0"
+edition = "2021"
+include = [ "/src", "/spell-service", "build.rs", "Cargo.toml" ]
+license = "Apache-2.0"
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+built = "0.5.2"
