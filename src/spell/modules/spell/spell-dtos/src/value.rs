@@ -7,6 +7,11 @@ pub fn format_error(e: impl std::fmt::Debug) -> String {
     format!("{:?}", e)
 }
 
+pub trait SpellValueT {
+    fn is_success(&self) -> bool;
+    fn get_error(&self) -> String;
+}
+
 #[marine]
 #[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
@@ -44,6 +49,16 @@ impl From<eyre::Result<()>> for UnitValue {
     }
 }
 
+impl SpellValueT for UnitValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+
+    fn get_error(&self) -> String {
+        self.error.clone()
+    }
+}
+
 impl From<SpellError> for UnitValue {
     fn from(error: SpellError) -> Self {
         UnitValue::spell_error(error)
@@ -75,6 +90,16 @@ impl From<eyre::Result<String>> for StringValue {
     }
 }
 
+impl SpellValueT for StringValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+
+    fn get_error(&self) -> String {
+        self.error.clone()
+    }
+}
+
 #[marine]
 #[derive(Deserialize)]
 pub struct StringListValue {
@@ -100,6 +125,16 @@ impl From<eyre::Result<Vec<String>>> for StringListValue {
     }
 }
 
+impl SpellValueT for StringListValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+
+    fn get_error(&self) -> String {
+        self.error.clone()
+    }
+}
+
 #[marine]
 #[derive(Deserialize)]
 pub struct U32Value {
@@ -122,6 +157,16 @@ impl From<eyre::Result<u32>> for U32Value {
                 error: format_error(e),
             },
         }
+    }
+}
+
+impl SpellValueT for U32Value {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+
+    fn get_error(&self) -> String {
+        self.error.clone()
     }
 }
 
@@ -158,6 +203,16 @@ impl LocationValue {
     }
 }
 
+impl SpellValueT for LocationValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+
+    fn get_error(&self) -> String {
+        self.error.clone()
+    }
+}
+
 #[marine]
 #[derive(Deserialize)]
 pub struct ScriptValue {
@@ -166,10 +221,30 @@ pub struct ScriptValue {
     pub error: String,
 }
 
+impl SpellValueT for ScriptValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+
+    fn get_error(&self) -> String {
+        self.error.clone()
+    }
+}
+
 #[marine]
 #[derive(Deserialize)]
 pub struct CIDValue {
     pub v1_str: String,
     pub success: bool,
     pub error: String,
+}
+
+impl SpellValueT for CIDValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+
+    fn get_error(&self) -> String {
+        self.error.clone()
+    }
 }

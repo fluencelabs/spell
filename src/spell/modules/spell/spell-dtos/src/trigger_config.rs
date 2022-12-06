@@ -1,5 +1,6 @@
 use marine_rs_sdk::marine;
 use serde::Deserialize;
+use crate::value::SpellValueT;
 
 #[marine]
 #[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
@@ -7,6 +8,16 @@ pub struct TriggerConfigValue {
     pub config: TriggerConfig,
     pub success: bool,
     pub error: String,
+}
+
+impl SpellValueT for TriggerConfigValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+
+    fn get_error(&self) -> String {
+        self.error.clone()
+    }
 }
 
 #[marine]
