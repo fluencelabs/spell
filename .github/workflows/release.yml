@@ -115,6 +115,7 @@ jobs:
             }
 
       - name: Calculate SHA256
+        working-directory: ./src/spell/modules/spell/artifacts/
         run: |
           du -hs spell.tar.gz
           echo $(sha256sum spell.tar.gz)
