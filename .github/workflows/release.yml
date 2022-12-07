@@ -45,7 +45,7 @@ jobs:
           crate: marine
 
       - name: Build and package spell
-        working-directory: ./src/spell/modules/spell
+        working-directory: ./src/spell/modules/spell/spell
         run: ./build.sh
 
       - name: Install cargo-workspaces
@@ -57,7 +57,7 @@ jobs:
         working-directory: ./src/spell/modules/spell
         run: |
           cargo ws publish \
-            --filter 'fluence-spell-dtos,fluence-spell-distro'
+            --ignore-changes 'spell/**' \
             --no-git-commit \
             --from-git \
             --skip-published \
@@ -78,7 +78,7 @@ jobs:
           name: spell ${{ env.RELEASE_VERSION }}
           tag_name: ${{ env.RELEASE_VERSION }}
           files: |
-            ./src/spell/modules/spell/artifacts/spell.tar.gz
+            ./src/spell/modules/spell/spell/artifacts/spell.tar.gz
           body: ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false
@@ -110,7 +110,7 @@ jobs:
             }
 
       - name: Calculate SHA256
-        working-directory: ./src/spell/modules/spell/artifacts/
+        working-directory: ./src/spell/modules/spell/spell/artifacts/
         run: |
           du -hs spell.tar.gz
           echo $(sha256sum spell.tar.gz)
