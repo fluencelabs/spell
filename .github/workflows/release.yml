@@ -13,11 +13,28 @@ jobs:
     name: "Publish"
     runs-on: builder
 
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Import secrets
+        uses: hashicorp/vault-action@v2.4.3
+        with:
+          url: https://vault.fluence.dev
+          path: jwt/github
+          role: ci
+          method: jwt
+          jwtGithubAudience: "https://github.com/fluencelabs"
+          jwtTtl: 300
+          exportToken: false
+          secrets: |
+            kv/crates.io/fluencebot token | CARGO_REGISTRY_TOKEN
 
       - name: Setup Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -27,22 +44,24 @@ jobs:
         with:
           crate: marine
 
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: "adopt"
-          java-version: "11"
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: "15"
-          cache: npm
-          cache-dependency-path: ./npm/package-lock.json
-
       - name: Build and package spell
         working-directory: ./src/spell/modules/spell
         run: ./build.sh
+
+      - name: Install cargo-workspaces
+        uses: baptiste0928/cargo-install@v1.3.0
+        with:
+          crate: cargo-workspaces
+
+      - name: Publish to crates.io
+        working-directory: ./src/spell/modules/spell
+        run: |
+          cargo ws publish \
+            --filter 'fluence-spell-dtos,fluence-spell-distro'
+            --no-git-commit \
+            --from-git \
+            --skip-published \
+            --yes
 
       - name: Build Changelog
         id: changelog
@@ -60,7 +79,7 @@ jobs:
           tag_name: ${{ env.RELEASE_VERSION }}
           files: |
             ./src/spell/modules/spell/artifacts/spell.tar.gz
-          body: ${{steps.changelog.outputs.changelog}}
+          body: ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false
           fail_on_unmatched_files: true
@@ -112,9 +131,4 @@ jobs:
 #          }'
 
       - name: Log notice
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            console.dir(core);
-            core.info("spell was released: ${{ env.RELEASE_VERSION }}");
+        run: echo "spell was released: ${{ env.RELEASE_VERSION }}" >> $GITHUB_STEP_SUMMARY
