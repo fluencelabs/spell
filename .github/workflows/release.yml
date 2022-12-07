@@ -5,77 +5,53 @@ on:
     tags:
       - "v*"
 
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+
 jobs:
-  npm-publish:
+  release:
     name: "Publish"
     runs-on: builder
-    container: rust
-    defaults:
-      run:
-        shell: bash
 
     steps:
-      ### Setup
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: "Install marine"
-        uses: baptiste0928/cargo-install@v1
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install Marine
+        uses: baptiste0928/cargo-install@v1.3.0
         with:
           crate: marine
 
-      - uses: actions/setup-java@v2
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          distribution: "adopt"
+          java-version: "11"
 
-      - name: Cache npm
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-v03-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-v03-
-
-      - uses: actions/setup-node@v2
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: "15"
-          spell-url: "https://spell.npmjs.org"
+          cache: npm
+          cache-dependency-path: ./npm/package-lock.json
 
-      - name: Cache cargo
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/spell
-            ~/.cargo/git
-            ~/.cargo/bin
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Install Rust
-        working-directory: ./src/spell/modules/spell
-        run: |
-          rustup toolchain install nightly-2022-09-01-x86_64-unknown-linux-gnu
-          rustup default nightly-2022-09-01-x86_64-unknown-linux-gnu
-          rustup override set nightly-2022-09-01-x86_64-unknown-linux-gnu
-          rustup target add wasm32-wasi --toolchain nightly-2022-09-01-x86_64-unknown-linux-gnu
-
-      ### Build
       - name: Build and package spell
         working-directory: ./src/spell/modules/spell
         run: ./build.sh
 
       - name: Build Changelog
         id: changelog
-        uses: mikepenz/release-changelog-builder-action@v1
+        uses: mikepenz/release-changelog-builder-action@v3
         with:
           configuration: ".github/workflows/changelog_config.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      ## Publish
       - name: Release
         id: release
         uses: softprops/action-gh-release@v1

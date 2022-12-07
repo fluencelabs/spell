@@ -1,50 +1,36 @@
-name: "marine-tests"
+name: "spell"
 
 on:
+  pull_request:
   push:
+    branches:
+      - "main"
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
-  test:
-    name: "test"
+  Spell:
+    name: "Run tests"
     runs-on: builder
-    container: rust
-    defaults:
-      run:
-        shell: bash
 
     steps:
-      ### Setup
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: "Install marine"
-        uses: baptiste0928/cargo-install@v1
+      - name: Setup rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install marine
+        uses: baptiste0928/cargo-install@v1.3.0
         with:
           crate: marine
-
-      - name: Cache cargo
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/spell
-            ~/.cargo/git
-            ~/.cargo/bin
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Install Rust
-        working-directory: ./src/spell/modules/spell
-        run: |
-          rustup toolchain install nightly-2022-09-01-x86_64-unknown-linux-gnu
-          rustup default nightly-2022-09-01-x86_64-unknown-linux-gnu
-          rustup override set nightly-2022-09-01-x86_64-unknown-linux-gnu
-          rustup target add wasm32-wasi --toolchain nightly-2022-09-01-x86_64-unknown-linux-gnu
 
       - name: Install cargo-nextest
         uses: baptiste0928/cargo-install@v1.3.0
         with:
           crate: cargo-nextest
 
-      ### Test
       - name: Test spell
         working-directory: ./src/spell/modules/spell
         run: ./test.sh
