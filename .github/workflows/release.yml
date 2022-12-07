@@ -58,6 +58,7 @@ jobs:
         run: |
           cargo ws publish \
             --no-git-commit \
+            --allow-dirty \
             --from-git \
             --skip-published \
             --yes
