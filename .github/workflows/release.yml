@@ -95,8 +95,8 @@ jobs:
         working-directory: ./src/spell/modules/spell/spell/artifacts/
         run: |
           du -hs spell.tar.gz
-          sha256 spell.tar.gz
-          echo "sha256=($(sha256 spell.tar.gz))" >> $GITHUB_OUTPUTS
+          sha256sum spell.tar.gz
+          echo "sha256=($(sha256sum spell.tar.gz))" >> $GITHUB_OUTPUTS
 
       - name: Upload spell package
         if: needs.release-please.outputs.spell-release-created
@@ -114,7 +114,7 @@ jobs:
 #          token: ${{ secrets.PERSONAL_TOKEN }}
 #          inputs: '{
 #            "name": "spell",
-#            "version": ${{ needs.release-please.spell-tag-name }}",
+#            "version": "${{ needs.release-please.spell-tag-name }}",
 #            "url": "${{ steps.package-url.outputs.result }}",
 #            "sha256": "${{ steps.sha.outputs.sha256 }}"
 #          }'
