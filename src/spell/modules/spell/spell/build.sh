@@ -11,7 +11,7 @@ marine build --release
 mkdir -p artifacts
 cp ../target/wasm32-wasi/release/spell.wasm artifacts/
 
-if [ ! -f "artifacts/sqlite3.wasm" ]; then
+if [[ ! -f "artifacts/sqlite3.wasm" ]]; then
   # download SQLite 3
   curl -L https://github.com/fluencelabs/sqlite/releases/download/v0.15.0_w/sqlite3.wasm -o artifacts/sqlite3.wasm
 fi
