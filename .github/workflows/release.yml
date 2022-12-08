@@ -1,27 +1,54 @@
-name: "publish-release"
+name: release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - master
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
 
 jobs:
-  release:
-    name: "Publish"
-    runs-on: builder
+  release-please:
+    runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-      id-token: write
+    outputs:
+      releases-created: ${{ steps.release.outputs.releases_created }}
+
+      spell-release-created: ${{ steps.release.outputs['spell--release_created'] }}
+      spell-tag-name: ${{ steps.release.outputs['spell--tag_name'] }}
+
+      spell-distro-release-created: ${{ steps.release.outputs['spell-distro--release_created'] }}
+      spell-distro-tag-name: ${{ steps.release.outputs['spell-distro--tag_name'] }}
+
+      spell-dtos-release-created: ${{ steps.release.outputs['spell-dtos--release_created'] }}
+      spell-dtos-tag-name: ${{ steps.release.outputs['spell-dtos--tag_name'] }}
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Run release-please
+        id: release
+        uses: google-github-actions/release-please-action@v3
+        with:
+          command: manifest
+          config-file: .github/release-please/config.json
+          manifest-file: .github/release-please/manifest.json
 
-      - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Show output from release-please
+        if: steps.release.outputs.releases_created
+        env:
+          RELEASE_PLEASE_OUTPUT: ${{ toJSON(steps.release.outputs) }}
+        run: echo "${RELEASE_PLEASE_OUTPUT}" | jq
+
+
+  spell:
+    runs-on: builder
+
+    needs: release-please
+    if: ${{ needs.release-please.outputs.releases-created }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Import secrets
         uses: hashicorp/vault-action@v2.4.3
@@ -63,58 +90,20 @@ jobs:
             --skip-published \
             --yes
 
-      - name: Build Changelog
-        id: changelog
-        uses: mikepenz/release-changelog-builder-action@v3
-        with:
-          configuration: ".github/workflows/changelog_config.json"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Release
-        id: release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: spell ${{ env.RELEASE_VERSION }}
-          tag_name: ${{ env.RELEASE_VERSION }}
-          files: |
-            ./src/spell/modules/spell/spell/artifacts/spell.tar.gz
-          body: ${{ steps.changelog.outputs.changelog }}
-          draft: false
-          prerelease: false
-          fail_on_unmatched_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get tar.gz URL
-        id: package-url
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-encoding: string
-          script: |
-            try {
-                let assets = await github.repos.listReleaseAssets({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  release_id: "${{ steps.release.outputs.id }}",
-                });
-                console.dir(assets);
-                let package = assets.data.find((a) => a.name === 'spell.tar.gz');
-                let url = package.browser_download_url;
-                console.log("URL: " + url);
-                return url;
-            } catch (e) {
-              console.log("Err: " + e);
-              throw e;
-            }
-
       - name: Calculate SHA256
+        id: sha
         working-directory: ./src/spell/modules/spell/spell/artifacts/
         run: |
           du -hs spell.tar.gz
-          echo $(sha256sum spell.tar.gz)
-          echo "SHA256=$(sha256sum spell.tar.gz | awk '{ print $1 }')" >> $GITHUB_ENV
+          sha256 spell.tar.gz
+          echo "sha256=($(sha256 spell.tar.gz))" >> $GITHUB_OUTPUTS
+
+      - name: Upload spell package
+        if: needs.release-please.outputs.spell-release-created
+        uses: softprops/action-gh-release@v1
+        with:
+          files: src/spell/modules/spell/spell/artifacts/spell.tar.gz
+          tag_name: ${{ needs.release-please.outputs.spell-tag-name }}
 
 #      - name: Update version in node-distro repo
 #        uses: benc-uk/workflow-dispatch@v1
@@ -125,11 +114,7 @@ jobs:
 #          token: ${{ secrets.PERSONAL_TOKEN }}
 #          inputs: '{
 #            "name": "spell",
-#            "version": "${{ env.RELEASE_VERSION }}",
+#            "version": ${{ needs.release-please.spell-tag-name }}",
 #            "url": "${{ steps.package-url.outputs.result }}",
-#            "sha256": "${{ env.SHA256 }}"
+#            "sha256": "${{ steps.sha.outputs.sha256 }}"
 #          }'
-
-      - name: Log notice
-        run: |
-          echo "spell was released: ${{ env.RELEASE_VERSION }}" >> $GITHUB_STEP_SUMMARY
