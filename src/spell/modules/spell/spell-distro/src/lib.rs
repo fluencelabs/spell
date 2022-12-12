@@ -8,6 +8,8 @@ pub mod build_info {
 
 pub use build_info::PKG_VERSION as VERSION;
 
+/// Collection of modules required to build the spell service
+/// TODO: make it ordered :facepalm:
 pub fn modules() -> std::collections::HashMap<&'static str, &'static [u8]> {
     maplit::hashmap! {
         "spell" => SPELL_WASM,
