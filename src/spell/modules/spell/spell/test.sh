@@ -10,7 +10,7 @@ rm -f /tmp/spell.sqlite
 
 # build spell.wasm
 marine build --release
-cp ../../../../../target/wasm32-wasi/release/spell.wasm artifacts/
+cp ../../../../../target/wasm32-wasi/release/spell.wasm tests_artifacts/
 
 if [[ ! -f "tests_artifacts/sqlite3.wasm" ]]; then
   # download SQLite 3
