@@ -1,9 +1,9 @@
 use marine_rs_sdk::marine;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use crate::value::SpellValueT;
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct TriggerConfigValue {
     pub config: TriggerConfig,
     pub success: bool,
@@ -21,7 +21,7 @@ impl SpellValueT for TriggerConfigValue {
 }
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct TriggerConfig {
     /// Trigger spell by clock
     pub clock: ClockConfig,
@@ -32,22 +32,23 @@ pub struct TriggerConfig {
 }
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct ClockConfig {
     /// Defines when to start trigger spell.
-    /// Unix time. 0 means 'do not subscribe'
+    /// Unix time. 0 means 'do not run'
     pub start_sec: u32,
     /// Defines when to stop trigger spell. Will not trigger after that timestamp.
     /// Unix time. 0 means 'never stop'
     pub end_sec: u32,
     /// Defines how often to trigger spell
+    /// 0 means 'do not subscribe'
     /// NOTE: Subject to host clock resolution limitations.
     ///       If small period is set, host may override it to a bigger one
     pub period_sec: u32,
 }
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct BlockChainConfig {
     /// Defines since what block to start trigger spell
     /// 0 means 'do not subscribe'
@@ -59,7 +60,7 @@ pub struct BlockChainConfig {
 }
 
 #[marine]
-#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct ConnectionPoolConfig {
     /// Defines whether to trigger spell on connect events
     pub connect: bool,
