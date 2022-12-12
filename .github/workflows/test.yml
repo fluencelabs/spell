@@ -13,7 +13,7 @@ concurrency:
 jobs:
   Spell:
     name: "Run tests"
-    runs-on: builder
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
