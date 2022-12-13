@@ -1,4 +1,5 @@
 use marine_rs_sdk::{get_call_parameters, CallParameters};
+// something
 
 /// returns true if function is called by the service creator
 pub fn is_by_creator() -> bool {
