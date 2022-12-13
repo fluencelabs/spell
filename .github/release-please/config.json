@@ -11,7 +11,7 @@
     },
     {
       "type": "linked-versions",
-      "group-name": "spell",
+      "groupName": "spell and spell-distro",
       "components": [
         "spell", "spell-distro"
       ]
