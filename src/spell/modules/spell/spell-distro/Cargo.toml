@@ -1,6 +1,6 @@
 [package]
 name = "fluence-spell-distro"
-description = "distribution of a fuence spell service"
+description = "distribution of a fluence spell service"
 version = "0.1.1"
 edition = "2021"
 include = [ "/src", "/spell-service", "build.rs", "Cargo.toml" ]
