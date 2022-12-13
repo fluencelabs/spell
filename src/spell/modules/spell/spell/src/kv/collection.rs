@@ -33,7 +33,7 @@ pub fn list_push_string(key: &str, value: String) -> UnitValue {
 /// Remove latest element in a list of strings, and return it
 pub fn list_pop_string(key: &str) -> StringValue {
     let db = db();
-    let result: eyre::Result<String> = try {
+    let result: eyre::Result<Option<String>> = try {
         let mut get = db.prepare(
             r#"
             SELECT * FROM kv
@@ -43,7 +43,7 @@ pub fn list_pop_string(key: &str) -> StringValue {
         )?;
         get.bind(1, key)?;
         get.bind(2, key)?;
-        let string = read_string(&mut get, key, 1)?;
+        let string = read_string(&mut get, 1)?;
         let list_index = get.read::<f64>(3)?;
 
         let mut delete = db.prepare(
