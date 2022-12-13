@@ -81,7 +81,6 @@ jobs:
           crate: cargo-workspaces
 
       - name: Publish to crates.io
-        working-directory: ./src/spell/modules/spell
         run: |
           cargo ws publish \
             --no-git-commit \
