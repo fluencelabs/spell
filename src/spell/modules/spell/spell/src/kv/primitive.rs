@@ -130,6 +130,11 @@ mod tests {
         let key = "num";
         let num = 123;
 
+        let get = spell.get_u32(key.into());
+        assert!(get.success, "unable to retrieve key {}: {}", key, get.error);
+        assert!(get.absent, "key {} exists", key);
+        assert!(get.error.is_empty(), "there should be no error when value is absent");
+
         for _ in 1..10 {
             let set = spell.set_u32(key.into(), num);
             assert!(set.success, "set_u32 failed: {}", set.error);
@@ -144,10 +149,9 @@ mod tests {
             assert!(remove.success, "second remove failed: {}", remove.error);
 
             let get = spell.get_u32(key.into());
-            assert!(!get.success);
-            assert!(get
-                .error
-                .starts_with(format!("Key '{}' does not exist", key).as_str()));
+            assert!(get.success, "unable to retrieve key {}: {}", key, get.error);
+            assert!(get.absent, "key {} still exists", key);
+            assert!(get.error.is_empty(), "there should be no error when value is absent");
         }
     }
 
