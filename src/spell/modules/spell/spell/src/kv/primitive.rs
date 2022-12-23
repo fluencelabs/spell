@@ -1,7 +1,6 @@
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
-use fluence_spell_dtos::error::SpellError::*;
 use fluence_spell_dtos::value::{StringValue, U32Value, UnitValue};
 
 use crate::schema::db;
@@ -20,20 +19,20 @@ pub fn set_string(key: &str, value: String) -> UnitValue {
     store_string(key, value).into()
 }
 
-pub fn read_string(statement: &mut Statement, key: &str, idx: usize) -> eyre::Result<String> {
+pub fn read_string(statement: &mut Statement, idx: usize) -> eyre::Result<Option<String>> {
     if let State::Row = statement.next()? {
-        Ok(statement.read::<String>(idx)?)
+        Ok(Some(statement.read::<String>(idx)?))
     } else {
-        Err(KeyNotExists(key.to_string()))?
+        Ok(None)
     }
 }
 
 #[marine]
 pub fn get_string(key: &str) -> StringValue {
-    let result: eyre::Result<String> = try {
+    let result: eyre::Result<Option<String>> = try {
         let mut statement = db().prepare("SELECT string FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
-        read_string(&mut statement, key, 0)?
+        read_string(&mut statement, 0)?
     };
 
     result.into()
@@ -53,13 +52,13 @@ pub fn set_u32(key: &str, value: u32) -> UnitValue {
 
 #[marine]
 pub fn get_u32(key: &str) -> U32Value {
-    let result: eyre::Result<u32> = try {
+    let result: eyre::Result<Option<u32>> = try {
         let mut statement = db().prepare("SELECT u32 FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
         if let State::Row = statement.next()? {
-            statement.read::<f64>(0)? as u32
+            Some(statement.read::<f64>(0)? as u32)
         } else {
-            Err(KeyNotExists(key.to_string()))?
+            None
         }
     };
 
@@ -131,6 +130,11 @@ mod tests {
         let key = "num";
         let num = 123;
 
+        let get = spell.get_u32(key.into());
+        assert!(get.success, "unable to retrieve key {}: {}", key, get.error);
+        assert!(get.absent, "key {} exists", key);
+        assert!(get.error.is_empty(), "there should be no error when value is absent");
+
         for _ in 1..10 {
             let set = spell.set_u32(key.into(), num);
             assert!(set.success, "set_u32 failed: {}", set.error);
@@ -145,10 +149,9 @@ mod tests {
             assert!(remove.success, "second remove failed: {}", remove.error);
 
             let get = spell.get_u32(key.into());
-            assert!(!get.success);
-            assert!(get
-                .error
-                .starts_with(format!("Key '{}' does not exist", key).as_str()));
+            assert!(get.success, "unable to retrieve key {}: {}", key, get.error);
+            assert!(get.absent, "key {} still exists", key);
+            assert!(get.error.is_empty(), "there should be no error when value is absent");
         }
     }
 

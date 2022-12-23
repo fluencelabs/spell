@@ -24,7 +24,7 @@ impl UnitValue {
     pub fn ok() -> Self {
         Self {
             success: true,
-            error: <_>::default(),
+            error: String::new(),
         }
     }
 
@@ -71,20 +71,29 @@ pub struct StringValue {
     pub str: String,
     pub success: bool,
     pub error: String,
+    pub absent: bool
 }
 
-impl From<eyre::Result<String>> for StringValue {
-    fn from(value: eyre::Result<String>) -> Self {
+impl From<eyre::Result<Option<String>>> for StringValue {
+    fn from(value: eyre::Result<Option<String>>) -> Self {
         match value {
-            Ok(str) => StringValue {
+            Ok(Some(str)) => StringValue {
                 str,
                 success: true,
-                error: <_>::default(),
+                error: String::new(),
+                absent: false
+            },
+            Ok(None) => StringValue {
+                str: String::new(),
+                success: true,
+                error: String::new(),
+                absent: true
             },
             Err(e) => StringValue {
-                str: <_>::default(),
+                str: String::new(),
                 success: false,
                 error: format_error(e),
+                absent: false,
             },
         }
     }
@@ -114,10 +123,10 @@ impl From<eyre::Result<Vec<String>>> for StringListValue {
             Ok(strings) => StringListValue {
                 strings,
                 success: true,
-                error: <_>::default(),
+                error: String::new(),
             },
             Err(e) => StringListValue {
-                strings: <_>::default(),
+                strings: vec![],
                 success: false,
                 error: format_error(e),
             },
@@ -141,20 +150,29 @@ pub struct U32Value {
     pub num: u32,
     pub success: bool,
     pub error: String,
+    pub absent: bool
 }
 
-impl From<eyre::Result<u32>> for U32Value {
-    fn from(value: eyre::Result<u32>) -> Self {
+impl From<eyre::Result<Option<u32>>> for U32Value {
+    fn from(value: eyre::Result<Option<u32>>) -> Self {
         match value {
-            Ok(num) => U32Value {
+            Ok(Some(num)) => U32Value {
                 num,
                 success: true,
-                error: <_>::default(),
+                error: String::new(),
+                absent: false
+            },
+            Ok(None) => U32Value {
+                num: u32::default(),
+                success: true,
+                error: String::new(),
+                absent: true
             },
             Err(e) => U32Value {
-                num: <_>::default(),
+                num: u32::default(),
                 success: false,
                 error: format_error(e),
+                absent: false
             },
         }
     }
@@ -184,9 +202,9 @@ pub struct LocationValue {
 impl LocationValue {
     pub fn error(error: eyre::Report) -> Self {
         Self {
-            relay: <_>::default(),
-            host: <_>::default(),
-            service_id: <_>::default(),
+            relay: String::new(),
+            host: String::new(),
+            service_id: String::new(),
             success: false,
             error: format_error(error),
         }
@@ -198,7 +216,7 @@ impl LocationValue {
             host: params.host_id,
             service_id: params.service_id,
             success: true,
-            error: <_>::default(),
+            error: String::new(),
         }
     }
 }
