@@ -1,7 +1,7 @@
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
-use fluence_spell_dtos::value::{StringValue, U32Value, UnitValue};
+use fluence_spell_dtos::value::{BoolValue, StringValue, U32Value, UnitValue};
 
 use crate::schema::db;
 
@@ -73,6 +73,22 @@ pub fn remove_key(key: &str) -> UnitValue {
         let mut statement = db().prepare("DELETE FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
         statement.next()?;
+    };
+
+    result.into()
+}
+
+#[marine]
+pub fn exists(key: &str) -> BoolValue {
+    let result: eyre::Result<bool> = try {
+        let mut statement =
+            db().prepare("SELECT 1 FROM kv WHERE key = ? LIMIT 1")?;
+        statement.bind(1, key)?;
+
+        match statement.next()? {
+            State::Row => true,
+            State::Done => false
+        }
     };
 
     result.into()
@@ -178,5 +194,47 @@ mod tests {
 
         let get = spell.get_u32(key);
         assert_eq!(get.num, num * 2, "get_u32 failed: {}", get.error);
+    }
+
+    #[marine_test(
+        config_path = "../../tests_artifacts/Config.toml",
+        modules_dir = "../../tests_artifacts"
+    )]
+    fn test_exists(spell: marine_test_env::spell::ModuleInterface) {
+        let key = "num".to_string();
+
+        // check if exists before insertion
+        let exists = spell.exists(key.clone());
+        assert!(exists.success, "first exists failed: {}", exists.error);
+        assert!(!exists.flag, "value exists before set");
+
+        // insert
+        let num = 123;
+        let set = spell.set_u32(key.clone(), num);
+        assert!(set.success, "set_u32 failed: {}", set.error);
+
+        // check if exists after insertion
+        let exists = spell.exists(key.clone());
+        assert!(exists.success, "second exists failed: {}", exists.error);
+        assert!(exists.flag, "value doesn't exists after set_u32");
+
+        // remove
+        let remove = spell.remove_key(key.clone());
+        assert!(remove.success, "remove failed: {}", remove.error);
+
+        // check if exists after remove
+        let exists = spell.exists(key.clone());
+        assert!(exists.success, "third exists failed: {}", exists.error);
+        assert!(!exists.flag, "value still exists after remove_key");
+    }
+
+    #[marine_test(
+        config_path = "../../tests_artifacts/Config.toml",
+        modules_dir = "../../tests_artifacts"
+    )]
+    fn test_exists_empty_key(spell: marine_test_env::spell::ModuleInterface) {
+        let exists = spell.exists(String::new());
+        assert!(exists.success, "exists failed: {}", exists.error);
+        assert!(!exists.flag, "empty key exists");
     }
 }

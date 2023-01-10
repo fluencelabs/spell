@@ -266,3 +266,37 @@ impl SpellValueT for CIDValue {
         self.error
     }
 }
+
+#[marine]
+#[derive(Deserialize)]
+pub struct BoolValue {
+    pub flag: bool,
+    pub success: bool,
+    pub error: String,
+}
+
+impl SpellValueT for BoolValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+    fn get_error(&self) -> String {
+        self.error.clone()
+    }
+}
+
+impl From<eyre::Result<bool>> for BoolValue {
+    fn from(value: eyre::Result<bool>) -> Self {
+        match value {
+            Ok(flag) => BoolValue {
+                flag,
+                success: true,
+                error: String::new(),
+            },
+            Err(e) => BoolValue {
+                flag: false,
+                success: false,
+                error: format_error(e),
+            },
+        }
+    }
+}
