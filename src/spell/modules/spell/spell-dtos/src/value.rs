@@ -1,4 +1,4 @@
-use marine_rs_sdk::{CallParameters, marine};
+use marine_rs_sdk::{marine, CallParameters};
 use serde::Deserialize;
 
 use crate::error::SpellError;
@@ -71,7 +71,7 @@ pub struct StringValue {
     pub str: String,
     pub success: bool,
     pub error: String,
-    pub absent: bool
+    pub absent: bool,
 }
 
 impl From<eyre::Result<Option<String>>> for StringValue {
@@ -81,13 +81,13 @@ impl From<eyre::Result<Option<String>>> for StringValue {
                 str,
                 success: true,
                 error: String::new(),
-                absent: false
+                absent: false,
             },
             Ok(None) => StringValue {
                 str: String::new(),
                 success: true,
                 error: String::new(),
-                absent: true
+                absent: true,
             },
             Err(e) => StringValue {
                 str: String::new(),
@@ -150,7 +150,7 @@ pub struct U32Value {
     pub num: u32,
     pub success: bool,
     pub error: String,
-    pub absent: bool
+    pub absent: bool,
 }
 
 impl From<eyre::Result<Option<u32>>> for U32Value {
@@ -160,19 +160,19 @@ impl From<eyre::Result<Option<u32>>> for U32Value {
                 num,
                 success: true,
                 error: String::new(),
-                absent: false
+                absent: false,
             },
             Ok(None) => U32Value {
                 num: u32::default(),
                 success: true,
                 error: String::new(),
-                absent: true
+                absent: true,
             },
             Err(e) => U32Value {
                 num: u32::default(),
                 success: false,
                 error: format_error(e),
-                absent: false
+                absent: false,
             },
         }
     }
@@ -264,5 +264,39 @@ impl SpellValueT for CIDValue {
 
     fn get_error(&self) -> String {
         self.error.clone()
+    }
+}
+
+#[marine]
+#[derive(Deserialize)]
+pub struct BoolValue {
+    pub flag: bool,
+    pub success: bool,
+    pub error: String,
+}
+
+impl SpellValueT for BoolValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+    fn get_error(&self) -> String {
+        self.error.clone()
+    }
+}
+
+impl From<eyre::Result<bool>> for BoolValue {
+    fn from(value: eyre::Result<bool>) -> Self {
+        match value {
+            Ok(flag) => BoolValue {
+                flag,
+                success: true,
+                error: String::new(),
+            },
+            Err(e) => BoolValue {
+                flag: false,
+                success: false,
+                error: format_error(e),
+            },
+        }
     }
 }

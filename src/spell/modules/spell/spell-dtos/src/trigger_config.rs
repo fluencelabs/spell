@@ -1,6 +1,6 @@
+use crate::value::SpellValueT;
 use marine_rs_sdk::marine;
 use serde::{Deserialize, Serialize};
-use crate::value::SpellValueT;
 
 #[marine]
 #[derive(Default, Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
