@@ -96,9 +96,11 @@ jobs:
         id: sha
         working-directory: ./src/spell/modules/spell/spell/artifacts/
         run: |
+          # Calculate sha256
           du -hs spell.tar.gz
           sha256sum spell.tar.gz
-          echo "sha256=($(sha256sum spell.tar.gz))" >> $GITHUB_OUTPUTS
+          sha=($(sha256sum spell.tar.gz))
+          echo "sha256=${sha}" >> $GITHUB_OUTPUT
 
       - name: Upload spell package
         if: needs.release-please.outputs.spell-release-created
