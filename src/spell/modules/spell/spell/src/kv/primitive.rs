@@ -81,13 +81,12 @@ pub fn remove_key(key: &str) -> UnitValue {
 #[marine]
 pub fn exists(key: &str) -> BoolValue {
     let result: eyre::Result<bool> = try {
-        let mut statement =
-            db().prepare("SELECT 1 FROM kv WHERE key = ? LIMIT 1")?;
+        let mut statement = db().prepare("SELECT 1 FROM kv WHERE key = ? LIMIT 1")?;
         statement.bind(1, key)?;
 
         match statement.next()? {
             State::Row => true,
-            State::Done => false
+            State::Done => false,
         }
     };
 

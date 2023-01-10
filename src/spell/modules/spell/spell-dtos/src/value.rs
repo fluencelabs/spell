@@ -279,8 +279,9 @@ impl SpellValueT for BoolValue {
     fn is_success(&self) -> bool {
         self.success
     }
-    fn get_error(&self) -> String {
-        self.error.clone()
+
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
