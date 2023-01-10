@@ -39,12 +39,15 @@ jobs:
           RELEASE_PLEASE_OUTPUT: ${{ toJSON(steps.release.outputs) }}
         run: echo "${RELEASE_PLEASE_OUTPUT}" | jq
 
-
   spell:
     runs-on: builder
 
     needs: release-please
     if: ${{ needs.release-please.outputs.releases-created }}
+
+    permissions:
+      contents: write
+      id-token: write
 
     steps:
       - name: Checkout
