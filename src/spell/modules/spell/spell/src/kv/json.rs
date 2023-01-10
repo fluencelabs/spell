@@ -13,10 +13,12 @@ use crate::kv::primitive::store_string;
 /// NOTE: this function is not recursive. It takes only first-level fields.
 pub fn set_json_fields(json: &str) -> UnitValue {
     let result: eyre::Result<()> = try {
-        let fields: HashMap<String, JValue> = serde_json::from_str(json).context("passed string must represent a JSON object")?;
+        let fields: HashMap<String, JValue> =
+            serde_json::from_str(json).context("passed string must represent a JSON object")?;
         // TODO: should it be all in a single transaction?
         for (k, v) in fields {
-            store_string(&k, v.to_string()).context(format!("set string for field '{}' failed", k))?
+            store_string(&k, v.to_string())
+                .context(format!("set string for field '{}' failed", k))?
         }
     };
 

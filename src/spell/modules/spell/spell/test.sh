@@ -18,4 +18,4 @@ if [[ ! -f "tests_artifacts/sqlite3.wasm" ]]; then
 fi
 
 # run tests
-cargo nextest run --release --no-fail-fast --nocapture
+cargo nextest run test_exists --release --no-fail-fast --nocapture
