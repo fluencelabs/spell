@@ -227,4 +227,14 @@ mod tests {
         assert!(exists.success, "third exists failed: {}", exists.error);
         assert!(!exists.flag, "value still exists after remove_key");
     }
+
+    #[marine_test(
+    config_path = "../../tests_artifacts/Config.toml",
+    modules_dir = "../../tests_artifacts"
+    )]
+    fn test_exists_empty_key(spell: marine_test_env::spell::ModuleInterface) {
+        let exists = spell.exists(String::new());
+        assert!(exists.success, "exists failed: {}", exists.error);
+        assert!(!exists.flag, "empty key exists");
+    }
 }
