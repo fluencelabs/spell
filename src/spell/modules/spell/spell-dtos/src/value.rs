@@ -9,7 +9,7 @@ pub fn format_error(e: impl std::fmt::Debug) -> String {
 
 pub trait SpellValueT {
     fn is_success(&self) -> bool;
-    fn get_error(&self) -> String;
+    fn take_error(self) -> String;
 }
 
 #[marine]
@@ -54,8 +54,8 @@ impl SpellValueT for UnitValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -104,8 +104,8 @@ impl SpellValueT for StringValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -139,8 +139,8 @@ impl SpellValueT for StringListValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -183,8 +183,8 @@ impl SpellValueT for U32Value {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -226,8 +226,8 @@ impl SpellValueT for LocationValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -244,8 +244,8 @@ impl SpellValueT for ScriptValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -262,8 +262,8 @@ impl SpellValueT for CIDValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -279,8 +279,9 @@ impl SpellValueT for BoolValue {
     fn is_success(&self) -> bool {
         self.success
     }
-    fn get_error(&self) -> String {
-        self.error.clone()
+
+    fn take_error(self) -> String {
+        self.error
     }
 }
 

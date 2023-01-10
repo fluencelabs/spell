@@ -15,8 +15,8 @@ impl SpellValueT for TriggerConfigValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
