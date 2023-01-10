@@ -133,7 +133,10 @@ mod tests {
         let get = spell.get_u32(key.into());
         assert!(get.success, "unable to retrieve key {}: {}", key, get.error);
         assert!(get.absent, "key {} exists", key);
-        assert!(get.error.is_empty(), "there should be no error when value is absent");
+        assert!(
+            get.error.is_empty(),
+            "there should be no error when value is absent"
+        );
 
         for _ in 1..10 {
             let set = spell.set_u32(key.into(), num);
@@ -151,7 +154,10 @@ mod tests {
             let get = spell.get_u32(key.into());
             assert!(get.success, "unable to retrieve key {}: {}", key, get.error);
             assert!(get.absent, "key {} still exists", key);
-            assert!(get.error.is_empty(), "there should be no error when value is absent");
+            assert!(
+                get.error.is_empty(),
+                "there should be no error when value is absent"
+            );
         }
     }
 
