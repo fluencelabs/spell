@@ -229,8 +229,8 @@ mod tests {
     }
 
     #[marine_test(
-    config_path = "../../tests_artifacts/Config.toml",
-    modules_dir = "../../tests_artifacts"
+        config_path = "../../tests_artifacts/Config.toml",
+        modules_dir = "../../tests_artifacts"
     )]
     fn test_exists_empty_key(spell: marine_test_env::spell::ModuleInterface) {
         let exists = spell.exists(String::new());
