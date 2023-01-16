@@ -1,0 +1,109 @@
+module Spell declares *
+
+data LastError:
+  error_code: u32
+  instruction: string
+  message: string
+  peer_id: string
+
+data LastErrorEntry:
+  last_error: LastError
+  error_idx: u32
+
+data ParticleErrors:
+  particle_id: string
+  errors: []LastErrorEntry
+
+data AllErrorsResult:
+  particle_errors: []ParticleErrors
+  success: bool
+  error: string
+
+data BlockChainConfig:
+  start_block: u32
+  end_block: u32
+
+data BoolValue:
+  flag: bool
+  success: bool
+  error: string
+
+data CIDValue:
+  v1_str: string
+  success: bool
+  error: string
+
+data ClockConfig:
+  start_sec: u32
+  end_sec: u32
+  period_sec: u32
+
+data ConnectionPoolConfig:
+  connect: bool
+  disconnect: bool
+
+data LocationValue:
+  relay: string
+  host: string
+  service_id: string
+  success: bool
+  error: string
+
+data ScriptValue:
+  source_code: string
+  success: bool
+  error: string
+
+data StringListValue:
+  strings: []string
+  success: bool
+  error: string
+
+data StringValue:
+  str: string
+  success: bool
+  error: string
+  absent: bool
+
+data TriggerConfig:
+  clock: ClockConfig
+  connections: ConnectionPoolConfig
+  blockchain: BlockChainConfig
+
+data TriggerConfigValue:
+  config: TriggerConfig
+  success: bool
+  error: string
+
+data U32Value:
+  num: u32
+  success: bool
+  error: string
+  absent: bool
+
+data UnitValue:
+  success: bool
+  error: string
+
+service Spell:
+  exists(key: string) -> BoolValue
+  get_all_errors() -> AllErrorsResult
+  get_errors(particle_id: string) -> []LastErrorEntry
+  get_location() -> LocationValue
+  get_script_source_from_env() -> ScriptValue
+  get_script_source_from_file() -> ScriptValue
+  get_string(key: string) -> StringValue
+  get_trigger_config() -> TriggerConfigValue
+  get_u32(key: string) -> U32Value
+  list_get_strings(key: string) -> StringListValue
+  list_pop_string(key: string) -> StringValue
+  list_push_string(key: string, value: string) -> UnitValue
+  remove_key(key: string) -> UnitValue
+  script_cid() -> CIDValue
+  set_json_fields(json: string) -> UnitValue
+  set_relay_peer_id(relay_peer_id: string) -> UnitValue
+  set_script_source_to_file(script: string) -> UnitValue
+  set_string(key: string, value: string) -> UnitValue
+  set_trigger_config(config: TriggerConfig) -> UnitValue
+  set_u32(key: string, value: u32) -> UnitValue
+  store_error(error: LastError, error_idx: u32, particle_timestamp: u64) -> UnitValue
