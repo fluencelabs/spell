@@ -5,7 +5,8 @@
   "files": [
     "api.aqua",
     "spell_service.aqua",
-    "trigger.aqua"
+    "trigger.aqua",
+    "types.aqua"
   ],
   "config": {
     "SERVICE_DIR": "../../spell/modules/spell/spell",
