@@ -1,0 +1,37 @@
+module Trigger declares *
+
+import "@fluencelabs/aqua-lib/builtin.aqua"
+import Spell, TriggerConfig from "spell_service.aqua"
+import JsonString, Error from "types.aqua"
+
+data TimerTrigger:
+  timestamp: u64
+
+data PeerTrigger:
+  peer_id: PeerId
+  connected: bool
+
+data TriggerEvent:
+  timer: ?TimerTrigger
+  peer: ?PeerTrigger
+
+service TriggerEventJson("json"):
+    parse(s: JsonString) -> TriggerEvent
+
+-- Returns TriggerEvent if any
+-- Returns string Error if there was an error reading from Spell KV
+-- Returns (nil, nil) if there was no TriggerEvent and no errors during KV read
+func get_trigger(spell_id: string) -> ?TriggerEvent, ?Error:
+    trigger: ?TriggerEvent
+    error: ?Error
+
+    Spell spell_id
+    s <- Spell.list_pop_string("trigger_mailbox")
+
+    if s.success:
+      if s.absent == false:
+        trigger <- TriggerEventJson.parse(s.str)
+    else:
+      error <<- s.error
+
+    <- trigger, error
