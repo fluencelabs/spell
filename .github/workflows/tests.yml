@@ -10,7 +10,8 @@ on:
       rust-peer-image:
         description: "rust-peer image tag"
         type: string
-        default: "fluencelabs/fluence:minimal"
+        # default: "fluencelabs/fluence:minimal"
+        default: "docker.fluence.dev/rust-peer:minimal_master_581_1"
       ref:
         description: "GitHub ref to checkout to"
         type: string
