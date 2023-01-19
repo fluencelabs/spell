@@ -133,10 +133,3 @@ def with_spell(cls):
     cls.teardown_class = teardown_class
 
     return cls
-
-@pytest.fixture
-def with_spell_func(request):
-	spell_id, sk = create_spell(request["script"], request["config"], request["dat"])
-	yield spell_id
-	yield sk
-	destroy_spell(sk, spell_id)
