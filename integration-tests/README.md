@@ -45,9 +45,12 @@ Plan:
 4. Check that the incremented value is equal to `"count"`
 5. Remove the spell
 
-## Test builtin spell functions: `install`, `remove`, `list`, `update_trigger_config`
 
-### Spell installation
+## Testing rust-peer Spell API
+
+### Test builtin spell functions: `install`, `remove`, `list`, `update_trigger_config`
+
+#### Spell installation
 
 _Input script_: script does nothing
 
@@ -68,12 +71,14 @@ Checks:
    subcribed to execution and run. NOTE: we may need to wait until the spell is
    executed
 
-### Spell removal
+#### Spell removal
 
 Requires an additional service (or a spell that do nothing) that could store
 info from the spell we're testing.
 
-_Input script_: spell affects another aux service.
+**Remove running**
+
+*Input script*: spell affects another aux service.
 
 _Input config_: any type that runs immediately
 
@@ -85,9 +90,11 @@ Checks after removal:
 2. no action are executed by the spell: the other service isn't affected by the
    spell anymore
 
-_Input script_: script do nothing
+**Remove never run**
 
-_Input config_: delayed config that won't run before execution
+*Input script*: script do nothing
+
+*Input config*: empty config
 
 _Input state_: empty
 
@@ -96,14 +103,29 @@ Checks after removal:
 1. the spell is unavailable via its `spell_id`
 2. the spell stopped execution: the aux service isn't affected by the spell
 
-_Input_: any correct input
+**Remove stopped**
+
+*Input script*: script do nothing
+
+*Input config*: any type that runs immediately
+
+*Input state*: empty
+
+Checks after removal:
+1. Stop the spell
+2. the spell is unavailable via its `spell_id`
+3. the spell stopped execution: the aux service isn't affected by the spell
+
+**Check API**
+
+*Input*: any correct input
 
 Checks:
 
 1. remove a spell via `srv.remove` is failing
-2. `spell.remove` can't remove non-spell services
+2. `spell.remove` can't remove non-spell services (TODO: need to implement good way of obtaining a simple service first)
 
-### List
+#### List
 
 Note that `list` doesn't show running/stopped spells, just the installed ones.
 
@@ -112,52 +134,40 @@ Checks:
 1. After installing the spell, its id is in the list.
 2. After removing the spell, its id isn't in the list.
 
-### Trigger config updates
+#### Trigger config updates
+
+**Basic functionallity**
 
 _Input script_: do nothing
 
-_Input state_: empty
+*Input state*: empty
 
 Plan:
+1. Check that trigger mailbox is empty and its counter is empty.
+2. Set oneshot config.
+3. Check that trigger mailbox contains one timer trigger and its counter is one.
 
-1. Set one-shot config. Check that it's executed.
-2. Wait a bit and check that the counter isn't changed.
-3. Set another one-shot config. Check that it's executed.
+**Permissions**
 
-## Spell execution
-
-## Test trigger config
-
-Use aux service like in the removal tests to detect if the spell stopped the
-execution
-
-_Input script_: script that affects aux service
-
-_Input state_: empty
+*Input script*: do nothing
 
 _Input config_: empty
 
-Checks:
+*Input state*: empty
 
-1. Wait and check `"count"`.
+1. Try to update the spell with different sk and fail.
 
-### Timer config
+#### Configs
 
-_Input script_: script that affects aux service
-
-_Input state_: empty
-
-_Input config_: one-shot that runs immediately Checks:
-
-1. Check that the counter equals 1. Wait several seconds, and then check again.
-2. Check the aux service
+**Timer config: periodic**
 
 _Input config_: periodic, 1 sec, that runs immediately
 
 Checks:
 
-1. Wait several seconds, and check that the counter is not zero and it's not
-   more than waited amount of seconds + some delta
+**Timer config: periodic and end_sec**
+
+*Input script*: any
 
 _Input script_: any
 
@@ -171,7 +181,7 @@ Checks:
    than waited amount of seconds + some delta,
 2. Check that the spell isn't executed anymore via the aux service
 
-### Connection pool trigger config
+#### Connection pool trigger config
 
 _Input script_: any _Input state_: empty
 
@@ -180,16 +190,14 @@ TODO: how to control connections and disconnections? Via some JS-code?
 _Input config_: react on connect
 
 Checks:
-
-1. Check `"count"`
+1. Check `"count"` and mailbox
 
 _Input config_: react on disconnect
 
 Checks:
+1. Check `"count"` and mailbox
 
-1. Check `"count"`
-
-### Mixed configs
+#### Mixed configs
 
 _Input script_: any
 
@@ -202,7 +210,7 @@ Checks:
 
 TODO: more complex tests when the spell will be receiving the trigger info
 
-### Bad configs
+#### Bad configs
 
 Check that all incorrect configs are rejected. Right now only ClockConfig can be
 bad.
@@ -213,10 +221,10 @@ Incorrect configs:
 - `end_sec` is in the past
 - `period_sec` is very big
 
-## Error handling
-
-TODO: what expected?
-
-## Permissions
+### Permissions
 
 When they are implemented.
+
+## Testing Spell Service API
+
+WIP
