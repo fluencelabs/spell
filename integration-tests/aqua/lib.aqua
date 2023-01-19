@@ -1,19 +1,14 @@
 aqua Lib declares *
 
-export list, install, remove, update, get_config, get_script, get_counter, get_string
+export list, install, remove, update, get_config, get_script, get_counter, get_string, is_spell_absent
 
-import "./spell.aqua"
+import "../../src/aqua/spell/api.aqua"
+import "../../src/aqua/spell/spell_service.aqua"
 import "@fluencelabs/aqua-lib/builtin.aqua"
-
-service Spells("spell"):
-  list() -> []string
-  install(script: string, dat: string, config: TriggerConfig) -> string
-  remove(script: string)
-  update_trigger_config(spell_id: string, config: TriggerConfig)
 
 func list() -> []string:
    on HOST_PEER_ID:
-      res <- Spells.list()
+      res <- PeerSpell.list()
    <- res
 
 data InstallResult:
@@ -25,7 +20,7 @@ func install(script: string, cfg: TriggerConfig, dat: string) -> InstallResult:
     result: *InstallResult
     on HOST_PEER_ID:
         try:
-            sid <- Spells.install(script, dat, cfg)
+            sid <- PeerSpell.install(script, dat, cfg)
             result <<- InstallResult(success = true, error = "", spell_id = sid)
         catch err:
             result <<- InstallResult(success = false, error = err.message, spell_id = "")
@@ -39,7 +34,7 @@ func remove(spell_id: string) -> Result:
    result: *Result
    on HOST_PEER_ID:
       try:
-          Spells.remove(spell_id)
+          PeerSpell.remove(spell_id)
           result <<- Result(success = true, error = "")
       catch err:
           result <<- Result(success = false, error = err.message)
@@ -49,7 +44,7 @@ func update(spell_id: string, config: TriggerConfig) -> Result:
    result: *Result
    on HOST_PEER_ID:
       try:
-          Spells.update_trigger_config(spell_id, config)
+          PeerSpell.update_trigger_config(spell_id, config)
           result <<- Result(success = true, error = "")
       catch err:
           result <<- Result(success = false, error = err.message)
@@ -90,4 +85,3 @@ func is_spell_absent(spell_id: string) -> bool:
     otherwise:
         result <<- true
   <- result[0]
-
