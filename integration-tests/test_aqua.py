@@ -128,7 +128,7 @@ class TestRemove:
         spell_id, sk = create_spell(script, config, dat)
         destroy_spell(sk, spell_id)
 
-		# Not2 that this call may lead to errors on the node because we try to
-		# resolve spell id there to check availabilty.
+        # Note that this call may lead to errors on the node because we try to
+        # resolve spell id there to check availabilty.
         result = run_aqua(sk, "is_spell_absent", [spell_id])
         assert result, "the spell should be unavailable"
