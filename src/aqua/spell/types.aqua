@@ -1,0 +1,6 @@
+module Types declares *
+
+alias Error: string
+alias SpellID: string
+-- JSON object serialized to string
+alias JsonString: string

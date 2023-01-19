@@ -1,4 +1,4 @@
-use marine_rs_sdk::{CallParameters, marine};
+use marine_rs_sdk::{marine, CallParameters};
 use serde::Deserialize;
 
 use crate::error::SpellError;
@@ -9,7 +9,7 @@ pub fn format_error(e: impl std::fmt::Debug) -> String {
 
 pub trait SpellValueT {
     fn is_success(&self) -> bool;
-    fn get_error(&self) -> String;
+    fn take_error(self) -> String;
 }
 
 #[marine]
@@ -24,7 +24,7 @@ impl UnitValue {
     pub fn ok() -> Self {
         Self {
             success: true,
-            error: <_>::default(),
+            error: String::new(),
         }
     }
 
@@ -54,8 +54,8 @@ impl SpellValueT for UnitValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -71,20 +71,29 @@ pub struct StringValue {
     pub str: String,
     pub success: bool,
     pub error: String,
+    pub absent: bool,
 }
 
-impl From<eyre::Result<String>> for StringValue {
-    fn from(value: eyre::Result<String>) -> Self {
+impl From<eyre::Result<Option<String>>> for StringValue {
+    fn from(value: eyre::Result<Option<String>>) -> Self {
         match value {
-            Ok(str) => StringValue {
+            Ok(Some(str)) => StringValue {
                 str,
                 success: true,
-                error: <_>::default(),
+                error: String::new(),
+                absent: false,
+            },
+            Ok(None) => StringValue {
+                str: String::new(),
+                success: true,
+                error: String::new(),
+                absent: true,
             },
             Err(e) => StringValue {
-                str: <_>::default(),
+                str: String::new(),
                 success: false,
                 error: format_error(e),
+                absent: false,
             },
         }
     }
@@ -95,8 +104,8 @@ impl SpellValueT for StringValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -114,10 +123,10 @@ impl From<eyre::Result<Vec<String>>> for StringListValue {
             Ok(strings) => StringListValue {
                 strings,
                 success: true,
-                error: <_>::default(),
+                error: String::new(),
             },
             Err(e) => StringListValue {
-                strings: <_>::default(),
+                strings: vec![],
                 success: false,
                 error: format_error(e),
             },
@@ -130,8 +139,8 @@ impl SpellValueT for StringListValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -141,20 +150,29 @@ pub struct U32Value {
     pub num: u32,
     pub success: bool,
     pub error: String,
+    pub absent: bool,
 }
 
-impl From<eyre::Result<u32>> for U32Value {
-    fn from(value: eyre::Result<u32>) -> Self {
+impl From<eyre::Result<Option<u32>>> for U32Value {
+    fn from(value: eyre::Result<Option<u32>>) -> Self {
         match value {
-            Ok(num) => U32Value {
+            Ok(Some(num)) => U32Value {
                 num,
                 success: true,
-                error: <_>::default(),
+                error: String::new(),
+                absent: false,
+            },
+            Ok(None) => U32Value {
+                num: u32::default(),
+                success: true,
+                error: String::new(),
+                absent: true,
             },
             Err(e) => U32Value {
-                num: <_>::default(),
+                num: u32::default(),
                 success: false,
                 error: format_error(e),
+                absent: false,
             },
         }
     }
@@ -165,8 +183,8 @@ impl SpellValueT for U32Value {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -184,9 +202,9 @@ pub struct LocationValue {
 impl LocationValue {
     pub fn error(error: eyre::Report) -> Self {
         Self {
-            relay: <_>::default(),
-            host: <_>::default(),
-            service_id: <_>::default(),
+            relay: String::new(),
+            host: String::new(),
+            service_id: String::new(),
             success: false,
             error: format_error(error),
         }
@@ -198,7 +216,7 @@ impl LocationValue {
             host: params.host_id,
             service_id: params.service_id,
             success: true,
-            error: <_>::default(),
+            error: String::new(),
         }
     }
 }
@@ -208,8 +226,8 @@ impl SpellValueT for LocationValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -226,8 +244,8 @@ impl SpellValueT for ScriptValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
     }
 }
 
@@ -244,7 +262,42 @@ impl SpellValueT for CIDValue {
         self.success
     }
 
-    fn get_error(&self) -> String {
-        self.error.clone()
+    fn take_error(self) -> String {
+        self.error
+    }
+}
+
+#[marine]
+#[derive(Deserialize)]
+pub struct BoolValue {
+    pub flag: bool,
+    pub success: bool,
+    pub error: String,
+}
+
+impl SpellValueT for BoolValue {
+    fn is_success(&self) -> bool {
+        self.success
+    }
+
+    fn take_error(self) -> String {
+        self.error
+    }
+}
+
+impl From<eyre::Result<bool>> for BoolValue {
+    fn from(value: eyre::Result<bool>) -> Self {
+        match value {
+            Ok(flag) => BoolValue {
+                flag,
+                success: true,
+                error: String::new(),
+            },
+            Err(e) => BoolValue {
+                flag: false,
+                success: false,
+                error: format_error(e),
+            },
+        }
     }
 }

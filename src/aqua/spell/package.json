@@ -1,0 +1,39 @@
+{
+  "name": "@fluencelabs/spell",
+  "version": "0.0.1",
+  "description": "Aqua API for Spells",
+  "files": [
+    "api.aqua",
+    "spell_service.aqua",
+    "trigger.aqua",
+    "types.aqua"
+  ],
+  "config": {
+    "SERVICE_DIR": "../../spell/modules/spell/spell",
+    "WASM": "artifacts/spell.wasm",
+    "AQUA_API": "./spell_service.aqua"
+  },
+  "scripts": {
+    "build-wasm": "(cd $npm_package_config_SERVICE_DIR; ./build.sh)",
+    "generate-service-api": "marine aqua $npm_package_config_SERVICE_DIR/$npm_package_config_WASM > $npm_package_config_AQUA_API",
+    "check": "aqua -i . --dry",
+    "prepare": "run-s build-wasm generate-service-api check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fluencelabs/spell.git"
+  },
+  "keywords": [
+    "aqua"
+  ],
+  "author": "Fluence Labs",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/fluencelabs/spell/issues"
+  },
+  "homepage": "https://github.com/fluencelabs/spell#readme",
+  "devDependencies": {
+    "@fluencelabs/aqua-lib": "0.6.0",
+    "npm-run-all2": "6.0.4"
+  }
+}

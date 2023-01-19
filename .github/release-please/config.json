@@ -3,7 +3,6 @@
   "release-type": "rust",
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": true,
-  "group-pull-request-title-pattern": "chore: release spell",
   "plugins": [
     {
       "type": "cargo-workspace",
@@ -11,9 +10,9 @@
     },
     {
       "type": "linked-versions",
-      "group-name": "spell",
+      "groupName": "spell, spell-distro and spell-dtos",
       "components": [
-        "spell", "spell-dtos"
+        "spell", "spell-distro", "spell-dtos"
       ]
     }
   ],
@@ -23,7 +22,8 @@
       "component": "spell"
     },
     "src/spell/modules/spell/spell-distro": {
-      "package-name": "spell-distro"
+      "package-name": "spell-distro",
+      "component": "spell-distro"
     },
     "src/spell/modules/spell/spell-dtos": {
       "package-name": "spell-dtos",

@@ -9,7 +9,7 @@ marine build --release
 
 # copy .wasm to artifacts
 mkdir -p artifacts
-cp ../target/wasm32-wasi/release/spell.wasm artifacts/
+cp ../../../../../target/wasm32-wasi/release/spell.wasm artifacts/
 
 if [[ ! -f "artifacts/sqlite3.wasm" ]]; then
   # download SQLite 3
