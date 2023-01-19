@@ -7,6 +7,7 @@ import SpellID, JsonString from "types.aqua"
 service PeerSpell("spell"):
     install(script: string, init_data: JsonString, config: TriggerConfig) -> SpellID
     remove(spell_id: SpellID)
+	update_trigger_config(spell_id: SpellID, config: TriggerConfig)
     list() -> []SpellID
 
 service Scope("scope"):
