@@ -1,0 +1,87 @@
+aqua Lib declares *
+
+export list, install, remove, update, get_config, get_script, get_counter, get_string, is_spell_absent
+
+import "../../src/aqua/spell/api.aqua"
+import "../../src/aqua/spell/spell_service.aqua"
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+func list() -> []string:
+   on HOST_PEER_ID:
+      res <- PeerSpell.list()
+   <- res
+
+data InstallResult:
+  success: bool
+  error: string
+  spell_id: string
+
+func install(script: string, cfg: TriggerConfig, dat: string) -> InstallResult:
+    result: *InstallResult
+    on HOST_PEER_ID:
+        try:
+            sid <- PeerSpell.install(script, dat, cfg)
+            result <<- InstallResult(success = true, error = "", spell_id = sid)
+        catch err:
+            result <<- InstallResult(success = false, error = err.message, spell_id = "")
+    <- result[0]
+
+data Result:
+  success: bool
+  error: string
+
+func remove(spell_id: string) -> Result:
+   result: *Result
+   on HOST_PEER_ID:
+      try:
+          PeerSpell.remove(spell_id)
+          result <<- Result(success = true, error = "")
+      catch err:
+          result <<- Result(success = false, error = err.message)
+   <- result[0]
+
+func update(spell_id: string, config: TriggerConfig) -> Result:
+   result: *Result
+   on HOST_PEER_ID:
+      try:
+          PeerSpell.update_trigger_config(spell_id, config)
+          result <<- Result(success = true, error = "")
+      catch err:
+          result <<- Result(success = false, error = err.message)
+   <- result[0]
+
+func get_config(spell_id: string) -> TriggerConfigValue:
+    on HOST_PEER_ID:
+        Spell spell_id
+        cfg <- Spell.get_trigger_config()
+    <- cfg
+
+func get_script(spell_id: string) -> ScriptValue:
+    on HOST_PEER_ID:
+        Spell spell_id
+        cfg <- Spell.get_script_source_from_file()
+    <- cfg
+
+func get_counter(spell_id: string) -> U32Value:
+    on HOST_PEER_ID:
+        Spell spell_id
+        count <- Spell.get_u32("counter")
+    <- count
+
+-- For a test we want to retrive these values at the same time
+func get_string(spell_id: string, key: string) -> StringValue:
+    on HOST_PEER_ID:
+        Spell spell_id
+        value <- Spell.get_string("value")
+    <- value
+
+func is_spell_absent(spell_id: string) -> bool:
+  result: *bool
+  on HOST_PEER_ID:
+    try:
+        Spell spell_id
+        Spell.get_trigger_config()
+        result <<- false
+    otherwise:
+        result <<- true
+  <- result[0]
