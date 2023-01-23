@@ -11,7 +11,7 @@ from config import get_local
 def get_sk():
     return ed25519.create_keypair()[0].to_ascii(encoding="base64").decode("utf-8")
 
-def get_relay():
+def get_relays():
     env = os.environ.get("FLUENCE_ENV")
     if env == "local":
         peers = get_local()
@@ -22,14 +22,13 @@ def get_relay():
         peers = c.out.strip().split("\n")
 
     assert len(peers) != 0, c.err
+    return peers
+
+def get_relay():
+    peers = get_relays()
     peer = peers[random.randint(0, len(peers) - 1)]
-    assert len(peer) != 0, c.err
-
+    assert len(peer) != 0
     return peer
-
-def get_random_peer_id():
-    addr = get_relay()
-    return addr.split("/")[-1]
 
 def from_aqua(aqua, func_name):
     if len(aqua) == 0 or len(func_name) == 0:
@@ -51,7 +50,9 @@ def from_aqua(aqua, func_name):
         c = delegator.run(command_compile, block=True)
         if len(c.err) != 0:
             print(c.err)
-            raise Exception(f"Unable to compile the aqua spell with name {file_name}")
+
+        if c.return_code != 0:
+            raise Exception(f"Unable to compile the aqua spell with name {func_name} in {file_name}")
 
         air_filename = file_prefix + '.' + func_name + '.air'
         air_path = os.path.join(dir_name, air_filename)
@@ -62,7 +63,7 @@ def from_aqua(aqua, func_name):
             raise Exception(f"Unable to read compiled air script by path {air_path}: {e}")
         return air_script 
 
-# TODO: I wonder, if we invoke tests in parallel, will be `relay` different from each test-worker?
+# TODO: learn how to chose the relay based on the test worker id.
 def run_aqua(sk, func, args, relay=get_relay()):
 
     # "a" : arg1, "b" : arg2 .....
@@ -70,16 +71,20 @@ def run_aqua(sk, func, args, relay=get_relay()):
     call = f"{func}(" + ", ".join([chr(97 + i) for i in range(0, len(args))]) + ")"
     file = "./aqua/lib.aqua"
 
-    command = f"npx aqua run --addr {relay} -f '{call}' -i {file} --sk {sk} -d '{json.dumps(data)}'"
+    command = f"npx aqua run --addr {relay} -f '{call}' -i {file} --sk {sk} -d '{json.dumps(data)}' --timeout 100000"
     print(command)
     c = delegator.run(command, block=True)
     if len(c.err) != 0:
         print(c.err)
 
+    if c.return_code != 0:
+        raise RuntimeError(f"can't run `{func}` in aqua due to external error. See logs to know more.")
+
     result = None
     if c.out != "":
+        print(c.out)
         result = json.loads(c.out)
-        print(result)
+        print("Result:", result)
     return result
 
 def get_peer_id(sk):
