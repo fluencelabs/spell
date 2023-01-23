@@ -18,8 +18,10 @@
   "author": "Fluence Labs",
   "license": "Apache-2.0",
   "dependencies": {
-    "@fluencelabs/spell": "/Users/folex/Development/fluencelabs/spell/src/aqua/spell",
-    "@fluencelabs/aqua-lib": "/Users/folex/Development/fluencelabs/aqua-lib",
-    "@fluencelabs/aqua-ipfs": "/Users/folex/Development/fluencelabs/aqua-ipfs/aqua"
+    "@fluencelabs/spell": "0.0.1"
+  },
+  "localDependencies": {
+    "@fluencelabs/aqua-ipfs": "../../../../aqua-ipfs/aqua",
+    "@fluencelabs/aqua-lib": "../../../../aqua-lib"
   }
 }

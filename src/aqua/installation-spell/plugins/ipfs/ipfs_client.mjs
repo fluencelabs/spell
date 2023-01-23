@@ -15,7 +15,7 @@ const alive = new Set();
 async function upload(multiaddr, content) {
     const ipfs = await client(multiaddr);
     try {
-        const result = await ipfs.add(data, { pin: true });
+        const result = await ipfs.add(content, { pin: true });
         const cid = result.path;
         await ipfs.pin.add(cid);
         console.log(`did pin ${cid} to ${multiaddr}`)
@@ -35,7 +35,7 @@ async function upload(multiaddr, content) {
 
         return cid;
     } catch (err) {
-        console.log(`failed to upload`)
+        console.log(`failed to upload`, content);
     }
 }
 
