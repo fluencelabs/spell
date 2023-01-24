@@ -13,22 +13,17 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      releases-created: ${{ steps.release.outputs.releases_created }}
-
-      spell-release-created: ${{ steps.release.outputs['spell--release_created'] }}
-      spell-tag-name: ${{ steps.release.outputs['spell--tag_name'] }}
-
-      spell-distro-release-created: ${{ steps.release.outputs['spell-distro--release_created'] }}
-      spell-distro-tag-name: ${{ steps.release.outputs['spell-distro--tag_name'] }}
-
-      spell-dtos-release-created: ${{ steps.release.outputs['spell-dtos--release_created'] }}
-      spell-dtos-tag-name: ${{ steps.release.outputs['spell-dtos--tag_name'] }}
+      release-created: ${{ steps.release.outputs['release_created'] }}
+      tag-name: ${{ steps.release.outputs['tag_name'] }}
+      version: ${{ steps.release.outputs['version'] }}
+      pr: ${{ steps.release.outputs['pr'] }}
 
     steps:
       - name: Run release-please
         id: release
         uses: google-github-actions/release-please-action@v3
         with:
+          token: ${{ secrets.FLUENCEBOT_RELEASE_PLEASE_PAT }}
           command: manifest
           config-file: .github/release-please/config.json
           manifest-file: .github/release-please/manifest.json
@@ -39,11 +34,57 @@ jobs:
           RELEASE_PLEASE_OUTPUT: ${{ toJSON(steps.release.outputs) }}
         run: echo "${RELEASE_PLEASE_OUTPUT}" | jq
 
-  spell:
+  bump-version:
+    if: needs.release-please.outputs.pr != null
     runs-on: builder
+    needs:
+      - release-please
 
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ fromJson(needs.release-please.outputs.pr).headBranchName }}
+
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install cargo-workspaces
+        uses: baptiste0928/cargo-install@v1.3.0
+        with:
+          crate: cargo-worspaces
+
+      - name: Get version
+        id: version
+        run: |
+          version="$(jq -r '.[]' .github/release-please/manifest.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+
+      - name: Set versions
+        run: |
+          cargo ws version \
+            --no-git-commit \
+            --yes \
+            --force '*' \
+            custom ${{ steps.version.outputs.version }}
+        working-directory: src/spell/modules/spell
+
+      - name: Commit version bump
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: Bump spell version to ${{ steps.version.outputs.version }}"
+          branch: ${{ fromJson(needs.release-please.outputs.pr).headBranchName }}
+          commit_user_name: fluencebot
+          commit_user_email: devops@fluence.one
+          commit_author: fluencebot <devops@fluence.one>
+
+  spell:
+    if: needs.release-please.outputs.release-created
+    runs-on: builder
     needs: release-please
-    if: ${{ needs.release-please.outputs.releases-created }}
 
     permissions:
       contents: write
@@ -108,22 +149,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: src/spell/modules/spell/spell/artifacts/spell.tar.gz
-          tag_name: ${{ needs.release-please.outputs.spell-tag-name }}
+          tag_name: ${{ needs.release-please.outputs.tag-name }}
 
-#      - name: Update version in node-distro repo
-#        uses: benc-uk/workflow-dispatch@v1
-#        with:
-#          workflow: update_service
-#          repo: fluencelabs/node-distro
-#          ref: 'main'
-#          token: ${{ secrets.PERSONAL_TOKEN }}
-#          inputs: '{
-#            "name": "spell",
-#            "version": "${{ needs.release-please.spell-tag-name }}",
-#            "url": "${{ steps.package-url.outputs.result }}",
-#            "sha256": "${{ steps.sha.outputs.sha256 }}"
-#          }'
-#
   slack:
     if: always()
     name: "Notify"
