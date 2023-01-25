@@ -420,6 +420,8 @@ class TestConfig:
         trigger = get_trigger_event_ok(self.sk, self.spell_id)
         assert len(trigger) == 1, "the spell must be triggered at this point"
         assert trigger[0]['timer'][0]['timestamp'] <= config['clock']['end_sec'], "the spell was triggered after `end_sec`"
+        # TODO: check that the spell is stopped
+
 @with_spell
 class TestSpellError:
     air_script = """
