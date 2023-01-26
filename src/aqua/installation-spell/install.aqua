@@ -29,9 +29,6 @@ data Service:
     name: string
     modules: []Module
 
-data TriggerConfig:
-    time: string
-
 data Spell:
     script: string
     config: TriggerConfig
@@ -65,6 +62,7 @@ service ModuleConfigJson("json"):
 alias DynamicJsonObjHack: string
 service Json("json"):
     obj_pairs(pairs: [][]string) -> DynamicJsonObjHack
+    stringify(obj: DynamicJsonObjHack) -> JsonString
 
 service MOp("op"):
     identity(modules: []Module) -> []Module
@@ -95,43 +93,54 @@ func upload_to_relay(config: LocalAppConfig) -> CID:
 service Console("run-console"):
     print(s: string)
 
+service Wtf("wtf"):
+    wtf()
 
-func install(ipfs: Multiaddr, app_config_json: CID) -> DynamicJsonObjHack:
+service JsonStr("json"):
+    parse(s: JsonString) -> string
+
+func install(ipfs: Multiaddr, app_config_json: CID) -> JsonString:
+    ipfs_maddr <- JsonStr.parse(ipfs)
+    app_config_json_parsed <- JsonStr.parse(app_config_json)
     on HOST_PEER_ID:
-        json <- Ipfs.cat_from(app_config_json, ipfs)
-        app_config <- RACJson.parse(json.contents)
-        on INIT_PEER_ID:
-            co Console.print(Debug.stringify(app_config))
-
-        services: *[]string
-        for s <- app_config.services:
-            -- TODO: check that service was not deployed yet
-            -- TODO: check that blueprint_id was not changed
-
-            hashes: *Hash
-            for m <- s.modules:
-                get_wasm <- Ipfs.get_from(m.wasm, ipfs)
-                json_cfg <- Ipfs.cat_from(m.config, ipfs)
-                cfg <- ModuleConfigJson.parse(json_cfg.contents)
-                hash <- Dist.add_module_from_vault(get_wasm.path, cfg)
-                on INIT_PEER_ID:
-                    co Console.print(Debug.stringify([cfg, hash]))
-                hashes <- Op.concat_strings("hash:", hash)
-            blueprint <- Dist.make_blueprint(s.name, hashes)
+        json <- Ipfs.cat_from(app_config_json_parsed, ipfs_maddr)
+        Console.print(Debug.stringify(["parsing", app_config_json_parsed, json]))
+        if json.success:
+            app_config <- RACJson.parse(json.contents)
             on INIT_PEER_ID:
+                co Console.print(Debug.stringify(app_config))
+
+            services_info: *[]string
+            for s <- app_config.services:
+                -- TODO: check that service was not deployed yet
+                -- TODO: check that blueprint_id was not changed
+
+                hashes: *Hash
+                for m <- s.modules:
+                    get_wasm <- Ipfs.get_from(m.wasm, ipfs_maddr)
+                    json_cfg <- Ipfs.cat_from(m.config, ipfs_maddr)
+                    cfg <- ModuleConfigJson.parse(json_cfg.contents)
+                    hash <- Dist.add_module_from_vault(get_wasm.path, cfg)
+                    on INIT_PEER_ID:
+                        co Console.print(Debug.stringify([cfg, hash]))
+                    hashes <- Op.concat_strings("hash:", hash)
+                blueprint <- Dist.make_blueprint(s.name, hashes)
+                on INIT_PEER_ID:
                     co Console.print(Debug.stringify(blueprint))
-            blueprint_id <- Dist.add_blueprint(blueprint)
-            service_id <- Srv.create(blueprint_id)
-            services <<- [s.name, service_id]
-        obj <- Json.obj_pairs(services)
+                blueprint_id <- Dist.add_blueprint(blueprint)
+                service_id <- Srv.create(blueprint_id)
+                services_info <<- [s.name, service_id]
+                services_info <<- [Op.concat_strings("blueprint:", s.name), blueprint_id]
+            kv_update <- Json.obj_pairs(services_info)
 
-        -- Manual set:
-        -- Spell spell_id
-        -- Spell.set_string(s.name, service_id)
+            -- Manual set:
+            -- Spell spell_id
+            -- Spell.set_string(s.name, service_id)
 
-    -- Automatic set:
-    Console.print(Debug.stringify(obj))
-    <- obj
+        -- Automatic set:
+        serialized <- Json.stringify(kv_update)
+        Console.print(serialized)
+        <- serialized
 
 func install_to_relay(app_config_json: CID) -> DynamicJsonObjHack:
     on HOST_PEER_ID:
@@ -141,3 +150,44 @@ func install_to_relay(app_config_json: CID) -> DynamicJsonObjHack:
 func upstall(config: LocalAppConfig) -> DynamicJsonObjHack:
     cid <- upload_to_relay(config)
     <- install_to_relay(cid)
+
+data InstallSpellArgs:
+    ipfs: Multiaddr
+    app_config_json: CID
+
+service ISAJson("json"):
+    stringify(isa: InstallSpellArgs) -> JsonString
+
+service Cast("op"):
+    identity(long: u64) -> u32
+
+func upload_script(ipfs: Multiaddr, path: Path) -> CID:
+    <- IpfsClient.upload(ipfs, path)
+
+func oneshot() -> TriggerConfig:
+    now <- Cast.identity(Peer.timestamp_sec())
+    oneshot = ClockConfig(start_sec = now, end_sec = now + 1, period_sec = 0)
+    e1 = ConnectionPoolConfig(connect = false, disconnect = false)
+    e2 = BlockChainConfig(start_block = 0, end_block = 0)
+    <- TriggerConfig(clock = oneshot, connections = e1, blockchain = e2)
+
+func upstall_spell_to_relay(script: Path, config: LocalAppConfig) -> string:
+    -- upload
+    on HOST_PEER_ID:
+        ipfs <- get_external_api_multiaddr(HOST_PEER_ID)
+    config_cid <- upload_app_config(ipfs.multiaddr, config)
+    script_cid <- upload_script(ipfs.multiaddr, script)
+    Console.print(ipfs.multiaddr)
+
+    on HOST_PEER_ID:
+        -- install
+        init_args = InstallSpellArgs(ipfs = ipfs.multiaddr, app_config_json = config_cid)
+        init_args_json <- ISAJson.stringify(init_args)
+        air <- Ipfs.cat_from(script_cid, ipfs.multiaddr)
+
+        on INIT_PEER_ID:
+            co Console.print(init_args_json)
+
+        -- TODO: rename PeerSpell to SpellControl
+        spell_id <- PeerSpell.install(air.contents, init_args_json, oneshot())
+        <- spell_id
