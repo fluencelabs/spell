@@ -125,9 +125,8 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
 
     <- result!
 
-func install(ipfs: Multiaddr, app_config_json: CID) -> JsonString:
-    services_info: *[]string
-
+func install(ipfs: Multiaddr, app_config_json: CID):
+    spell_id <- SpellData.spell_id()
     ipfs_maddr <- JsonStr.parse(ipfs)
     app_config_json_parsed <- JsonStr.parse(app_config_json)
     on HOST_PEER_ID:
@@ -154,29 +153,24 @@ func install(ipfs: Multiaddr, app_config_json: CID) -> JsonString:
                 -- do not deploy if already deployed with the same blueprint
                 if is_deployed(s.name, blueprint_id) == false:
                     service_id <- Srv.create(blueprint_id)
-                    services_info <<- [s.name, service_id]
-                    services_info <<- [blueprint_key(s.name), blueprint_id]
+                    Spell spell_id
+                    Spell.set_string(s.name, service_id)
+                    Spell.set_string(blueprint_key(s.name), blueprint_id)
                 else:
-                    Console.print(Op.concat_strings(s.name, "is already deployed"))
-        kv_update <- Json.obj_pairs(services_info)
+                    Console.print(Op.concat_strings(s.name, " is already deployed"))
 
             -- Manual set:
             -- Spell spell_id
             -- Spell.set_string(s.name, service_id)
 
-        -- Automatic set:
-        serialized <- Json.stringify(kv_update)
-        Console.print(serialized)
-        <- serialized
-
-func install_to_relay(app_config_json: CID) -> DynamicJsonObjHack:
+func install_to_relay(app_config_json: CID):
     on HOST_PEER_ID:
         ipfs <- get_external_api_multiaddr(HOST_PEER_ID)
-        <- install(ipfs.multiaddr, app_config_json)
+        install(ipfs.multiaddr, app_config_json)
 
-func upstall(config: LocalAppConfig) -> DynamicJsonObjHack:
+func upstall(config: LocalAppConfig):
     cid <- upload_to_relay(config)
-    <- install_to_relay(cid)
+    install_to_relay(cid)
 
 data InstallSpellArgs:
     ipfs: Multiaddr
