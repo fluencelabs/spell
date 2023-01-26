@@ -99,22 +99,45 @@ service Wtf("wtf"):
 service JsonStr("json"):
     parse(s: JsonString) -> string
 
+service SpellData("getDataSrv"):
+    spell_id() -> string
+
+func blueprint_key(service_name: string) -> string:
+    <- Op.concat_strings("blueprint:", service_name)
+
+-- returns 'true' if service is in spell KV and has the same blueprint_id
+-- returns 'false' otherwise
+func is_deployed(service_name: string, blueprint_id: string) -> bool:
+    result: ?bool
+
+    spell_id <- SpellData.spell_id()
+    Spell spell_id
+    deployed <- Spell.exists(service_name)
+    if deployed.flag:
+        stored_blueprint <- Spell.get_string(blueprint_key(service_name))
+        if stored_blueprint.str == blueprint_id:
+            result <<- true
+        else:
+            result <<- false
+        Console.print(Debug.stringify([deployed, stored_blueprint, blueprint_id, result]))
+    else:
+        result <<- false
+
+    <- result!
+
 func install(ipfs: Multiaddr, app_config_json: CID) -> JsonString:
+    services_info: *[]string
+
     ipfs_maddr <- JsonStr.parse(ipfs)
     app_config_json_parsed <- JsonStr.parse(app_config_json)
     on HOST_PEER_ID:
         json <- Ipfs.cat_from(app_config_json_parsed, ipfs_maddr)
-        Console.print(Debug.stringify(["parsing", app_config_json_parsed, json]))
         if json.success:
             app_config <- RACJson.parse(json.contents)
             on INIT_PEER_ID:
                 co Console.print(Debug.stringify(app_config))
 
-            services_info: *[]string
             for s <- app_config.services:
-                -- TODO: check that service was not deployed yet
-                -- TODO: check that blueprint_id was not changed
-
                 hashes: *Hash
                 for m <- s.modules:
                     get_wasm <- Ipfs.get_from(m.wasm, ipfs_maddr)
@@ -124,14 +147,18 @@ func install(ipfs: Multiaddr, app_config_json: CID) -> JsonString:
                     on INIT_PEER_ID:
                         co Console.print(Debug.stringify([cfg, hash]))
                     hashes <- Op.concat_strings("hash:", hash)
+
                 blueprint <- Dist.make_blueprint(s.name, hashes)
-                on INIT_PEER_ID:
-                    co Console.print(Debug.stringify(blueprint))
                 blueprint_id <- Dist.add_blueprint(blueprint)
-                service_id <- Srv.create(blueprint_id)
-                services_info <<- [s.name, service_id]
-                services_info <<- [Op.concat_strings("blueprint:", s.name), blueprint_id]
-            kv_update <- Json.obj_pairs(services_info)
+
+                -- do not deploy if already deployed with the same blueprint
+                if is_deployed(s.name, blueprint_id) == false:
+                    service_id <- Srv.create(blueprint_id)
+                    services_info <<- [s.name, service_id]
+                    services_info <<- [blueprint_key(s.name), blueprint_id]
+                else:
+                    Console.print(Op.concat_strings(s.name, "is already deployed"))
+        kv_update <- Json.obj_pairs(services_info)
 
             -- Manual set:
             -- Spell spell_id
@@ -171,6 +198,13 @@ func oneshot() -> TriggerConfig:
     e2 = BlockChainConfig(start_block = 0, end_block = 0)
     <- TriggerConfig(clock = oneshot, connections = e1, blockchain = e2)
 
+func times(times: u32, period: u32) -> TriggerConfig:
+    now <- Cast.identity(Peer.timestamp_sec())
+    clock = ClockConfig(start_sec = now, end_sec = now + (period * times), period_sec = period)
+    e1 = ConnectionPoolConfig(connect = false, disconnect = false)
+    e2 = BlockChainConfig(start_block = 0, end_block = 0)
+    <- TriggerConfig(clock = clock, connections = e1, blockchain = e2)
+
 func upstall_spell_to_relay(script: Path, config: LocalAppConfig) -> string:
     -- upload
     on HOST_PEER_ID:
@@ -189,5 +223,6 @@ func upstall_spell_to_relay(script: Path, config: LocalAppConfig) -> string:
             co Console.print(init_args_json)
 
         -- TODO: rename PeerSpell to SpellControl
-        spell_id <- PeerSpell.install(air.contents, init_args_json, oneshot())
+        trig_conf <- times(10, 5)
+        spell_id <- PeerSpell.install(air.contents, init_args_json, trig_conf)
         <- spell_id
