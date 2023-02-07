@@ -4,9 +4,7 @@
   "description": "Special spell that installs services from App Config",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "check": "aqua -i . --dry",
-    "upload": "aqua run -i . -f 'upload_to_relay(app_config)' --plugins ./plugins --data '{}''"
+    "check": "aqua -i . --dry"
   },
   "keywords": [
     "aqua",
