@@ -1,0 +1,11 @@
+import Module, Service from "@fluencelabs/aqua-lib/builtin.aqua"
+
+
+service MOp("op"):
+    identity(modules: []Module) -> []Module
+
+service SOp("op"):
+    identity(services: []Service) -> []Service
+
+service Cast("op"):
+    identity(long: u64) -> u32

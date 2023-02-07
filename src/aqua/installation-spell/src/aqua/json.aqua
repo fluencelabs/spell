@@ -1,0 +1,21 @@
+import JsonString, InstallSpellArgs from "./types.aqua"
+import RemoteAppConfig from "./config.aqua"
+import ModuleConfig from "@fluencelabs/aqua-lib/builtin.aqua"
+
+service RACJson("json"):
+    stringify(rac: RemoteAppConfig) -> JsonString
+    parse(json: JsonString) -> RemoteAppConfig
+
+service JsonStr("json"):
+    parse(s: JsonString) -> string
+
+alias DynamicJsonObjHack: string
+service Json("json"):
+    obj_pairs(pairs: [][]string) -> DynamicJsonObjHack
+    stringify(obj: DynamicJsonObjHack) -> JsonString
+
+service ModuleConfigJson("json"):
+    parse(json: JsonString) -> ModuleConfig
+
+service ISAJson("json"):
+    stringify(isa: InstallSpellArgs) -> JsonString

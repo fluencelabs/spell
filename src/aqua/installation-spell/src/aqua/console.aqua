@@ -1,0 +1,2 @@
+service Console("run-console"):
+    print(s: string)

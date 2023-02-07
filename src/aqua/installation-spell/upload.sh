@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR="$(dirname $0)"
+
 aqua run -i install.aqua \
     -f 'upload_to_relay(app_config)' \
     --plugin ./plugins \

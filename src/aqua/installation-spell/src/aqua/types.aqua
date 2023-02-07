@@ -1,0 +1,8 @@
+alias CID: string
+alias Path: string
+alias Multiaddr: string
+alias JsonString: string
+
+data InstallSpellArgs:
+    ipfs: Multiaddr
+    app_config_json: CID

@@ -1,0 +1,32 @@
+import PeerSpell from "@fluencelabs/spell/api.aqua"
+import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+import get_external_api_multiaddr from "@fluencelabs/aqua-ipfs/ipfs-api.aqua"
+
+import IpfsClient, upload_script from "./files.aqua"
+import InstallSpellArgs, Path from "./types.aqua"
+import LocalAppConfig, upload_app_config from "./config.aqua"
+import Console from "./console.aqua"
+import ISAJson from "./json.aqua"
+import times from "./trigger_config.aqua"
+
+func upstall_spell_to_relay(script: Path, config: LocalAppConfig) -> string:
+    -- upload
+    on HOST_PEER_ID:
+        ipfs <- get_external_api_multiaddr(HOST_PEER_ID)
+    config_cid <- upload_app_config(ipfs.multiaddr, config)
+    script_cid <- upload_script(ipfs.multiaddr, script)
+    Console.print(ipfs.multiaddr)
+
+    on HOST_PEER_ID:
+        -- install
+        init_args = InstallSpellArgs(ipfs = ipfs.multiaddr, app_config_json = config_cid)
+        init_args_json <- ISAJson.stringify(init_args)
+        air <- Ipfs.cat_from(script_cid, ipfs.multiaddr)
+
+        on INIT_PEER_ID:
+            co Console.print(init_args_json)
+
+        trig_conf <- times(10, 5)
+        -- TODO: rename PeerSpell to SpellControl
+        spell_id <- PeerSpell.install(air.contents, init_args_json, trig_conf)
+        <- spell_id

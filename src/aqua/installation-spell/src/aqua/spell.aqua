@@ -1,0 +1,69 @@
+import Op, Debug, Hash, Dist, Srv from "@fluencelabs/aqua-lib/builtin.aqua"
+import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+import Spell from "@fluencelabs/spell/spell_service.aqua"
+
+import JsonStr, RACJson, ModuleConfigJson from "./json.aqua"
+import Multiaddr, CID, InstallSpellArgs from "./types.aqua"
+import Console from "./console.aqua"
+
+
+service SpellData("getDataSrv"):
+    spell_id() -> string
+
+func blueprint_key(service_name: string) -> string:
+    <- Op.concat_strings("blueprint:", service_name)
+
+-- returns 'true' if service is in spell KV and has the same blueprint_id
+-- returns 'false' otherwise
+func is_deployed(service_name: string, blueprint_id: string) -> bool:
+    result: ?bool
+
+    spell_id <- SpellData.spell_id()
+    Spell spell_id
+    deployed <- Spell.exists(service_name)
+    if deployed.flag:
+        stored_blueprint <- Spell.get_string(blueprint_key(service_name))
+        if stored_blueprint.str == blueprint_id:
+            result <<- true
+        else:
+            result <<- false
+        Console.print(Debug.stringify([deployed, stored_blueprint, blueprint_id, result]))
+    else:
+        result <<- false
+
+    <- result!
+
+func install(ipfs: Multiaddr, app_config_json: CID):
+    spell_id <- SpellData.spell_id()
+    ipfs_maddr <- JsonStr.parse(ipfs)
+    app_config_json_parsed <- JsonStr.parse(app_config_json)
+    on HOST_PEER_ID:
+        -- download App Config from IPFS
+        json <- Ipfs.cat_from(app_config_json_parsed, ipfs_maddr)
+        if json.success:
+            app_config <- RACJson.parse(json.contents)
+            on INIT_PEER_ID:
+                co Console.print(Debug.stringify(app_config))
+
+            for s <- app_config.services:
+                hashes: *Hash
+                for m <- s.modules:
+                    get_wasm <- Ipfs.get_from(m.wasm, ipfs_maddr)
+                    json_cfg <- Ipfs.cat_from(m.config, ipfs_maddr)
+                    cfg <- ModuleConfigJson.parse(json_cfg.contents)
+                    hash <- Dist.add_module_from_vault(get_wasm.path, cfg)
+                    on INIT_PEER_ID:
+                        co Console.print(Debug.stringify([cfg, hash]))
+                    hashes <- Op.concat_strings("hash:", hash)
+
+                blueprint <- Dist.make_blueprint(s.name, hashes)
+                blueprint_id <- Dist.add_blueprint(blueprint)
+
+                -- do not deploy if already deployed with the same blueprint
+                if is_deployed(s.name, blueprint_id) == false:
+                    service_id <- Srv.create(blueprint_id)
+                    Spell spell_id
+                    Spell.set_string(s.name, service_id)
+                    Spell.set_string(blueprint_key(s.name), blueprint_id)
+                else:
+                    Console.print(Op.concat_strings(s.name, " is already deployed"))
