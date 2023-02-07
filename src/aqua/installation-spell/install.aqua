@@ -125,11 +125,16 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
 
     <- result!
 
+data InstallSpellArgs:
+    ipfs: Multiaddr
+    app_config_json: CID
+
 func install(ipfs: Multiaddr, app_config_json: CID):
     spell_id <- SpellData.spell_id()
     ipfs_maddr <- JsonStr.parse(ipfs)
     app_config_json_parsed <- JsonStr.parse(app_config_json)
     on HOST_PEER_ID:
+        -- download App Config from IPFS
         json <- Ipfs.cat_from(app_config_json_parsed, ipfs_maddr)
         if json.success:
             app_config <- RACJson.parse(json.contents)
@@ -159,10 +164,6 @@ func install(ipfs: Multiaddr, app_config_json: CID):
                 else:
                     Console.print(Op.concat_strings(s.name, " is already deployed"))
 
-            -- Manual set:
-            -- Spell spell_id
-            -- Spell.set_string(s.name, service_id)
-
 func install_to_relay(app_config_json: CID):
     on HOST_PEER_ID:
         ipfs <- get_external_api_multiaddr(HOST_PEER_ID)
@@ -171,10 +172,6 @@ func install_to_relay(app_config_json: CID):
 func upstall(config: LocalAppConfig):
     cid <- upload_to_relay(config)
     install_to_relay(cid)
-
-data InstallSpellArgs:
-    ipfs: Multiaddr
-    app_config_json: CID
 
 service ISAJson("json"):
     stringify(isa: InstallSpellArgs) -> JsonString
@@ -195,6 +192,7 @@ func oneshot() -> TriggerConfig:
 func times(times: u32, period: u32) -> TriggerConfig:
     now <- Cast.identity(Peer.timestamp_sec())
     clock = ClockConfig(start_sec = now, end_sec = now + (period * times), period_sec = period)
+
     e1 = ConnectionPoolConfig(connect = false, disconnect = false)
     e2 = BlockChainConfig(start_block = 0, end_block = 0)
     <- TriggerConfig(clock = clock, connections = e1, blockchain = e2)
