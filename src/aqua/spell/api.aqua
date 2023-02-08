@@ -2,10 +2,11 @@ module API declares *
 
 import "@fluencelabs/aqua-lib/builtin.aqua"
 import TriggerConfig from "spell_service.aqua"
-import SpellID, JsonString from "types.aqua"
+import SpellID from "types.aqua"
 
 service PeerSpell("spell"):
-    install(script: string, init_data: JsonString, config: TriggerConfig) -> SpellID
+    -- init_data must be an object that corresponds to the spell function signature
+    install(script: string, init_data: ⊤, config: TriggerConfig) -> SpellID
     remove(spell_id: SpellID)
     update_trigger_config(spell_id: SpellID, config: TriggerConfig)
     list() -> []SpellID
