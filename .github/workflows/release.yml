@@ -146,9 +146,6 @@ jobs:
       - run: npm i
         working-directory: "src/aqua/spell"
 
-      - run: npm run prepare
-        working-directory: "src/aqua/spell"
-
       - name: Publish to NPM registry
         run: npm publish --access public --tag unstable
         working-directory: "src/aqua/spell"
