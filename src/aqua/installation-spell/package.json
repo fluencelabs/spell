@@ -16,10 +16,10 @@
   "author": "Fluence Labs",
   "license": "Apache-2.0",
   "dependencies": {
-    "@fluencelabs/spell": "0.0.1"
+    "@fluencelabs/spell": "0.0.1",
+    "@fluencelabs/aqua-ipfs": "0.5.9",
+    "@fluencelabs/aqua-lib": "0.6.0"
   },
   "localDependencies": {
-    "@fluencelabs/aqua-ipfs": "../../../../aqua-ipfs/aqua",
-    "@fluencelabs/aqua-lib": "../../../../aqua-lib"
   }
 }
