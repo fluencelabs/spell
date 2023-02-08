@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/fluencelabs/spell/compare/spell-v0.2.0...spell-v0.3.0) (2023-02-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **api:** accept init_data ⊤ (any) in Spell.install ([#35](https://github.com/fluencelabs/spell/issues/35))
+
+### Features
+
+* **api:** accept init_data ⊤ (any) in Spell.install ([#35](https://github.com/fluencelabs/spell/issues/35)) ([61982ef](https://github.com/fluencelabs/spell/commit/61982efd736dca1085236067da6be4048b5d4578))
+
+## Changelog
+
 ### ⚠ BREAKING CHANGES
 
 * **errors:** SpellValueT::get_error -> SpellValueT::take_error to get rid of `.clone()`
