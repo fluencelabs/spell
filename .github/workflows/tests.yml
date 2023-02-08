@@ -12,7 +12,7 @@ on:
         type: string
         # default: "fluencelabs/fluence:minimal"
         # default: "docker.fluence.dev/rust-peer:minimal_master_584_1"
-        default: "docker.fluence.dev/rust-peer:minimal_downgrade-air_760_2"
+        default: "docker.fluence.dev/rust-peer:minimal_downgrade-air_760_1"
       ref:
         description: "GitHub ref to checkout to"
         type: string
