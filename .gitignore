@@ -19,3 +19,7 @@ src/aqua/*.ts
 **/artifacts/*.wasm
 **/*.tar.gz
 **/spell-service/*
+
+**/__pycache__
+
+src/aqua/installation-spell/src/air

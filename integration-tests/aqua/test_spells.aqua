@@ -1,0 +1,29 @@
+import "@fluencelabs/aqua-lib/math.aqua"
+import "../../src/aqua/spell/spell_service.aqua"
+
+service JsonStr("json"):
+  parse(str: string) -> string
+
+service JsonNum("json"):
+  stringify(obj: i64) -> string
+  parse(str: string) -> i64
+
+service Json("json"):
+  stringify(obj: ⊤) -> string
+
+func inc_other_spell(fellow_spell_id: string):
+    Spell fellow_spell_id
+    result <- Spell.get_string("value")
+    if result.success:
+        value_num <- JsonNum.parse(result.str)
+        value_new <- Math.add(value_num, 1)
+        value_str <- JsonNum.stringify(value_new)
+        Spell.set_string("value", value_str)
+
+data IncState:
+    value: i64
+
+func inc_value(value: i64) -> IncState:
+    result = value + 1
+    obj = IncState(value = result)
+    <- obj

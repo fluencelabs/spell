@@ -1,7 +1,10 @@
-name: "spell"
+name: "ci"
 
 on:
   pull_request:
+    paths-ignore:
+      - "**.md"
+
   push:
     branches:
       - "main"
@@ -11,9 +14,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  Spell:
-    name: "Run tests"
+  spell:
+    uses: ./.github/workflows/tests.yml
+    with:
+      ref: ${{ github.ref }}
+
+  cargo:
+    name: "spell / Run cargo tests"
     runs-on: builder
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v3

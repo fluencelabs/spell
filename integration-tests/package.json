@@ -1,0 +1,22 @@
+{
+  "name": "aqua-tests",
+  "version": "1.0.0",
+  "description": "Spells Integration Tests",
+  "dependencies": {
+    "@fluencelabs/aqua-lib": "^0.5.1"
+  },
+  "scripts": {
+    "compile-aqua": "aqua -i . -o ./target/typescript",
+    "make-air": "aqua --no-relay -i ./aqua/test_spells.aqua -o air --air",
+    "build": "npm run compile-aqua"
+  },
+  "keywords": [
+    "aqua",
+    "fluence"
+  ],
+  "author": "Fluence Labs",
+  "license": "MIT",
+  "devDependencies": {
+    "@fluencelabs/aqua": "0.9.1-374"
+  }
+}
