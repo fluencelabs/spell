@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  "spell",
+  "spell-dtos",
+  "spell-distro"
+]
