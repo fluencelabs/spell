@@ -35,8 +35,8 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
 
 func install(ipfs: Multiaddr, app_config_json: CID):
     spell_id <- SpellData.spell_id()
-    ipfs_maddr <- JsonStr.parse(ipfs)
-    app_config_json_parsed <- JsonStr.parse(app_config_json)
+    ipfs_maddr = ipfs
+    app_config_json_parsed = app_config_json
     on HOST_PEER_ID:
         -- download App Config from IPFS
         json <- Ipfs.cat_from(app_config_json_parsed, ipfs_maddr)

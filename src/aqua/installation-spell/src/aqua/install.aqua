@@ -18,15 +18,14 @@ func upstall_spell_to_relay(script: Path, config: LocalAppConfig) -> string:
     Console.print(ipfs.multiaddr)
 
     on HOST_PEER_ID:
-        -- install
+        -- prepare spell arguments
         init_args = InstallSpellArgs(ipfs = ipfs.multiaddr, app_config_json = config_cid)
-        init_args_json <- ISAJson.stringify(init_args)
+        -- retrieve spell script
         air <- Ipfs.cat_from(script_cid, ipfs.multiaddr)
 
-        on INIT_PEER_ID:
-            co Console.print(init_args_json)
-
-        trig_conf <- times(10, 5)
+        -- run spell 10 times every 60 seconds
+        trig_conf <- times(10, 60)
+        -- install spell
         -- TODO: rename PeerSpell to SpellControl
-        spell_id <- PeerSpell.install(air.contents, init_args_json, trig_conf)
+        spell_id <- PeerSpell.install(air.contents, init_args, trig_conf)
         <- spell_id
