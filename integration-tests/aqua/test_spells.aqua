@@ -12,8 +12,7 @@ service Json("json"):
   stringify(obj: ⊤) -> string
 
 func inc_other_spell(fellow_spell_id: string):
-    fellow_spell_id_real <- JsonStr.parse(fellow_spell_id)
-    Spell fellow_spell_id_real
+    Spell fellow_spell_id
     result <- Spell.get_string("value")
     if result.success:
         value_num <- JsonNum.parse(result.str)
@@ -22,11 +21,9 @@ func inc_other_spell(fellow_spell_id: string):
         Spell.set_string("value", value_str)
 
 data IncState:
-	value: i64
+    value: i64
 
-func inc_value(value: string) -> string:
-    value_real <- JsonNum.parse(value)
-    result <- Math.add(value_real, 1)
-	obj = IncState(value = result)
-	obj_str <- Json.stringify(obj)
-	<- obj_str
+func inc_value(value: i64) -> IncState:
+    result = value + 1
+    obj = IncState(value = result)
+    <- obj

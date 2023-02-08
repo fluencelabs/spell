@@ -61,7 +61,7 @@ def from_aqua(aqua, func_name):
                 air_script = f.read()
         except e:
             raise Exception(f"Unable to read compiled air script by path {air_path}: {e}")
-        return air_script 
+        return air_script
 
 # TODO: learn how to chose the relay based on the test worker id.
 def run_aqua(sk, func, args, relay=get_relay()):
@@ -96,7 +96,7 @@ def trigger_connect():
 def install_spell(sk, script, config, dat):
     return run_aqua(sk, "install", [script, config, dat])
 
-def install_spell_ok(sk, script, config, dat = "{}"):
+def install_spell_ok(sk, script, config, dat = {}):
     """
     Install a spell with given configuration and check the resulting spell_id
     """
@@ -131,7 +131,8 @@ def get_counter_ok(sk, spell_id):
 
 def create_spell(script, config, dat):
     sk = get_sk()
-    spell_id = install_spell_ok(sk, script, config, json.dumps(dat))
+    print("dat is", dat)
+    spell_id = install_spell_ok(sk, script, config, dat)
     return spell_id, sk
 
 def destroy_spell(sk, spell_id):
