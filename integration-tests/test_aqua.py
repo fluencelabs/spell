@@ -41,24 +41,7 @@ class TestSmoke:
 
     # Air: air/test_spells.inc_value.air
     # Aqua: aqua/test_spells.aqua, function: inc_value
-    air_script = """
-        (seq
-         (seq
-          (seq
-           (seq
-            (seq
-             (call %init_peer_id% ("getDataSrv" "value") [] value)
-             (call %init_peer_id% ("json" "parse") [value] value_real)
-            )
-            (call %init_peer_id% ("math" "add") [value_real 1] result)
-           )
-           (call %init_peer_id% ("json" "obj") ["value" result] IncState_obj)
-          )
-          (call %init_peer_id% ("json" "stringify") [IncState_obj] obj_str)
-         )
-         (call %init_peer_id% ("callbackSrv" "response") [obj_str])
-        )
-        """
+    air_script = open("./air/test_spells.inc_value.air").read()
 
     dat = {"value": 0}
 
@@ -162,35 +145,10 @@ class TestRemoveWithAux:
     def setup_method(self):
         # Aqua: aqua/test_spells.aqua, func: inc_other_spell
         # Air: air/test_spells.inc_other_spell.air
-        # 
+        #
         # TODO: I want to be able to put here aqua for clarity, but I don't want to compile it during tests.
-        #       Is there some ways? 
-        script = f"""
-            (seq
-             (seq
-              (seq
-               (call %init_peer_id% ("getDataSrv" "fellow_spell_id") [] fellow_spell_id)
-               (call %init_peer_id% ("json" "parse") [fellow_spell_id] fellow_spell_id_real)
-              )
-              (call %init_peer_id% (fellow_spell_id_real "get_string") ["value"] result)
-             )
-             (xor
-              (match result.$.success! true
-               (seq
-                (seq
-                 (seq
-                  (call %init_peer_id% ("json" "parse") [result.$.str!] value_num)
-                  (call %init_peer_id% ("math" "add") [value_num 1] value_new)
-                 )
-                 (call %init_peer_id% ("json" "stringify") [value_new] value_str)
-                )
-                (call %init_peer_id% (fellow_spell_id_real "set_string") ["value" value_str])
-               )
-              )
-              (call %init_peer_id% ("op" "noop") [])
-             )
-            )
-        """
+        #       Is there some ways?
+        script = open("./air/test_spells.inc_other_spell.air").read()
 
         config = empty_config()
         # pass the storage spell id to the worker spell
@@ -427,7 +385,7 @@ class TestSpellError:
     air_script = """
     (xor
         (call %init_peer_id% ("not-exist" "not-exist") [] x)
-        (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1]) 
+        (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
     )
     """
     config = oneshot_config()
@@ -449,7 +407,7 @@ class TestSpellError:
 # + Clarity
 # - Need to recompile every test, which takes time on every PR it's running.
 #   Event without it these tests are long.
-# 
+#
 # class TestAquaCode:
 #     script_aqua = """
 # import "../../src/aqua/spell/spell_service.aqua"
@@ -457,13 +415,13 @@ class TestSpellError:
 # service JsonNum("json"):
 #   stringify(obj: i64) -> string
 #   parse(str: string) -> i64
-# 
+#
 # service Json("json"):
 #   stringify(obj: ⊤) -> string
 #
 # data IncState:
 #     value: i64
-# 
+#
 # func inc_value(value: string) -> string:
 #     value_real <- JsonNum.parse(value)
 #     obj = IncState(value = value_real)

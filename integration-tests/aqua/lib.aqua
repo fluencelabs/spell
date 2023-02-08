@@ -18,7 +18,7 @@ data InstallResult:
   error: string
   spell_id: string
 
-func install(script: string, cfg: TriggerConfig, dat: string) -> InstallResult:
+func install(script: string, cfg: TriggerConfig, dat: ⊤) -> InstallResult:
     result: *InstallResult
     on HOST_PEER_ID:
         try:
