@@ -72,6 +72,16 @@ jobs:
             custom ${{ steps.version.outputs.version }}
         working-directory: src/spell/modules/spell
 
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Set version version
+        run: npm version ${{ steps.version.outputs.version }}
+        working-directory: src/aqua/spell
+
       - name: Commit version bump
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
@@ -105,7 +115,8 @@ jobs:
           jwtTtl: 300
           exportToken: false
           secrets: |
-            kv/crates.io/fluencebot token | CARGO_REGISTRY_TOKEN
+            kv/crates.io/fluencebot token | CARGO_REGISTRY_TOKEN ;
+            kv/npmjs/fluencebot token | NODE_AUTH_TOKEN
 
       - name: Setup Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -123,6 +134,21 @@ jobs:
         uses: baptiste0928/cargo-install@v1.3.0
         with:
           crate: cargo-workspaces
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          registry-url: "https://registry.npmjs.org"
+          cache-dependency-path: "src/aqua/spell"
+          cache: "npm"
+
+      - run: npm i
+        working-directory: "src/aqua/spell"
+
+      - name: Publish to NPM registry
+        run: npm publish --access public --tag unstable
+        working-directory: "src/aqua/spell"
 
       - name: Publish to crates.io
         working-directory: ./src/spell/modules/spell
