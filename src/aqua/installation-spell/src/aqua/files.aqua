@@ -1,0 +1,17 @@
+import CID, Path, Multiaddr from "./types.aqua"
+
+
+service IpfsClient("ipfs_client"):
+    id(multiaddr: string) -> string
+    exists(multiaddr: string, cid: CID) -> bool
+    upload(multiaddr: string, path: string) -> CID
+    upload_string(multiaddr: string, contents: string) -> CID
+    remove(multiaddr: string, cid: CID) -> string
+
+service FileSystem("file_system"):
+    list(directory: string) -> []Path
+    list_ext(directory: string, ext: string) -> []Path
+
+
+func upload_script(ipfs: Multiaddr, path: Path) -> CID:
+    <- IpfsClient.upload(ipfs, path)

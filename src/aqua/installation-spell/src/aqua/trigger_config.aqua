@@ -1,0 +1,19 @@
+import TriggerConfig, ClockConfig, ConnectionPoolConfig, BlockChainConfig from "@fluencelabs/spell/spell_service.aqua"
+import Cast from "./op.aqua"
+import Peer from "@fluencelabs/aqua-lib/builtin.aqua"
+
+
+func oneshot() -> TriggerConfig:
+    now <- Cast.identity(Peer.timestamp_sec())
+    oneshot = ClockConfig(start_sec = now, end_sec = now + 1, period_sec = 0)
+    e1 = ConnectionPoolConfig(connect = false, disconnect = false)
+    e2 = BlockChainConfig(start_block = 0, end_block = 0)
+    <- TriggerConfig(clock = oneshot, connections = e1, blockchain = e2)
+
+func times(times: u32, period_sec: u32) -> TriggerConfig:
+    now <- Cast.identity(Peer.timestamp_sec())
+    clock = ClockConfig(start_sec = now, end_sec = now + (period_sec * times), period_sec = period_sec)
+
+    e1 = ConnectionPoolConfig(connect = false, disconnect = false)
+    e2 = BlockChainConfig(start_block = 0, end_block = 0)
+    <- TriggerConfig(clock = clock, connections = e1, blockchain = e2)
