@@ -82,6 +82,10 @@ jobs:
         run: npm version ${{ steps.version.outputs.version }}
         working-directory: src/aqua/spell
 
+      - name: Run npm install
+        run: npm install
+        working-directory: src/aqua/spell
+
       - name: Set aqua/installation-spell version
         run: npm version ${{ steps.version.outputs.version }}
         working-directory: src/aqua/installation-spell
