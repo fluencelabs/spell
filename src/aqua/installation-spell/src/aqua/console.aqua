@@ -1,2 +1,2 @@
 service Console("run-console"):
-    print(s: string)
+    print(anything: ⊤)

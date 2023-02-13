@@ -1,10 +1,42 @@
 import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
-import ModuleConfig, Op from "@fluencelabs/aqua-lib/builtin.aqua"
+import PeerId from "@fluencelabs/aqua-lib/builtin.aqua"
+import SpellID from "@fluencelabs/spell/types.aqua"
 
 import CID, JsonString, Path, Multiaddr from "./types.aqua"
 import IpfsClient from "./files.aqua"
-import get_external_api_multiaddr from "@fluencelabs/aqua-ipfs/ipfs-api.aqua"
 
+const IPFS = "/dns4/ipfs.fluence.dev/tcp/5001"
+
+-- local DTOs
+data LocalSpell:
+    name: string
+    script: string
+    config: TriggerConfig
+    init_args: ⊤
+
+data LocalModule:
+    wasm: Path
+    config: string
+
+data LocalService:
+    name: string
+    modules: []LocalModule
+
+data LocalWorkerConfig:
+    services: []LocalService
+    spells: []LocalSpell
+
+data LocalWorkerDeployConfig:
+    name: string
+    hosts: []PeerId
+    config: LocalWorkerConfig
+
+data LocalAppDeployConfig:
+    installation_script: string
+    installation_trigger: TriggerConfig
+    workers: []LocalWorkerDeployConfig
+
+-- uploaded DTOs
 data Module:
     wasm: CID
     config: CID
@@ -14,46 +46,71 @@ data Service:
     modules: []Module
 
 data Spell:
-    script: string
-    config: TriggerConfig
+    name: string
+    script: CID
+    config: CID
+    init_args: CID
 
-data RemoteAppConfig:
+data WorkerDefinition:
     services: []Service
     spells: []Spell
 
-service RACJson("json"):
-    stringify(rac: RemoteAppConfig) -> JsonString
-    parse(json: JsonString) -> RemoteAppConfig
+service WDJson("json"):
+    stringify(wd: WorkerDefinition) -> JsonString
+    parse(json: JsonString) -> WorkerDefinition
 
-data LocalModule:
-    wasm: Path
-    config: Path
-
-data LocalService:
+-- How to deploy a single worker definition to multiple hosts
+data WorkerDeployDefinition:
     name: string
-    modules: []LocalModule
+    hosts: []PeerId
+    definition: CID -- stringified WorkerDefinition
 
-data LocalAppConfig:
-    basedir: Path
-    services: []LocalService
-    -- TODO: add spells
-    -- spells: []Spell
+data AppDeployDefinition:
+    installation_script: string
+    installation_trigger: TriggerConfig
+    workers: []WorkerDeployDefinition
 
-func upload_app_config(ipfs: Multiaddr, config: LocalAppConfig) -> CID:
+
+-- deployed DTOs
+data DeployedSpell:
+  host_id: PeerId
+  worker_id: PeerId
+  spell_id: SpellID
+
+data DeployedWorkers:
+  name: string
+  installation_spells: []DeployedSpell
+
+data DeployedAppWorkers:
+  workers: []DeployedWorkers
+
+func upload_worker_config(ipfs: Multiaddr, config: LocalWorkerConfig) -> CID:
     services: *Service
     for s <- config.services:
         modules: *Module
         for m <- s.modules:
-            wasm <- IpfsClient.upload(ipfs, Op.concat_strings(config.basedir, m.wasm))
-            cfg <- IpfsClient.upload(ipfs, Op.concat_strings(config.basedir, m.config))
+            wasm <- IpfsClient.upload(ipfs, m.wasm)
+            cfg <- IpfsClient.upload(ipfs, m.config)
             modules <<- Module(wasm = wasm, config = cfg)
         services <<- Service(name = s.name, modules = modules)
-    rac = RemoteAppConfig(services = services, spells = [])
-    json <- RACJson.stringify(rac)
+    rac = WorkerDefinition(services = services, spells = [])
+    json <- WDJson.stringify(rac)
     cid <- IpfsClient.upload_string(ipfs, json)
     <- cid
 
-func upload_to_relay(config: LocalAppConfig) -> CID:
-    on HOST_PEER_ID:
-        ipfs <- get_external_api_multiaddr(HOST_PEER_ID)
-        <- upload_app_config(ipfs.multiaddr, config)
+func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
+    deploy_defs: *WorkerDeployDefinition
+    for w <- config.workers:
+        definition_cid <- upload_worker_config(IPFS, w.config)
+        deploy_defs <<- WorkerDeployDefinition(
+            name = w.name,
+            hosts = w.hosts,
+            definition = definition_cid
+        )
+
+    deploy_definition = AppDeployDefinition(
+        installation_script = config.installation_script,
+        installation_trigger = config.installation_trigger,
+        workers = deploy_defs
+    )
+    <- deploy_definition

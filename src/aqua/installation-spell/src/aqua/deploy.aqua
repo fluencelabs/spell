@@ -1,0 +1,53 @@
+import PeerSpell from "@fluencelabs/spell/api.aqua"
+import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
+import SpellID from "@fluencelabs/spell/types.aqua"
+
+import IpfsClient, upload_script from "./files.aqua"
+import WorkerSpellArgs, CID, WorkerID from "./types.aqua"
+import IPFS, AppDeployDefinition, DeployedAppWorkers, DeployedSpell, DeployedWorkers from "./config.aqua"
+
+import Console from "./console.aqua"
+
+func deploy_single_worker(
+    air: string,
+    trigger_config: TriggerConfig,
+    worker_name: string,
+    worker_definition: CID
+) -> SpellID, WorkerID:
+    -- prepare spell arguments
+    init_args = WorkerSpellArgs(ipfs = IPFS, worker_definition = worker_definition)
+
+    -- install spell
+    spell_id <- PeerSpell.install(air, init_args, trigger_config)
+            -- TODO: implement dreams
+            -- worker_id <- Worker.create_worker(Op.concat_strings(worker_name, INIT_PEER_ID))
+            -- on worker_id:
+            --     Srv.add_alias("worker-spell", spell_id)
+    <- spell_id, "TBD"
+
+func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
+    workers: *DeployedWorkers
+    for w <- config.workers:
+        spells: *DeployedSpell
+        for h <- w.hosts:
+            on h:
+                spell_id, worker_id <- deploy_single_worker(
+                    config.installation_script,
+                    config.installation_trigger,
+                    w.name,
+                    w.definition
+                )
+                spells <<- DeployedSpell(spell_id = spell_id, worker_id = worker_id, host_id = h)
+                on INIT_PEER_ID via HOST_PEER_ID:
+                    co Console.print(["deployed spell", spell_id, worker_id, "to", h])
+
+        workers <<- DeployedWorkers(name = w.name, installation_spells = spells)
+        on INIT_PEER_ID via HOST_PEER_ID:
+            co Console.print(["deployed workers", workers])
+
+    deployed = DeployedAppWorkers(workers = workers)
+    <- deployed
+
+
+-- TODO:
+-- func remove(worker: WorkerId)
