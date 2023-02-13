@@ -24,6 +24,9 @@
     "@fluencelabs/registry": "0.7.0",
     "@fluencelabs/spell": "0.1.0"
   },
+  "devDependencies": {
+    "@fluencelabs/aqua": "0.9.4"
+  },
   "workspaces": [
     "../spell"
   ]
