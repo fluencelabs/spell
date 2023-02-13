@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/fluencelabs/spell/compare/spell-v0.3.0...spell-v0.3.1) (2023-02-13)
+
+
+### Features
+
+* Add Installation Spell [#34](https://github.com/fluencelabs/spell/issues/34) ([b957008](https://github.com/fluencelabs/spell/commit/b95700881e77805d2a17c18d21568943f2a51f2e))
+* **workers:** Implement worker deployment though spells ([#39](https://github.com/fluencelabs/spell/issues/39)) ([29952b9](https://github.com/fluencelabs/spell/commit/29952b99b83f0fc817d7c095744341a9ade9eaad))
+
 ## [0.3.0](https://github.com/fluencelabs/spell/compare/spell-v0.2.0...spell-v0.3.0) (2023-02-08)
 
 
