@@ -72,6 +72,15 @@ jobs:
             custom ${{ steps.version.outputs.version }}
         working-directory: src/spell/modules/spell
 
+      - name: Install Marine
+        uses: baptiste0928/cargo-install@v1.3.0
+        with:
+          crate: marine
+
+      - name: Build and package spell
+        working-directory: ./src/spell/modules/spell/spell
+        run: ./build.sh
+
       - name: Setup node
         uses: actions/setup-node@v3
         with:
