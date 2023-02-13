@@ -86,6 +86,10 @@ jobs:
         run: npm version ${{ steps.version.outputs.version }}
         working-directory: src/aqua/installation-spell
 
+      - name: Set aqua/spell version in installation-spell dependencies
+        run: npm install -E @fluencelabs/spell@${{ steps.version.outputs.version }}
+        working-directory: src/aqua/installation-spell
+
       - name: Commit version bump
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
