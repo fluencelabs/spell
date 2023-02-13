@@ -55,7 +55,7 @@ jobs:
       - name: Install cargo-workspaces
         uses: baptiste0928/cargo-install@v1.3.0
         with:
-          crate: cargo-worspaces
+          crate: cargo-workspaces
 
       - name: Get version
         id: version
