@@ -15,25 +15,27 @@ aqua run -i src/aqua/install.aqua \
     --data '{
         "script": "/Users/folex/Development/fluencelabs/spell/src/aqua/installation-spell/src/air/spell.install.air",
         "app_config": {
-            "basedir": "/Users/folex/Development/fluencelabs/examples/marine-examples/url-downloader/artifacts/",
-            "services": [
-                {
-                    "name": "url-downloader",
-                    "modules": [
-                        {
-                            "wasm": "curl_adapter.wasm",
-                            "config": "curl_adapter.json"
-                        },
-                        {
-                            "wasm": "local_storage.wasm",
-                            "config": "local_storage.json"
-                        },
-                        {
-                            "wasm": "facade.wasm",
-                            "config": "facade.json"
-                        }
-                    ]
-                }
-            ]
+            "hosts": ["12D3KooWB7fEjubgmpJAtzTKCdWeLmXadR1VP2mYCNZMzgBWkKef"],
+            "worker": {
+                "services": [
+                    {
+                        "name": "url-downloader",
+                        "modules": [
+                            {
+                                "wasm": "/Users/folex/Development/fluencelabs/examples/marine-examples/url-downloader/artifacts/curl_adapter.wasm",
+                                "config": "/Users/folex/Development/fluencelabs/examples/marine-examples/url-downloader/artifacts/curl_adapter.json"
+                            },
+                            {
+                                "wasm": "/Users/folex/Development/fluencelabs/examples/marine-examples/url-downloader/artifacts/local_storage.wasm",
+                                "config": "/Users/folex/Development/fluencelabs/examples/marine-examples/url-downloader/artifacts/local_storage.json"
+                            },
+                            {
+                                "wasm": "/Users/folex/Development/fluencelabs/examples/marine-examples/url-downloader/artifacts/facade.wasm",
+                                "config": "/Users/folex/Development/fluencelabs/examples/marine-examples/url-downloader/artifacts/facade.json"
+                            }
+                        ]
+                    }
+                ]
+            }
         }
     }'

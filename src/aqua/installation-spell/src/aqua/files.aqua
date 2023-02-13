@@ -13,5 +13,5 @@ service FileSystem("file_system"):
     list_ext(directory: string, ext: string) -> []Path
 
 
-func upload_script(ipfs: Multiaddr, path: Path) -> CID:
-    <- IpfsClient.upload(ipfs, path)
+func upload_script(ipfs: Multiaddr, path: string) -> CID:
+    <- IpfsClient.upload_string(ipfs, path)

@@ -1,31 +1,45 @@
 import PeerSpell from "@fluencelabs/spell/api.aqua"
-import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
-import get_external_api_multiaddr from "@fluencelabs/aqua-ipfs/ipfs-api.aqua"
+import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
+import SpellID from "@fluencelabs/spell/types.aqua"
 
 import IpfsClient, upload_script from "./files.aqua"
-import InstallSpellArgs, Path from "./types.aqua"
-import LocalAppConfig, upload_app_config from "./config.aqua"
-import Console from "./console.aqua"
-import ISAJson from "./json.aqua"
-import times from "./trigger_config.aqua"
+import WorkerSpellArgs, CID, WorkerID from "./types.aqua"
+import IPFS, AppDeployDefinition, DeployedAppWorkers, DeployedSpell, DeployedWorkers from "./config.aqua"
 
-func upstall_spell_to_relay(script: Path, config: LocalAppConfig) -> string:
-    -- upload
-    on HOST_PEER_ID:
-        ipfs <- get_external_api_multiaddr(HOST_PEER_ID)
-    config_cid <- upload_app_config(ipfs.multiaddr, config)
-    script_cid <- upload_script(ipfs.multiaddr, script)
-    Console.print(ipfs.multiaddr)
+func deploy_single_worker(
+    air: string,
+    trigger_config: TriggerConfig,
+    worker_name: string,
+    worker_definition: CID
+) -> SpellID, WorkerID:
+    -- prepare spell arguments
+    init_args = WorkerSpellArgs(ipfs = IPFS, worker_definition = worker_definition)
 
-    on HOST_PEER_ID:
-        -- prepare spell arguments
-        init_args = InstallSpellArgs(ipfs = ipfs.multiaddr, app_config_json = config_cid)
-        -- retrieve spell script
-        air <- Ipfs.cat_from(script_cid, ipfs.multiaddr)
+    -- install spell
+    spell_id <- PeerSpell.install(air, init_args, trigger_config)
+            -- TODO: implement dreams
+            -- worker_id <- Worker.create_worker(Op.concat_strings(worker_name, INIT_PEER_ID))
+            -- on worker_id:
+            --     Srv.add_alias("worker-spell", spell_id)
+    <- spell_id, "TBD"
 
-        -- run spell 10 times every 60 seconds
-        trig_conf <- times(10, 60)
-        -- install spell
-        -- TODO: rename PeerSpell to SpellControl
-        spell_id <- PeerSpell.install(air.contents, init_args, trig_conf)
-        <- spell_id
+func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
+    workers: *DeployedWorkers
+    for w <- config.workers:
+        spells: *DeployedSpell
+        for h <- w.hosts:
+            on h:
+                spell_id, worker_id <- deploy_single_worker(
+                    config.installation_script,
+                    config.installation_trigger,
+                    w.name,
+                    w.definition
+                )
+                spells <<- DeployedSpell(spell_id = spell_id, worker_id = worker_id, host_id = h)
+        workers <<- DeployedWorkers(name = w.name, installation_spells = spells)
+
+    <- DeployedAppWorkers(workers = workers)
+
+
+-- TODO:
+-- func remove(worker: WorkerId)

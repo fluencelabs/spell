@@ -1,0 +1,27 @@
+-- import Op, Debug, Hash, Dist, Srv from "@fluencelabs/aqua-lib/builtin.aqua"
+-- import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+-- import Spell from "@fluencelabs/spell/spell_service.aqua"
+
+-- import JsonStr, RACJson, ModuleConfigJson from "./json.aqua"
+-- import Address, Multiaddr, CID, WorkerSpellArgs from "./types.aqua"
+-- import Console from "./console.aqua"
+
+-- import is_deployed, install, SpellData from "./spell.aqua"
+
+-- import "@fluencelabs/registry/resources-api.aqua"
+
+-- func deal_installation_script(ipfs: Multiaddr, app_config_json: CID, deal_id: Address):
+--   install(ipfs, app_config_json)
+
+--   spell_id <- SpellData.spell_id()
+--   createResource(label = deal_id, peer_id = insecure.peer_id)
+
+-- --   registry_key <- Subnetworkstry.get_or_create_registry_resource_for_worker(deal_id)
+-- --   records <- Registry.get_records(registry_key)
+-- --   worker_id = INIT_PEER_ID
+-- --   if records.exists(r => r.peer_id == worker_id) == false:
+-- --     // make DIS discoverable
+-- --     on relay:
+-- --       Registry.create_record(registry_key, relay = relay, service_id = spell_id, solution = PAT)
+-- --       // advertize record for first time
+-- --       Registry.start_republish(registry_key)

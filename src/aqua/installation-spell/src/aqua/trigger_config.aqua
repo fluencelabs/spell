@@ -3,17 +3,23 @@ import Cast from "./op.aqua"
 import Peer from "@fluencelabs/aqua-lib/builtin.aqua"
 
 
+func clock(c: ClockConfig) -> TriggerConfig:
+    e0 = ClockConfig(start_sec = 0, end_sec = 0, period_sec = 0)
+    e1 = ConnectionPoolConfig(connect = false, disconnect = false)
+    e2 = BlockChainConfig(start_block = 0, end_block = 0)
+    <- TriggerConfig(clock = c, connections = e1, blockchain = e2)
+
 func oneshot() -> TriggerConfig:
     now <- Cast.identity(Peer.timestamp_sec())
     oneshot = ClockConfig(start_sec = now, end_sec = now + 1, period_sec = 0)
-    e1 = ConnectionPoolConfig(connect = false, disconnect = false)
-    e2 = BlockChainConfig(start_block = 0, end_block = 0)
-    <- TriggerConfig(clock = oneshot, connections = e1, blockchain = e2)
+    <- clock(oneshot)
 
 func times(times: u32, period_sec: u32) -> TriggerConfig:
     now <- Cast.identity(Peer.timestamp_sec())
-    clock = ClockConfig(start_sec = now, end_sec = now + (period_sec * times), period_sec = period_sec)
+    c = ClockConfig(start_sec = now, end_sec = now + (period_sec * times), period_sec = period_sec)
+    <- clock(c)
 
-    e1 = ConnectionPoolConfig(connect = false, disconnect = false)
-    e2 = BlockChainConfig(start_block = 0, end_block = 0)
-    <- TriggerConfig(clock = clock, connections = e1, blockchain = e2)
+func period(period_sec: u32) -> TriggerConfig:
+    now <- Cast.identity(Peer.timestamp_sec())
+    c = ClockConfig(start_sec = now, end_sec = 0, period_sec = period_sec)
+    <- clock(c)

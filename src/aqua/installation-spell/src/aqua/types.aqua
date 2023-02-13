@@ -2,7 +2,9 @@ alias CID: string
 alias Path: string
 alias Multiaddr: string
 alias JsonString: string
+alias Address: string
+alias WorkerID: string
 
-data InstallSpellArgs:
+data WorkerSpellArgs:
     ipfs: Multiaddr
-    app_config_json: CID
+    worker_definition: CID
