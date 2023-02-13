@@ -208,7 +208,6 @@ jobs:
     needs:
       - release-please
       - spell
-      - installation-spell
 
     permissions:
       contents: read
