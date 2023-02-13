@@ -27,14 +27,14 @@ data LocalWorkerConfig:
     spells: []LocalSpell
 
 data LocalWorkerDeployConfig:
-  name: string
-  hosts: []PeerId
-  config: LocalWorkerConfig
+    name: string
+    hosts: []PeerId
+    config: LocalWorkerConfig
 
 data LocalAppDeployConfig:
-  installation_script: string
-  installation_trigger: TriggerConfig
-  workers: []LocalWorkerDeployConfig
+    installation_script: string
+    installation_trigger: TriggerConfig
+    workers: []LocalWorkerDeployConfig
 
 -- uploaded DTOs
 data Module:

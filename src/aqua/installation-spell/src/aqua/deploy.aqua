@@ -6,6 +6,8 @@ import IpfsClient, upload_script from "./files.aqua"
 import WorkerSpellArgs, CID, WorkerID from "./types.aqua"
 import IPFS, AppDeployDefinition, DeployedAppWorkers, DeployedSpell, DeployedWorkers from "./config.aqua"
 
+import Console from "./console.aqua"
+
 func deploy_single_worker(
     air: string,
     trigger_config: TriggerConfig,
@@ -36,9 +38,15 @@ func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
                     w.definition
                 )
                 spells <<- DeployedSpell(spell_id = spell_id, worker_id = worker_id, host_id = h)
-        workers <<- DeployedWorkers(name = w.name, installation_spells = spells)
+                on INIT_PEER_ID via HOST_PEER_ID:
+                    co Console.print(["deployed spell", spell_id, worker_id, "to", h])
 
-    <- DeployedAppWorkers(workers = workers)
+        workers <<- DeployedWorkers(name = w.name, installation_spells = spells)
+        on INIT_PEER_ID via HOST_PEER_ID:
+            co Console.print(["deployed workers", workers])
+
+    deployed = DeployedAppWorkers(workers = workers)
+    <- deployed
 
 
 -- TODO:
