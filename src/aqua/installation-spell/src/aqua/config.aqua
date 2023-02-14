@@ -90,7 +90,7 @@ func upload_worker_config(ipfs: Multiaddr, config: LocalWorkerConfig) -> CID:
         modules: *Module
         for m <- s.modules:
             wasm <- IpfsClient.upload(ipfs, m.wasm)
-            cfg <- IpfsClient.upload(ipfs, m.config)
+            cfg <- IpfsClient.upload_string(ipfs, m.config)
             modules <<- Module(wasm = wasm, config = cfg)
         services <<- Service(name = s.name, modules = modules)
     rac = WorkerDefinition(services = services, spells = [])

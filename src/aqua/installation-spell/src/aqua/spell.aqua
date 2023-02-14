@@ -56,6 +56,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
             blueprint <- Dist.make_blueprint(s.name, hashes)
             blueprint_id <- Dist.add_blueprint(blueprint)
 
+            -- TODO: check that services are still alive
             -- do not deploy if already deployed with the same blueprint
             if is_deployed(s.name, blueprint_id) == false:
                 service_id <- Srv.create(blueprint_id)

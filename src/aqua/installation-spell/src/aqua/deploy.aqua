@@ -20,8 +20,9 @@ func deploy_single_worker(
     -- install spell
     spell_id <- PeerSpell.install(air, init_args, trigger_config)
             -- TODO: implement dreams
-            -- worker_id <- Worker.create_worker(Op.concat_strings(worker_name, INIT_PEER_ID))
+            -- worker_id <- Worker.create_worker(dealAddress)
             -- on worker_id:
+            --     PeerSpell.install(air, init_args, trigger_config)
             --     Srv.add_alias("worker-spell", spell_id)
     <- spell_id, "TBD"
 
