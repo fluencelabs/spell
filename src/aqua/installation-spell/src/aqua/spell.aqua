@@ -42,6 +42,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
         on INIT_PEER_ID:
             co Console.print(worker_definition)
 
+        -- TODO: deploy spells
         for s <- worker_definition.services:
             hashes: *Hash
             for m <- s.modules:
