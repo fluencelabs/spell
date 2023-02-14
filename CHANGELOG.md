@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/fluencelabs/spell/compare/spell-v0.3.1...spell-v0.3.2) (2023-02-14)
+
+
+### Bug Fixes
+
+* **config:** upload module config as a string ([#51](https://github.com/fluencelabs/spell/issues/51)) ([6ce60d1](https://github.com/fluencelabs/spell/commit/6ce60d10804a9cb18af9c78ecebf37a335167516))
+
 ## [0.3.1](https://github.com/fluencelabs/spell/compare/spell-v0.3.0...spell-v0.3.1) (2023-02-13)
 
 
