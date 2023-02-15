@@ -4,19 +4,22 @@ CWD="$(dirname "$0")"
 # go to the project root
 PROJECT="$CWD/../.."
 
-aqua --no-relay -i src/aqua -o src/air --air > /dev/null
+aqua -i src/aqua -o src/air --air > /dev/null
 
 NOW=$(date +%s)
 
 # node sk: bL8RRGuBJEWSj4JKzLCUgR/EY8+lit2g1LE2BE1oF/U=
 aqua run -i "$PROJECT/src/aqua/cli.aqua" \
+    --sk "8wJyRzI3K8NPlCGSf9E+6ExB5MBdXQAz7m0suStjgNg=" \
+    --show-config \
     -f 'upload_deploy(deploy_config)' \
     --plugin "$PROJECT/src/plugins" \
-    --addr /ip4/127.0.0.1/tcp/9999/ws/p2p/12D3KooWB7fEjubgmpJAtzTKCdWeLmXadR1VP2mYCNZMzgBWkKef \
+    --addr /ip4/127.0.0.1/tcp/9990/ws/p2p/12D3KooWHBG9oaVx4i3vi6c1rSBUm7MLBmyGmmbHoZ23pmjDCnvK \
     --timeout 60000 \
     --data '{
         "deploy_config": {
-            "installation_script": '"$(cat /Users/folex/Development/fluencelabs/spell/src/aqua/installation-spell/src/air/spell.install.air | jq -Rs)"',
+            "deal_id": "prosh-is-the-beast",
+            "installation_script": '"$(cat /Users/folex/Development/fluencelabs/spell/src/aqua/installation-spell/src/air/deal_spell.deal_install.air | jq -Rs)"',
             "installation_trigger": {
                 "clock": { "start_sec": 1676293670, "end_sec": 0, "period_sec": 600 },
                 "connections": { "connect": false, "disconnect": false },
@@ -25,7 +28,7 @@ aqua run -i "$PROJECT/src/aqua/cli.aqua" \
             "workers": [
                 {
                     "name": "lampert",
-                    "hosts": ["12D3KooWB7fEjubgmpJAtzTKCdWeLmXadR1VP2mYCNZMzgBWkKef"],
+                    "hosts": ["12D3KooWHBG9oaVx4i3vi6c1rSBUm7MLBmyGmmbHoZ23pmjDCnvK"],
                     "config": {
                         "services": [
                             {

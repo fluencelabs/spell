@@ -1,27 +1,67 @@
--- import Op, Debug, Hash, Dist, Srv from "@fluencelabs/aqua-lib/builtin.aqua"
--- import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
--- import Spell from "@fluencelabs/spell/spell_service.aqua"
+import Op, Debug, Hash, Dist, Srv, PeerId from "@fluencelabs/aqua-lib/builtin.aqua"
+import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+import Spell from "@fluencelabs/spell/spell_service.aqua"
+import Registry from "@fluencelabs/registry/registry-service.aqua"
+import resolveResource from "@fluencelabs/registry/resources-api.aqua"
+import getInsecuredPeerId, createSubnetwork, registerWorker from "@fluencelabs/registry/subnetwork.aqua"
 
--- import JsonStr, RACJson, ModuleConfigJson from "./json.aqua"
--- import Address, Multiaddr, CID, WorkerSpellArgs from "./types.aqua"
--- import Console from "./console.aqua"
+import JsonStr, ModuleConfigJson from "./json.aqua"
+import Address, Multiaddr, CID, WorkerSpellArgs from "./types.aqua"
+import Console from "./console.aqua"
+import is_deployed, install from "./spell.aqua"
+import SpellData from "./spell_data.aqua"
+import log from "./log.aqua"
 
--- import is_deployed, install, SpellData from "./spell.aqua"
+service Scope("scope"):
+    get_peer_id() -> PeerId
 
--- import "@fluencelabs/registry/resources-api.aqua"
+func create_sub(deal_id: string) -> ?string, *string:
+    subnet_id, errors <- createSubnetwork(deal_id)
+    <- subnet_id, errors
 
--- func deal_installation_script(ipfs: Multiaddr, app_config_json: CID, deal_id: Address):
---   install(ipfs, app_config_json)
+func resolve_workers(deal_id: Address):
+    on HOST_PEER_ID:
+        peer_id <- getInsecuredPeerId()
+        id <- Registry.get_key_id(deal_id, peer_id)
+        records, errors <- resolveResource(id, 1)
 
---   spell_id <- SpellData.spell_id()
---   createResource(label = deal_id, peer_id = insecure.peer_id)
+    Console.print("records:")
+    for r <- records!:
+        Console.print(r.metadata.copy(issuer_signature = []))
 
--- --   registry_key <- Subnetworkstry.get_or_create_registry_resource_for_worker(deal_id)
--- --   records <- Registry.get_records(registry_key)
--- --   worker_id = INIT_PEER_ID
--- --   if records.exists(r => r.peer_id == worker_id) == false:
--- --     // make DIS discoverable
--- --     on relay:
--- --       Registry.create_record(registry_key, relay = relay, service_id = spell_id, solution = PAT)
--- --       // advertize record for first time
--- --       Registry.start_republish(registry_key)
+    Console.print("errors:")
+    Console.print(errors)
+
+
+-- this is executed inside Deal Installation Spell
+func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
+    spell_id <- SpellData.spell_id()
+
+    worker_spell: ?string
+    try:
+        worker_spell <- Srv.resolve_alias("worker-spell")
+    catch e:
+        worker_spell <<- spell_id
+
+    if worker_spell! != spell_id:
+        log(["Another worker spell is deployed on this worker (existing, current)", worker_spell!, spell_id])
+    else:
+        log(["Installing worker for deal", deal_id])
+        install(ipfs, worker_def_cid)
+        log("Worker installed")
+
+        subnet_id, cre_errs <- createSubnetwork(deal_id)
+        log(["Subnet created", subnet_id])
+
+        if subnet_id != nil:
+            success, reg_errs <- registerWorker(subnet_id!)
+            if success == true:
+                try:
+                    Srv.add_alias("worker-spell", spell_id)
+                    log(["alias created 'worker-spell'", spell_id])
+                catch e:
+                    log(["error creating alias", e])
+            else:
+                log(["error registering worker", reg_errs])
+        else:
+            log(["error creating subnetwork", cre_errs])
