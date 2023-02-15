@@ -8,6 +8,8 @@ import IPFS, AppDeployDefinition, DeployedAppWorkers, DeployedSpell, DeployedWor
 
 import Console from "./console.aqua"
 
+const DEAL_ID = "dummy-deal-id-123"
+
 func deploy_single_worker(
     air: string,
     trigger_config: TriggerConfig,
@@ -15,7 +17,7 @@ func deploy_single_worker(
     worker_definition: CID
 ) -> SpellID, WorkerID:
     -- prepare spell arguments
-    init_args = WorkerSpellArgs(ipfs = IPFS, worker_def_cid = worker_definition)
+    init_args = WorkerSpellArgs(ipfs = IPFS, worker_def_cid = worker_definition, deal_id = DEAL_ID)
 
     -- install spell
     spell_id <- PeerSpell.install(air, init_args, trigger_config)

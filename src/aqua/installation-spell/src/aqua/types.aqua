@@ -8,3 +8,4 @@ alias WorkerID: string
 data WorkerSpellArgs:
     ipfs: Multiaddr
     worker_def_cid: CID
+    deal_id: Address

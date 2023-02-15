@@ -36,6 +36,7 @@ func resolve_workers(deal_id: Address):
 -- this is executed inside Deal Installation Spell
 func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
     spell_id <- SpellData.spell_id()
+    Spell spell_id
 
     worker_spell: ?string
     try:
@@ -48,20 +49,22 @@ func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
     else:
         log(["Installing worker for deal", deal_id])
         install(ipfs, worker_def_cid)
-        log("Worker installed")
+        status <- Spell.get_string("status")
+        log(["Worker installation finished with status", status.str])
 
-        subnet_id, cre_errs <- createSubnetwork(deal_id)
-        log(["Subnet created", subnet_id])
+        if status.str == "install finished":
+            subnet_id, cre_errs <- createSubnetwork(deal_id)
+            log(["Subnet created", subnet_id])
 
-        if subnet_id != nil:
-            success, reg_errs <- registerWorker(subnet_id!)
-            if success == true:
-                try:
-                    Srv.add_alias("worker-spell", spell_id)
-                    log(["alias created 'worker-spell'", spell_id])
-                catch e:
-                    log(["error creating alias", e])
+            if subnet_id != nil:
+                success, reg_errs <- registerWorker(subnet_id!)
+                if success == true:
+                    try:
+                        Srv.add_alias("worker-spell", spell_id)
+                        log(["alias created 'worker-spell'", spell_id])
+                    catch e:
+                        log(["error creating alias", e])
+                else:
+                    log(["error registering worker", reg_errs])
             else:
-                log(["error registering worker", reg_errs])
-        else:
-            log(["error creating subnetwork", cre_errs])
+                log(["error creating subnetwork", cre_errs])

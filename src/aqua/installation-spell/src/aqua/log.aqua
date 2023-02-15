@@ -11,7 +11,4 @@ func log(arg: ⊤):
     str <- Debug.stringify(arg)
     Spell spell_id
     Spell.list_push_string("logs", str)
-
-    prefix <- Op.concat_strings(spell_id, ": ")
-    msg <- Op.concat_strings(prefix, str)
-    par Console.print(msg)
+    par Console.print([spell_id, arg])
