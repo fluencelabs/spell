@@ -34,7 +34,6 @@ data LocalWorkerDeployConfig:
 data LocalAppDeployConfig:
     installation_script: string
     installation_trigger: TriggerConfig
-    deal_id: Address
     workers: []LocalWorkerDeployConfig
 
 -- uploaded DTOs
@@ -69,7 +68,6 @@ data WorkerDeployDefinition:
 data AppDeployDefinition:
     installation_script: string
     installation_trigger: TriggerConfig
-    deal_id: Address
     workers: []WorkerDeployDefinition
 
 
@@ -113,7 +111,6 @@ func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
     deploy_definition = AppDeployDefinition(
         installation_script = config.installation_script,
         installation_trigger = config.installation_trigger,
-        deal_id = config.deal_id,
         workers = deploy_defs
     )
     <- deploy_definition

@@ -8,6 +8,3 @@ alias WorkerID: string
 data WorkerSpellArgs:
     ipfs: Multiaddr
     worker_def_cid: CID
-    deal_id: Address
-
--- func deal_installation_script(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):

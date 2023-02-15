@@ -12,11 +12,10 @@ func deploy_single_worker(
     air: string,
     trigger_config: TriggerConfig,
     worker_name: string,
-    worker_definition: CID,
-    deal_id: Address
+    worker_definition: CID
 ) -> SpellID, WorkerID:
     -- prepare spell arguments
-    init_args = WorkerSpellArgs(ipfs = IPFS, worker_def_cid = worker_definition, deal_id = deal_id)
+    init_args = WorkerSpellArgs(ipfs = IPFS, worker_def_cid = worker_definition)
 
     -- install spell
     spell_id <- PeerSpell.install(air, init_args, trigger_config)
@@ -37,8 +36,7 @@ func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
                     config.installation_script,
                     config.installation_trigger,
                     w.name,
-                    w.definition,
-                    config.deal_id
+                    w.definition
                 )
                 spells <<- DeployedSpell(spell_id = spell_id, worker_id = worker_id, host_id = h)
                 on INIT_PEER_ID via HOST_PEER_ID:
