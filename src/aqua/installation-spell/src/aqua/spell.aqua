@@ -61,6 +61,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
                         Spell.set_string("status", "install in progress")
 
                         service_id <- Srv.create(blueprint_id)
+                        log(["Created service", s.name, service_id])
                         try:
                             Srv.add_alias(s.name, service_id)
                         catch e:
