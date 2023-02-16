@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/fluencelabs/spell/compare/spell-v0.3.3...spell-v0.3.4) (2023-02-16)
+
+
+### Bug Fixes
+
+* **spell:** remove 'prepare' ([#57](https://github.com/fluencelabs/spell/issues/57)) ([3a39c61](https://github.com/fluencelabs/spell/commit/3a39c61c51ec2eb7f14bc67a47a1f56b1119506e))
+
 ## [0.3.3](https://github.com/fluencelabs/spell/compare/spell-v0.3.2...spell-v0.3.3) (2023-02-16)
 
 
