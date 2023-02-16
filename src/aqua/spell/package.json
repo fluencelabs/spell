@@ -16,8 +16,8 @@
   "scripts": {
     "build-wasm": "(cd $npm_package_config_SERVICE_DIR; ./build.sh)",
     "generate-service-api": "marine aqua $npm_package_config_SERVICE_DIR/$npm_package_config_WASM > $npm_package_config_AQUA_API",
-    "check": "aqua -i . --dry",
-    "prepare": "run-s build-wasm generate-service-api check"
+    "check-aqua": "aqua -i . --dry",
+    "check": "run-s build-wasm generate-service-api check-aqua"
   },
   "repository": {
     "type": "git",
