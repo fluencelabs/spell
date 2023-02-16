@@ -2,7 +2,7 @@ import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
 import PeerId from "@fluencelabs/aqua-lib/builtin.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
 
-import CID, JsonString, Path, Multiaddr from "./types.aqua"
+import CID, JsonString, Path, Multiaddr, Address from "./types.aqua"
 import IpfsClient from "./files.aqua"
 
 const IPFS = "/dns4/ipfs.fluence.dev/tcp/5001"

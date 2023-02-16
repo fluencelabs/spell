@@ -1,11 +1,13 @@
 import "./config.aqua"
 import "./deploy.aqua"
 import "./console.aqua"
+import "./deal_spell.aqua"
 
 -- func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
 -- func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
 
-func upload_deploy(config: LocalAppDeployConfig) -> DeployedAppWorkers:
+func upload_deploy(config: LocalAppDeployConfig) -> AppDeployDefinition, DeployedAppWorkers:
     def <- upload(config)
     Console.print(def)
-    <- deploy(def)
+    deployed <- deploy(def)
+    <- def, deployed

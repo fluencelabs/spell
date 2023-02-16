@@ -3,10 +3,12 @@ import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
 
 import IpfsClient, upload_script from "./files.aqua"
-import WorkerSpellArgs, CID, WorkerID from "./types.aqua"
+import WorkerSpellArgs, CID, WorkerID, Address from "./types.aqua"
 import IPFS, AppDeployDefinition, DeployedAppWorkers, DeployedSpell, DeployedWorkers from "./config.aqua"
 
 import Console from "./console.aqua"
+
+const DEAL_ID = "dummy-deal-id-123"
 
 func deploy_single_worker(
     air: string,
@@ -15,7 +17,7 @@ func deploy_single_worker(
     worker_definition: CID
 ) -> SpellID, WorkerID:
     -- prepare spell arguments
-    init_args = WorkerSpellArgs(ipfs = IPFS, worker_definition = worker_definition)
+    init_args = WorkerSpellArgs(ipfs = IPFS, worker_def_cid = worker_definition, deal_id = DEAL_ID)
 
     -- install spell
     spell_id <- PeerSpell.install(air, init_args, trigger_config)

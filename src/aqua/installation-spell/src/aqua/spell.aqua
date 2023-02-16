@@ -4,11 +4,8 @@ import Spell from "@fluencelabs/spell/spell_service.aqua"
 
 import WDJson, ModuleConfigJson from "./json.aqua"
 import Multiaddr, CID from "./types.aqua"
-import Console from "./console.aqua"
-
-
-service SpellData("getDataSrv"):
-    spell_id() -> string
+import SpellData from "./spell_data.aqua"
+import log from "./log.aqua"
 
 func blueprint_key(service_name: string) -> string:
     <- Op.concat_strings("blueprint:", service_name)
@@ -21,13 +18,13 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
     spell_id <- SpellData.spell_id()
     Spell spell_id
     deployed <- Spell.exists(service_name)
+
     if deployed.flag:
         stored_blueprint <- Spell.get_string(blueprint_key(service_name))
         if stored_blueprint.str == blueprint_id:
             result <<- true
         else:
             result <<- false
-        Console.print([deployed, stored_blueprint, blueprint_id, result])
     else:
         result <<- false
 
@@ -35,38 +32,56 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
 
 func install(ipfs: Multiaddr, worker_def_cid: CID):
     spell_id <- SpellData.spell_id()
-    -- download App Config from IPFS
-    json <- Ipfs.cat_from(worker_def_cid, ipfs)
-    if json.success:
-        worker_definition <- WDJson.parse(json.contents)
-        on INIT_PEER_ID:
-            co Console.print(worker_definition)
+    Spell spell_id
 
-        -- TODO: deploy spells
-        for s <- worker_definition.services:
-            hashes: *Hash
-            for m <- s.modules:
-                get_wasm <- Ipfs.get_from(m.wasm, ipfs)
-                json_cfg <- Ipfs.cat_from(m.config, ipfs)
-                cfg <- ModuleConfigJson.parse(json_cfg.contents)
-                hash <- Dist.add_module_from_vault(get_wasm.path, cfg)
-                on INIT_PEER_ID:
-                    co Console.print([cfg, hash])
-                hashes <- Op.concat_strings("hash:", hash)
+    try:
+        -- download App Config from IPFS
+        json <- Ipfs.cat_from(worker_def_cid, ipfs)
+        if json.success:
+            worker_definition <- WDJson.parse(json.contents)
+            log(["parsed worker definition", worker_definition])
 
-            blueprint <- Dist.make_blueprint(s.name, hashes)
-            blueprint_id <- Dist.add_blueprint(blueprint)
+            -- TODO: deploy spells
+            for s <- worker_definition.services:
+                try:
+                    hashes: *Hash
+                    for m <- s.modules:
+                        get_wasm <- Ipfs.get_from(m.wasm, ipfs)
+                        json_cfg <- Ipfs.cat_from(m.config, ipfs)
+                        cfg <- ModuleConfigJson.parse(json_cfg.contents)
+                        hash <- Dist.add_module_from_vault(get_wasm.path, cfg)
+                        hashes <- Op.concat_strings("hash:", hash)
 
-            -- TODO: check that services are still alive
-            -- do not deploy if already deployed with the same blueprint
-            if is_deployed(s.name, blueprint_id) == false:
-                service_id <- Srv.create(blueprint_id)
-                Spell spell_id
-                Spell.set_string(s.name, service_id)
-                Spell.set_string(blueprint_key(s.name), blueprint_id)
-            else:
-                Console.print(Op.concat_strings(s.name, " is already deployed"))
+                    blueprint <- Dist.make_blueprint(s.name, hashes)
+                    blueprint_id <- Dist.add_blueprint(blueprint)
 
+                    -- TODO: check that services are still alive
+                    -- do not deploy if already deployed with the same blueprint
+                    if is_deployed(s.name, blueprint_id) == false:
+                        Spell.set_string("status", "install in progress")
+
+                        service_id <- Srv.create(blueprint_id)
+                        log(["Created service", s.name, service_id])
+                        try:
+                            Srv.add_alias(s.name, service_id)
+                        catch e:
+                            log(["Error creating alias for deployed service", s.name, service_id, e])
+
+                        Spell.set_string(s.name, service_id)
+                        Spell.set_string(blueprint_key(s.name), blueprint_id)
+                    else:
+                        log([s.name, "is already deployed, doing nothing"])
+                catch e:
+                    log(["Error deploying service", s.name, e])
+
+            log("Installation finished")
+            Spell.set_string("status", "install finished")
+        else:
+            log(["Error downloading worker definition from IPFS", ipfs, worker_def_cid, json])
+            Spell.set_string("status", "install error")
+    catch e:
+        log(["Error installing worker", e])
+        Spell.set_string("status", "install error")
         -- signature
         -- create resource
         -- add record

@@ -1,0 +1,14 @@
+import Op, Debug from "@fluencelabs/aqua-lib/builtin.aqua"
+import Spell from "@fluencelabs/spell/spell_service.aqua"
+
+import SpellData from "./spell_data.aqua"
+import Console from "./console.aqua"
+
+
+-- func console(any: T):
+func log(arg: ⊤):
+    spell_id <- SpellData.spell_id()
+    str <- Debug.stringify(arg)
+    Spell spell_id
+    Spell.list_push_string("logs", str)
+    par Console.print([spell_id, arg])

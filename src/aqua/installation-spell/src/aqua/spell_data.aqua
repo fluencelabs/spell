@@ -1,0 +1,2 @@
+service SpellData("getDataSrv"):
+    spell_id() -> string
