@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/fluencelabs/spell/compare/spell-v0.3.2...spell-v0.3.3) (2023-02-16)
+
+
+### Features
+
+* **deals:** implement deal_install ([#55](https://github.com/fluencelabs/spell/issues/55)) ([d96fa78](https://github.com/fluencelabs/spell/commit/d96fa78bcdec408a53487a60f6a8eb749ccd3092))
+
 ## [0.3.2](https://github.com/fluencelabs/spell/compare/spell-v0.3.1...spell-v0.3.2) (2023-02-14)
 
 
