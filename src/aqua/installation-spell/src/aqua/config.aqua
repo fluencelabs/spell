@@ -80,6 +80,7 @@ data DeployedSpell:
 data DeployedWorkers:
   name: string
   installation_spells: []DeployedSpell
+  definition: CID
 
 data DeployedAppWorkers:
   workers: []DeployedWorkers
