@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5](https://github.com/fluencelabs/spell/compare/spell-v0.3.4...spell-v0.3.5) (2023-02-17)
+
+
+### Features
+
+* **installation-spell:** implement get_logs ([#59](https://github.com/fluencelabs/spell/issues/59)) ([81611c5](https://github.com/fluencelabs/spell/commit/81611c5dea0561c51fbc51657aafc2261ab1ea5d))
+
 ## [0.3.4](https://github.com/fluencelabs/spell/compare/spell-v0.3.3...spell-v0.3.4) (2023-02-16)
 
 
