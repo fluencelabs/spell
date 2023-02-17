@@ -23,3 +23,5 @@ src/aqua/*.ts
 **/__pycache__
 
 src/aqua/installation-spell/src/air
+src/ts/src/aqua
+src/js/src/aqua
