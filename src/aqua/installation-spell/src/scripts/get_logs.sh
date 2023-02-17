@@ -34,3 +34,4 @@ aqua run -i "$PROJECT/src/aqua/cli.aqua" \
             ]
         }
     }'
+    
