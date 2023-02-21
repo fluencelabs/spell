@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.6](https://github.com/fluencelabs/spell/compare/spell-v0.3.5...spell-v0.3.6) (2023-02-21)
+
+
+### Features
+
+* improve cli logs command [fixes DXJ-296] ([#61](https://github.com/fluencelabs/spell/issues/61)) ([e7cfd53](https://github.com/fluencelabs/spell/commit/e7cfd53503ef6b878284613b23a09c9ee1d67cea))
+
+
+### Bug Fixes
+
+* **installation-spell:** workaround for failed registration ([#63](https://github.com/fluencelabs/spell/issues/63)) ([30ae917](https://github.com/fluencelabs/spell/commit/30ae917eb22ff570133d07ba7ff53b261bab43e5))
+
 ## [0.3.5](https://github.com/fluencelabs/spell/compare/spell-v0.3.4...spell-v0.3.5) (2023-02-17)
 
 
