@@ -21,7 +21,7 @@
   "dependencies": {
     "@fluencelabs/aqua-ipfs": "0.5.9",
     "@fluencelabs/aqua-lib": "0.7.0",
-    "@fluencelabs/registry": "0.4.1-subnetwork",
+    "@fluencelabs/registry": "0.7.1",
     "@fluencelabs/spell": "0.3.5"
   },
   "devDependencies": {

@@ -57,7 +57,8 @@ func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
             log(["Subnet created", subnet_id])
 
             if subnet_id != nil:
-                success, reg_errs <- registerWorker(subnet_id!)
+                on HOST_PEER_ID:
+                    success, reg_errs <- registerWorker(subnet_id!)
                 if success == true:
                     try:
                         Srv.add_alias("worker-spell", spell_id)
