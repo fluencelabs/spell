@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/fluencelabs/spell/compare/spell-v0.3.6...spell-v0.4.0) (2023-02-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **storage:** bump SQLite module to 0.17.1 ([#64](https://github.com/fluencelabs/spell/issues/64))
+
+### Bug Fixes
+
+* **storage:** bump SQLite module to 0.17.1 ([#64](https://github.com/fluencelabs/spell/issues/64)) ([386edad](https://github.com/fluencelabs/spell/commit/386edad08b84c2e915b5a8a669d2fffc5a21021c))
+
 ## [0.3.6](https://github.com/fluencelabs/spell/compare/spell-v0.3.5...spell-v0.3.6) (2023-02-21)
 
 
