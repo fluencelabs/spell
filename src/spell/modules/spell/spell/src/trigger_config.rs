@@ -17,9 +17,10 @@ pub fn set_trigger_config(config: TriggerConfig) -> UnitValue {
     }
 
     let result: eyre::Result<()> = try {
-        db().execute("DELETE FROM trigger_config")?;
+        let conn = db();
+        conn.execute("DELETE FROM trigger_config")?;
 
-        let mut statement = db().prepare(
+        let mut statement = conn.prepare(
             r#"
             INSERT INTO trigger_config (
                 start_sec, end_sec, period_sec,
@@ -53,7 +54,8 @@ pub fn set_trigger_config(config: TriggerConfig) -> UnitValue {
 #[marine]
 pub fn get_trigger_config() -> TriggerConfigValue {
     let result: eyre::Result<TriggerConfig> = try {
-        let mut statement = db().prepare(r#"SELECT * FROM trigger_config"#)?;
+        let conn = db();
+        let mut statement = conn.prepare(r#"SELECT * FROM trigger_config"#)?;
         if let State::Row = statement.next()? {
             let start_sec = statement.read::<f64>(0)? as u32;
             let end_sec = statement.read::<f64>(1)? as u32;

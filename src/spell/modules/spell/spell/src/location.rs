@@ -8,7 +8,8 @@ use crate::auth::is_by_creator;
 use crate::schema::db;
 
 fn get_relay() -> eyre::Result<String> {
-    let mut statement = db().prepare("SELECT relay FROM relay LIMIT 1")?;
+    let conn = db();
+    let mut statement = conn.prepare("SELECT relay FROM relay LIMIT 1")?;
     if let State::Row = statement.next()? {
         Ok(statement.read::<String>(0)?)
     } else {
@@ -27,7 +28,8 @@ pub fn set_relay_peer_id(relay_peer_id: String) -> UnitValue {
     }
 
     let result: eyre::Result<()> = try {
-        let mut statement = db().prepare(r#"INSERT INTO relay VALUES (?)"#)?;
+        let conn = db();
+        let mut statement = conn.prepare(r#"INSERT INTO relay VALUES (?)"#)?;
         statement.bind(1, relay_peer_id.as_str())?;
         loop {
             match statement.next()? {

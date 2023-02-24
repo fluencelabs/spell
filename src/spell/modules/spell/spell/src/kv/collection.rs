@@ -9,8 +9,9 @@ use crate::schema::db;
 
 #[marine]
 pub fn list_push_string(key: &str, value: String) -> UnitValue {
+    let conn = db();
     let result: eyre::Result<()> = try {
-        let mut statement = db().prepare(
+        let mut statement = conn.prepare(
             r#"
                 INSERT INTO kv (key, string, list_index)
                     VALUES (
@@ -65,8 +66,9 @@ pub fn list_pop_string(key: &str) -> StringValue {
 #[marine]
 /// Get a whole list of strings
 pub fn list_get_strings(key: &str) -> StringListValue {
+    let conn = db();
     let result: eyre::Result<Vec<String>> = try {
-        let mut statement = db().prepare(
+        let mut statement = conn.prepare(
             r#"
             SELECT
                 string
