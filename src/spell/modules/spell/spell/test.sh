@@ -14,7 +14,7 @@ cp ../target/wasm32-wasi/release/spell.wasm tests_artifacts/
 
 if [[ ! -f "tests_artifacts/sqlite3.wasm" ]]; then
   # download SQLite 3
-  curl -L https://github.com/fluencelabs/sqlite/releases/download/v0.17.1_w/sqlite3.wasm -o tests_artifacts/sqlite3.wasm
+  curl -L https://github.com/fluencelabs/sqlite/releases/download/v0.18.0_w/sqlite3.wasm -o tests_artifacts/sqlite3.wasm
 fi
 
 # run tests
