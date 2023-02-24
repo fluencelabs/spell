@@ -90,7 +90,8 @@ pub fn store_error(error: LastError, error_idx: u32, particle_timestamp: u64) ->
     }
 
     let result: eyre::Result<()> = try {
-        let mut statement = db().prepare(
+        let conn = db();
+        let mut statement = conn.prepare(
             r#"
         INSERT INTO errors
             (particle_id, timestamp, error_idx, error_code, instruction, message, peer_id)
@@ -118,7 +119,8 @@ pub fn store_error(error: LastError, error_idx: u32, particle_timestamp: u64) ->
 #[marine]
 pub fn get_errors(particle_id: String) -> Vec<LastErrorEntry> {
     let result: eyre::Result<Vec<LastErrorEntry>> = try {
-        let mut statement = db().prepare(
+        let conn = db();
+        let mut statement = conn.prepare(
             r#"
             SELECT
                 *
@@ -148,7 +150,8 @@ pub fn get_errors(particle_id: String) -> Vec<LastErrorEntry> {
 #[marine]
 pub fn get_all_errors() -> AllErrorsResult {
     let result: eyre::Result<Vec<ParticleErrors>> = try {
-        let mut statement = db().prepare(r#"SELECT * FROM errors"#)?;
+        let conn = db();
+        let mut statement = conn.prepare(r#"SELECT * FROM errors"#)?;
         std::iter::from_fn(move || {
             let r: eyre::Result<Option<(String, LastErrorEntry)>> = try {
                 if let State::Row = statement.next()? {

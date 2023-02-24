@@ -16,7 +16,8 @@ pub fn db() -> Connection {
 }
 
 pub fn create() {
-    db().execute(
+    let conn = db();
+    conn.execute(
         f!(r#"
             CREATE TABLE IF NOT EXISTS trigger_config (
                 -- clock config

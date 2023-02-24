@@ -6,7 +6,8 @@ use fluence_spell_dtos::value::{BoolValue, StringValue, U32Value, UnitValue};
 use crate::schema::db;
 
 pub fn store_string(key: &str, value: String) -> eyre::Result<()> {
-    let mut statement = db().prepare("INSERT OR REPLACE INTO kv (key, string) VALUES (?, ?)")?;
+    let conn = db();
+    let mut statement = conn.prepare("INSERT OR REPLACE INTO kv (key, string) VALUES (?, ?)")?;
     statement.bind(1, key)?;
     statement.bind(2, value.as_str())?;
     statement.next()?;
@@ -30,7 +31,8 @@ pub fn read_string(statement: &mut Statement, idx: usize) -> eyre::Result<Option
 #[marine]
 pub fn get_string(key: &str) -> StringValue {
     let result: eyre::Result<Option<String>> = try {
-        let mut statement = db().prepare("SELECT string FROM kv WHERE key = ?")?;
+        let conn = db();
+        let mut statement = conn.prepare("SELECT string FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
         read_string(&mut statement, 0)?
     };
@@ -41,7 +43,8 @@ pub fn get_string(key: &str) -> StringValue {
 #[marine]
 pub fn set_u32(key: &str, value: u32) -> UnitValue {
     let result: eyre::Result<()> = try {
-        let mut statement = db().prepare("INSERT OR REPLACE INTO kv (key, u32) VALUES (?, ?)")?;
+        let conn = db();
+        let mut statement = conn.prepare("INSERT OR REPLACE INTO kv (key, u32) VALUES (?, ?)")?;
         statement.bind(1, key)?;
         statement.bind(2, value as f64)?;
         statement.next()?;
@@ -53,7 +56,8 @@ pub fn set_u32(key: &str, value: u32) -> UnitValue {
 #[marine]
 pub fn get_u32(key: &str) -> U32Value {
     let result: eyre::Result<Option<u32>> = try {
-        let mut statement = db().prepare("SELECT u32 FROM kv WHERE key = ?")?;
+        let conn = db();
+        let mut statement = conn.prepare("SELECT u32 FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
         if let State::Row = statement.next()? {
             Some(statement.read::<f64>(0)? as u32)
@@ -70,7 +74,8 @@ pub fn get_u32(key: &str) -> U32Value {
 /// Always succeeds.
 pub fn remove_key(key: &str) -> UnitValue {
     let result: eyre::Result<()> = try {
-        let mut statement = db().prepare("DELETE FROM kv WHERE key = ?")?;
+        let conn = db();
+        let mut statement = conn.prepare("DELETE FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
         statement.next()?;
     };
@@ -81,7 +86,8 @@ pub fn remove_key(key: &str) -> UnitValue {
 #[marine]
 pub fn exists(key: &str) -> BoolValue {
     let result: eyre::Result<bool> = try {
-        let mut statement = db().prepare("SELECT 1 FROM kv WHERE key = ? LIMIT 1")?;
+        let conn = db();
+        let mut statement = conn.prepare("SELECT 1 FROM kv WHERE key = ? LIMIT 1")?;
         statement.bind(1, key)?;
 
         match statement.next()? {
