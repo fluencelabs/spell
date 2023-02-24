@@ -44,6 +44,13 @@ func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
     catch e:
         worker_spell <<- spell_id
 
+        try:
+            -- if alias isn't set, then set it as early as possible
+            Srv.add_alias("worker-spell", spell_id)
+            log(["alias created 'worker-spell'", spell_id])
+        catch add_err:
+            log(["error creating alias", add_err])
+
     if worker_spell! != spell_id:
         log(["Another worker spell is deployed on this worker (existing, current)", worker_spell!, spell_id])
     else:
@@ -55,15 +62,12 @@ func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
         if status.str == "install finished":
             subnet_id, cre_errs <- createSubnetwork(deal_id)
             log(["Subnet created", subnet_id])
-
+            -- subnet_id will be 'nil' if error happened on 'createSubnetwork'
             if subnet_id != nil:
-                success, reg_errs <- registerWorker(subnet_id!)
+                on HOST_PEER_ID:
+                    success, reg_errs <- registerWorker(subnet_id!)
                 if success == true:
-                    try:
-                        Srv.add_alias("worker-spell", spell_id)
-                        log(["alias created 'worker-spell'", spell_id])
-                    catch e:
-                        log(["error creating alias", e])
+                    log(["worker successfully registered in registry", success])
                 else:
                     log(["error registering worker", reg_errs])
             else:
