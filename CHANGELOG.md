@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/fluencelabs/spell/compare/spell-v0.5.1...spell-v0.5.2) (2023-02-24)
+
+
+### Bug Fixes
+
+* **spells:** Fix connection leak ([#70](https://github.com/fluencelabs/spell/issues/70)) ([2ddd625](https://github.com/fluencelabs/spell/commit/2ddd6250cd4abb296155d99fb9edf5e839b1b450))
+
 ## [0.5.1](https://github.com/fluencelabs/spell/compare/spell-v0.5.0...spell-v0.5.1) (2023-02-24)
 
 
