@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/fluencelabs/spell/compare/spell-v0.5.0...spell-v0.5.1) (2023-02-24)
+
+
+### Bug Fixes
+
+* **deal_spell:** add alias as early as possible ([#68](https://github.com/fluencelabs/spell/issues/68)) ([3836a2b](https://github.com/fluencelabs/spell/commit/3836a2b6b1a665f9599e828f357a4e8535088176))
+
 ## [0.5.0](https://github.com/fluencelabs/spell/compare/spell-v0.4.0...spell-v0.5.0) (2023-02-24)
 
 
