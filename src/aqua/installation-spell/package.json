@@ -1,6 +1,6 @@
 {
   "name": "@fluencelabs/installation-spell",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Special spell that installs services from App Config",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "@fluencelabs/aqua-ipfs": "0.5.9",
     "@fluencelabs/aqua-lib": "0.7.0",
     "@fluencelabs/registry": "0.7.1",
-    "@fluencelabs/spell": "0.5.1"
+    "@fluencelabs/spell": "0.5.2"
   },
   "devDependencies": {
     "@fluencelabs/aqua": "0.9.4"
