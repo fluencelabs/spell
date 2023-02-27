@@ -10,6 +10,13 @@ import Console from "./console.aqua"
 
 const DEAL_ID = "dummy-deal-id-123"
 
+-- Direct Hostring Worker API
+service Worker("worker"):
+  -- throws exception if the worker already exists
+  create() -> string
+  -- throws exception if the worker doesn't exist
+  get_peer_id() -> string
+
 func deploy_single_worker(
     air: string,
     trigger_config: TriggerConfig,
@@ -19,14 +26,16 @@ func deploy_single_worker(
     -- prepare spell arguments
     init_args = WorkerSpellArgs(ipfs = IPFS, worker_def_cid = worker_definition, deal_id = DEAL_ID)
 
-    -- install spell
-    spell_id <- PeerSpell.install(air, init_args, trigger_config)
-            -- TODO: implement dreams
-            -- worker_id <- Worker.create_worker(dealAddress)
-            -- on worker_id:
-            --     PeerSpell.install(air, init_args, trigger_config)
-            --     Srv.add_alias("worker-spell", spell_id)
-    <- spell_id, "TBD"
+    worker_id: *string
+    try:
+        worker_id <- Worker.create()
+    catch e:
+        worker_id <- Worker.get_peer_id()
+
+    on worker_id!:
+        spell_id <- PeerSpell.install(air, init_args, trigger_config)
+
+    <- spell_id, worker_id!
 
 func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
     workers: *DeployedWorkers
