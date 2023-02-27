@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.3](https://github.com/fluencelabs/spell/compare/spell-v0.5.2...spell-v0.5.3) (2023-02-27)
+
+
+### Bug Fixes
+
+* create worker for direct hosting ([#76](https://github.com/fluencelabs/spell/issues/76)) ([5e48e37](https://github.com/fluencelabs/spell/commit/5e48e377b2a69e8e3a667fbd40d96cbb1a93663d))
+* **installation-spell:** update registry ([#74](https://github.com/fluencelabs/spell/issues/74)) ([9e4081c](https://github.com/fluencelabs/spell/commit/9e4081c54498a1556b41c8fcb3e7b34f863748e3))
+
 ## [0.5.2](https://github.com/fluencelabs/spell/compare/spell-v0.5.1...spell-v0.5.2) (2023-02-24)
 
 
