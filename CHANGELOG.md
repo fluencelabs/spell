@@ -1,12 +1,5 @@
 # Changelog
 
-## [0.5.4](https://github.com/fluencelabs/spell/compare/spell-v0.5.3...spell-v0.5.4) (2023-03-01)
-
-
-### Bug Fixes
-
-* **cli:** use worker_id to resolve Spell ([#77](https://github.com/fluencelabs/spell/issues/77)) ([b42a881](https://github.com/fluencelabs/spell/commit/b42a8812fe46d4422c604aa53662742e27f24c58))
-
 ## [0.5.3](https://github.com/fluencelabs/spell/compare/spell-v0.5.2...spell-v0.5.3) (2023-02-27)
 
 
