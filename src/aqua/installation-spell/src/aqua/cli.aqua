@@ -24,7 +24,7 @@ func get_logs(app_workers: DeployedAppWorkers) -> *Log:
     for w <- app_workers.workers:
         for i_spell <- w.installation_spells:
             -- later it should be `on i_spell.worker_id via i_spell.host_id`
-            on i_spell.host_id:
+            on i_spell.worker_id via i_spell.host_id:
                 Spell i_spell.spell_id
                 get_res <- Spell.list_get_strings("logs")
                 logs <<- Log(spell_id = i_spell.spell_id, host_id = i_spell.host_id, logs = get_res.strings, worker_name = w.name)
