@@ -8,6 +8,20 @@ import "../../src/aqua/spell/types.aqua"
 import "../../src/aqua/spell/spell_service.aqua"
 import "@fluencelabs/aqua-lib/builtin.aqua"
 
+service Worker("worker"):
+  -- throws exception if the worker already exists
+  create(key: string) -> string
+  -- throws exception if the worker doesn't exist
+  get_peer_id(key: string) -> string
+
+func get_peer_id(key: string) -> string:
+    worker_id: *string
+    try:
+        worker_id <<- Worker.get_peer_id(key)
+    otherwise:
+        worker_id <<- Worker.create(key)
+    <- worker_id!
+
 func list() -> []string:
    on HOST_PEER_ID:
       res <- PeerSpell.list()
@@ -18,38 +32,44 @@ data InstallResult:
   error: string
   spell_id: string
 
-func install(script: string, cfg: TriggerConfig, dat: ⊤) -> InstallResult:
+func install(scope_key: string, script: string, cfg: TriggerConfig, dat: ⊤) -> InstallResult:
     result: *InstallResult
     on HOST_PEER_ID:
-        try:
-            sid <- PeerSpell.install(script, dat, cfg)
-            result <<- InstallResult(success = true, error = "", spell_id = sid)
-        catch err:
-            result <<- InstallResult(success = false, error = err.message, spell_id = "")
+        peer_id <- get_peer_id(scope_key)
+        on peer_id via HOST_PEER_ID:
+            try:
+                sid <- PeerSpell.install(script, dat, cfg)
+                result <<- InstallResult(success = true, error = "", spell_id = sid)
+            catch err:
+                result <<- InstallResult(success = false, error = err.message, spell_id = "")
     <- result[0]
 
 data Result:
   success: bool
   error: string
 
-func remove(spell_id: string) -> Result:
+func remove(scope_key: string, spell_id: string) -> Result:
    result: *Result
    on HOST_PEER_ID:
-      try:
-          PeerSpell.remove(spell_id)
-          result <<- Result(success = true, error = "")
-      catch err:
-          result <<- Result(success = false, error = err.message)
+     peer_id <- get_peer_id(scope_key)
+     on peer_id via HOST_PEER_ID:
+        try:
+            PeerSpell.remove(spell_id)
+            result <<- Result(success = true, error = "")
+        catch err:
+            result <<- Result(success = false, error = err.message)
    <- result[0]
 
-func update(spell_id: string, config: TriggerConfig) -> Result:
+func update(scope_key: string, spell_id: string, config: TriggerConfig) -> Result:
    result: *Result
    on HOST_PEER_ID:
-      try:
-          PeerSpell.update_trigger_config(spell_id, config)
-          result <<- Result(success = true, error = "")
-      catch err:
-          result <<- Result(success = false, error = err.message)
+     peer_id <- get_peer_id(scope_key)
+     on peer_id via HOST_PEER_ID:
+        try:
+            PeerSpell.update_trigger_config(spell_id, config)
+            result <<- Result(success = true, error = "")
+        catch err:
+            result <<- Result(success = false, error = err.message)
    <- result[0]
 
 func get_config(spell_id: string) -> TriggerConfigValue:
