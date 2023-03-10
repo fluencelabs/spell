@@ -8,8 +8,6 @@ import "../../src/aqua/spell/types.aqua"
 import "../../src/aqua/spell/spell_service.aqua"
 import "@fluencelabs/aqua-lib/builtin.aqua"
 
-const SPELLS_SPACE_NAME = "test-spell-space"
-
 service Worker("worker"):
   -- throws exception if the worker already exists
   create(key: string) -> string
@@ -34,10 +32,10 @@ data InstallResult:
   error: string
   spell_id: string
 
-func install(script: string, cfg: TriggerConfig, dat: ⊤) -> InstallResult:
+func install(scope_key: string, script: string, cfg: TriggerConfig, dat: ⊤) -> InstallResult:
     result: *InstallResult
     on HOST_PEER_ID:
-        peer_id <- get_peer_id(SPELLS_SPACE_NAME)
+        peer_id <- get_peer_id(scope_key)
         on peer_id via HOST_PEER_ID:
             try:
                 sid <- PeerSpell.install(script, dat, cfg)
@@ -50,10 +48,10 @@ data Result:
   success: bool
   error: string
 
-func remove(spell_id: string) -> Result:
+func remove(scope_key: string, spell_id: string) -> Result:
    result: *Result
    on HOST_PEER_ID:
-     peer_id <- get_peer_id(SPELLS_SPACE_NAME)
+     peer_id <- get_peer_id(scope_key)
      on peer_id via HOST_PEER_ID:
         try:
             PeerSpell.remove(spell_id)
@@ -62,10 +60,10 @@ func remove(spell_id: string) -> Result:
             result <<- Result(success = false, error = err.message)
    <- result[0]
 
-func update(spell_id: string, config: TriggerConfig) -> Result:
+func update(scope_key: string, spell_id: string, config: TriggerConfig) -> Result:
    result: *Result
    on HOST_PEER_ID:
-     peer_id <- get_peer_id(SPELLS_SPACE_NAME)
+     peer_id <- get_peer_id(scope_key)
      on peer_id via HOST_PEER_ID:
         try:
             PeerSpell.update_trigger_config(spell_id, config)

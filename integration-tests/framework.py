@@ -94,7 +94,7 @@ def trigger_connect():
     run_aqua(get_sk(), "noop", [])
 
 def install_spell(sk, script, config, dat):
-    return run_aqua(sk, "install", [script, config, dat])
+    return run_aqua(sk, "install", [sk, script, config, dat])
 
 def install_spell_ok(sk, script, config, dat = {}):
     """
@@ -106,14 +106,14 @@ def install_spell_ok(sk, script, config, dat = {}):
     return result["spell_id"]
 
 def remove_spell(sk, spell_id):
-    return run_aqua(sk, "remove", [spell_id])
+    return run_aqua(sk, "remove", [sk, spell_id])
 
 def remove_spell_ok(sk, spell_id):
     result = remove_spell(sk, spell_id)
     assert result["success"], f"can't remove spell {spell_id}"
 
 def update_spell(sk, spell_id, config):
-    return run_aqua(sk, "update", [spell_id, config])
+    return run_aqua(sk, "update", [sk, spell_id, config])
 
 def update_spell_ok(sk, spell_id, config):
     result = update_spell(sk, spell_id, config)
