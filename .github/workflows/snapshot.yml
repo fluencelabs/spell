@@ -1,6 +1,5 @@
 name: Build snapshot
 
-
 on:
   workflow_call:
     inputs:
@@ -18,6 +17,10 @@ jobs:
     name: "Build and test crates"
     runs-on: builder
     timeout-minutes: 60
+
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v3
