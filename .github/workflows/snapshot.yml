@@ -54,3 +54,4 @@ jobs:
         uses: fluencelabs/github-actions/cargo-publish-snapshot@update-publish-snapshot
         with:
           id: ${{ steps.version.outputs.id }}
+          path: src/spell/modules/spell
