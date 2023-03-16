@@ -3,7 +3,6 @@ import PeerId from "@fluencelabs/aqua-lib/builtin.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
 
 import CID, JsonString, Path, Multiaddr, Address from "./types.aqua"
-import IpfsClient from "./files.aqua"
 
 const IPFS = "/dns4/ipfs.fluence.dev/tcp/5001"
 
@@ -84,34 +83,3 @@ data DeployedWorkers:
 
 data DeployedAppWorkers:
   workers: []DeployedWorkers
-
-func upload_worker_config(ipfs: Multiaddr, config: LocalWorkerConfig) -> CID:
-    services: *Service
-    for s <- config.services:
-        modules: *Module
-        for m <- s.modules:
-            wasm <- IpfsClient.upload(ipfs, m.wasm)
-            cfg <- IpfsClient.upload_string(ipfs, m.config)
-            modules <<- Module(wasm = wasm, config = cfg)
-        services <<- Service(name = s.name, modules = modules)
-    rac = WorkerDefinition(services = services, spells = [])
-    json <- WDJson.stringify(rac)
-    cid <- IpfsClient.upload_string(ipfs, json)
-    <- cid
-
-func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
-    deploy_defs: *WorkerDeployDefinition
-    for w <- config.workers:
-        definition_cid <- upload_worker_config(IPFS, w.config)
-        deploy_defs <<- WorkerDeployDefinition(
-            name = w.name,
-            hosts = w.hosts,
-            definition = definition_cid
-        )
-
-    deploy_definition = AppDeployDefinition(
-        installation_script = config.installation_script,
-        installation_trigger = config.installation_trigger,
-        workers = deploy_defs
-    )
-    <- deploy_definition

@@ -48,7 +48,20 @@ aqua run -i "$PROJECT/src/aqua/cli.aqua" \
                                 ]
                             }
                         ],
-                        "spells": []
+                        "spells": [
+                            {
+                                "name": "test-spell",
+                                "script": '"$(cat /Users/aleksey/Documents/dev/fluencelabs/spell/src/aqua/installation-spell/src/air/test_spell.main.air | jq -Rs)"',
+                                "init_args": {
+                                    "test_arg": "alex folex"
+                                },
+                                "config": {
+                                    "clock": { "start_sec": 1, "end_sec": 0, "period_sec": 30 },
+                                    "connections": { "connect": false, "disconnect": false },
+                                    "blockchain": { "start_block": 0, "end_block": 0 }
+                                }
+                            }
+                        ]
                     }
                 }
             ]

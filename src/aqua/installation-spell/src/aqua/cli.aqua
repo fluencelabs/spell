@@ -2,6 +2,7 @@ import "./config.aqua"
 import "./deploy.aqua"
 import "./console.aqua"
 import "./deal_spell.aqua"
+import "./upload.aqua"
 
 import Spell from "@fluencelabs/spell/spell_service.aqua"
 

@@ -1,14 +1,26 @@
 import Op, Hash, Dist, Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
 import Spell from "@fluencelabs/spell/spell_service.aqua"
+import PeerSpell from "@fluencelabs/spell/api.aqua"
+import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 
-import WDJson, ModuleConfigJson from "./json.aqua"
+import WDJson, ModuleConfigJson, SpellConfigJson, JsonStr from "./json.aqua"
+import Spell as SpellDef from "./config.aqua"
 import Multiaddr, CID from "./types.aqua"
 import SpellData from "./spell_data.aqua"
 import log from "./log.aqua"
 
 func blueprint_key(service_name: string) -> string:
     <- Op.concat_strings("blueprint:", service_name)
+
+func script_key(spell_name: string) -> string:
+    <- Op.concat_strings("script:", spell_name)
+
+func config_key(spell_name: string) -> string:
+    <- Op.concat_strings("trigger_config:", spell_name)
+
+func init_data_key(spell_name: string) -> string:
+    <- Op.concat_strings("init_data:", spell_name)
 
 -- returns 'true' if service is in spell KV and has the same blueprint_id
 -- returns 'false' otherwise
@@ -30,6 +42,82 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
 
     <- result!
 
+func is_spell_deployed(spell: SpellDef) -> bool:
+    result: ?bool
+    try:
+        worker_spell <- SpellData.spell_id()
+        Spell worker_spell
+        deployed <- Spell.exists(spell.name)
+
+        if deployed.flag:
+            stored_script <- Spell.get_string(script_key(spell.name))
+            -- TODO: update script without redeployment
+            if stored_script.str == spell.script:
+                result <<- true
+            else:
+                log([spell.name, "script mismath, need to redeploy"])
+                result <<- false
+        else:
+            result <<- false
+    catch e:
+        log(["Error check spell deployed", spell.name, e])
+        result <<- false
+    <- result!
+
+func deploy_spell(spell: SpellDef, ipfs: Multiaddr):
+    worker_spell <- SpellData.spell_id()
+    Spell worker_spell
+    try:
+        if is_spell_deployed(spell):
+
+            log([spell.name, "spell is already deployed, checking config and init_data"])
+
+            stored_config <- Spell.get_string(config_key(spell.name))
+            if stored_config.str != spell.config:
+                log([spell.name, "config mismath, updating config"])
+                config_json <- Ipfs.cat_from(spell.config, ipfs)
+                config <- SpellConfigJson.parse(config_json.contents)
+
+                -- we can't use alias because of NET-418
+                spell_id <- Srv.resolve_alias(spell.name)
+                PeerSpell.update_trigger_config(spell_id, config)
+                Spell.set_string(config_key(spell.name), spell.config)
+                log([spell.name, "config is successfully updated"])
+
+            stored_init_data <- Spell.get_string(init_data_key(spell.name))
+            if stored_init_data.str != spell.init_args:
+                log([spell.name, "init_data mismath, updating init_data"])
+                init_data <- Ipfs.cat_from(spell.init_args, ipfs)
+                Spell spell.name
+                Spell.set_json_fields(init_data.contents)
+
+                Spell worker_spell
+                Spell.set_string(init_data_key(spell.name), spell.init_args)
+                log([spell.name, "init_data is successfully updated"])
+        else:
+            Spell.set_string("status", "install in progress")
+            script <- Ipfs.cat_from(spell.script, ipfs)
+            cfg_json <- Ipfs.cat_from(spell.config, ipfs)
+            cfg <- SpellConfigJson.parse(cfg_json.contents)
+            init_args_str <- Ipfs.cat_from(spell.init_args, ipfs)
+
+            init_args <- JsonStr.parse(init_args_str.contents)
+
+
+            sp_id <- PeerSpell.install(script.contents, init_args, cfg)
+            log(["Installed spell", spell.name, sp_id])
+            try:
+                Srv.add_alias(spell.name, sp_id)
+            catch e:
+                log(["Error creating alias for deployed spell", spell.name, sp_id, e])
+
+            Spell.set_string(spell.name, sp_id)
+            Spell.set_string(script_key(spell.name), spell.script)
+            Spell.set_string(config_key(spell.name), spell.config)
+            Spell.set_string(init_data_key(spell.name), spell.init_args)
+    catch e:
+        log(["Error deploy spell", spell.name, e])
+
 func install(ipfs: Multiaddr, worker_def_cid: CID):
     spell_id <- SpellData.spell_id()
     Spell spell_id
@@ -41,7 +129,6 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
             worker_definition <- WDJson.parse(json.contents)
             log(["parsed worker definition", worker_definition])
 
-            -- TODO: deploy spells
             for s <- worker_definition.services:
                 try:
                     hashes: *Hash
@@ -70,9 +157,16 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
                         Spell.set_string(s.name, service_id)
                         Spell.set_string(blueprint_key(s.name), blueprint_id)
                     else:
-                        log([s.name, "is already deployed, doing nothing"])
+                        log([s.name, "service is already deployed, doing nothing"])
                 catch e:
                     log(["Error deploying service", s.name, e])
+
+            for sp <- worker_definition.spells:
+                try:
+                    log(["Deploying spell", sp.name])
+                    deploy_spell(sp, ipfs)
+                catch e:
+                    log(["Error deploying spell", sp.name, e])
 
             log("Installation finished")
             Spell.set_string("status", "install finished")

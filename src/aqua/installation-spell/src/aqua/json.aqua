@@ -1,6 +1,7 @@
 import JsonString, WorkerSpellArgs from "./types.aqua"
 import WorkerDefinition from "./config.aqua"
 import ModuleConfig from "@fluencelabs/aqua-lib/builtin.aqua"
+import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
 
 service WDJson("json"):
     stringify(rac: WorkerDefinition) -> JsonString
@@ -17,5 +18,12 @@ service Json("json"):
 service ModuleConfigJson("json"):
     parse(json: JsonString) -> ModuleConfig
 
+service SpellConfigJson("json"):
+    parse(json: JsonString) -> TriggerConfig
+    stringify(cfg: TriggerConfig) -> JsonString
+
 service ISAJson("json"):
     stringify(isa: WorkerSpellArgs) -> JsonString
+
+service JsonDefault("json"):
+    stringify(obj: ⊤) -> string
