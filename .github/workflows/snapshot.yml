@@ -1,0 +1,56 @@
+name: Build snapshot
+
+
+on:
+  workflow_call:
+    inputs:
+      cargo-dependencies:
+        description: "Cargo dependencies map"
+        type: string
+        default: "null"
+      ref:
+        description: "git ref to checkout to"
+        type: string
+        default: "main"
+
+jobs:
+  snapshot:
+    name: "Build and test crates"
+    runs-on: builder
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: fluencelabs/spell
+          ref: ${{ inputs.ref }}
+
+      - name: Setup rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Setup marine
+        uses: fluencelabs/setup-marine@v1
+
+      - name: Setup cargo-nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Set dependencies
+        if: inputs.cargo-dependencies != 'null'
+        uses: fluencelabs/github-actions/cargo-set-dependency@main
+        with:
+          dependencies: ${{ inputs.cargo-dependencies }}
+          manifest: src/spell/modules/spell/Cargo.toml
+
+      - name: Run tests
+        working-directory: ./src/spell/modules/spell/spell
+        run: ./test.sh
+
+      - name: Generate snapshot version
+        id: version
+        uses: fluencelabs/github-actions/generate-snapshot-id@main
+
+      - name: Publish crate snapshots
+        id: snapshot
+        uses: fluencelabs/github-actions/cargo-publish-snapshot@update-publish-snapshot
+        with:
+          id: ${{ steps.version.outputs.id }}

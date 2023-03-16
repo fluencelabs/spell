@@ -1,0 +1,27 @@
+name: "e2e"
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**.md"
+
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    name: "spell"
+    uses: ./.github/workflows/snapshot.yml
+    with:
+      ref: ${{ github.ref }}
+
+  tests:
+    name: "spell"
+    uses: ./.github/workflows/tests.yml
+    with:
+      ref: ${{ github.ref }}
