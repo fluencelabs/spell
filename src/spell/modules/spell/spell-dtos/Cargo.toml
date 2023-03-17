@@ -10,6 +10,6 @@ license = "Apache-2.0"
 [dependencies]
 marine-rs-sdk = "0.7.1"
 thiserror = "1.0.37"
-marine-sqlite-connector = "0.6.0"
+marine-sqlite-connector = { workspace = true }
 eyre = "0.6.8"
 serde = "1.0.149"
