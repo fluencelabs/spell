@@ -14,7 +14,7 @@ on:
     outputs:
       cargo-version:
         description: "Cargo snapshot version"
-        value: ${{ jobs.cargo-snapshot.outputs.version }}
+        value: ${{ jobs.snapshot.outputs.version }}
 
 jobs:
   snapshot:
