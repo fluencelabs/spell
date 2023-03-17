@@ -4,3 +4,6 @@ members = [
   "spell-dtos",
   "spell-distro"
 ]
+
+[workspace.dependencies]
+marine-sqlite-connector = "0.6.0"

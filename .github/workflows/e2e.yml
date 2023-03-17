@@ -1,0 +1,73 @@
+name: "e2e"
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**.md"
+
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    name: "spell"
+    uses: ./.github/workflows/snapshot.yml
+    with:
+      ref: ${{ github.ref }}
+
+  rust-peer:
+    needs:
+      - snapshot
+
+    uses: fluencelabs/rust-peer/.github/workflows/snapshot.yml@master
+    with:
+      image-name: "docker.fluence.dev/spell"
+      cargo-dependencies: |
+        [
+          {
+            "package": "fluence-spell-dtos",
+            "version": "=${{ needs.snapshot.outputs.cargo-version }}",
+            "registry": "fluence"
+          },
+          {
+            "package": "fluence-spell-distro",
+            "version": "=${{ needs.snapshot.outputs.cargo-version }}",
+            "registry": "fluence"
+          }
+        ]
+
+  rust-peer-tests:
+    name: "rust-peer"
+    needs:
+      - snapshot
+
+    uses: fluencelabs/rust-peer/.github/workflows/tests.yml@master
+    with:
+      cargo-dependencies: |
+        [
+          {
+            "package": "fluence-spell-dtos",
+            "version": "=${{ needs.snapshot.outputs.cargo-version }}",
+            "registry": "fluence"
+          },
+          {
+            "package": "fluence-spell-distro",
+            "version": "=${{ needs.snapshot.outputs.cargo-version }}",
+            "registry": "fluence"
+          }
+        ]
+
+  aqua-tests:
+    name: "spell"
+    needs:
+      - rust-peer
+    uses: ./.github/workflows/tests.yml
+    with:
+      ref: ${{ github.ref }}
+      rust-peer-image: "${{ needs.rust-peer.outputs.rust-peer-image }}"
+
