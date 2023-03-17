@@ -69,5 +69,5 @@ jobs:
     uses: ./.github/workflows/tests.yml
     with:
       ref: ${{ github.ref }}
-      rust-peer-image: ${{ needs.rust-peer.output.rust-peer-image }}
+      rust-peer-image: "${{ needs.rust-peer.outputs.rust-peer-image }}"
 
