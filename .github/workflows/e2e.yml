@@ -20,12 +20,6 @@ jobs:
     with:
       ref: ${{ github.ref }}
 
-  tests:
-    name: "spell"
-    uses: ./.github/workflows/tests.yml
-    with:
-      ref: ${{ github.ref }}
-
   rust-peer:
     needs:
       - snapshot
@@ -67,3 +61,13 @@ jobs:
             "registry": "fluence"
           }
         ]
+
+  aqua-tests:
+    name: "spell"
+    needs:
+      - rust-peer
+    uses: ./.github/workflows/tests.yml
+    with:
+      ref: ${{ github.ref }}
+      rust-peer-image: ${{ needs.rust-peer.output.rust-peer-image }}
+
