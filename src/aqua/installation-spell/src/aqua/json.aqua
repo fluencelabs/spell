@@ -27,3 +27,4 @@ service ISAJson("json"):
 
 service JsonDefault("json"):
     stringify(obj: ⊤) -> string
+    
