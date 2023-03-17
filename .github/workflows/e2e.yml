@@ -36,12 +36,12 @@ jobs:
       cargo-dependencies: |
         [
           {
-            "package": "spell-dtos",
+            "package": "fluence-spell-dtos",
             "version": "=${{ needs.snapshot.outputs.cargo-version }}",
             "registry": "fluence"
           },
           {
-            "package": "spell-distro",
+            "package": "fluence-spell-distro",
             "version": "=${{ needs.snapshot.outputs.cargo-version }}",
             "registry": "fluence"
           }
@@ -57,12 +57,12 @@ jobs:
       cargo-dependencies: |
         [
           {
-            "package": "spell-dtos",
+            "package": "fluence-spell-dtos",
             "version": "=${{ needs.snapshot.outputs.cargo-version }}",
             "registry": "fluence"
           },
           {
-            "package": "spell-distro",
+            "package": "fluence-spell-distro",
             "version": "=${{ needs.snapshot.outputs.cargo-version }}",
             "registry": "fluence"
           }
