@@ -51,6 +51,13 @@ jobs:
           dependencies: ${{ inputs.cargo-dependencies }}
           manifest: src/spell/modules/spell/Cargo.toml
 
+      - name: Setup marine
+        uses: fluencelabs/setup-marine@v1
+
+      - name: Build and package spell
+        working-directory: ./src/spell/modules/spell/spell
+        run: ./build.sh
+
       - name: Run tests
         working-directory: ./src/spell/modules/spell/spell
         run: ./test.sh
