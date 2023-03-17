@@ -81,7 +81,7 @@ jobs:
 
       - name: Publish crate snapshots
         id: snapshot
-        uses: fluencelabs/github-actions/cargo-publish-snapshot@update-publish-snapshot
+        uses: fluencelabs/github-actions/cargo-publish-snapshot@main
         with:
           id: ${{ steps.version.outputs.id }}
           path: src/spell/modules/spell
