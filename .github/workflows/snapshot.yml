@@ -49,7 +49,7 @@ jobs:
         uses: fluencelabs/github-actions/cargo-set-dependency@update-set-dep
         with:
           dependencies: ${{ inputs.cargo-dependencies }}
-          manifest: src/spell/modules/spell/Cargo.toml
+          path: src/spell/modules/spell
 
       - name: Setup marine
         uses: fluencelabs/setup-marine@v1
