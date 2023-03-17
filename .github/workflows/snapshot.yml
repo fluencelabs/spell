@@ -11,6 +11,10 @@ on:
         description: "git ref to checkout to"
         type: string
         default: "main"
+    outputs:
+      cargo-version:
+        description: "Cargo snapshot version"
+        value: ${{ jobs.cargo-snapshot.outputs.version }}
 
 jobs:
   snapshot:
