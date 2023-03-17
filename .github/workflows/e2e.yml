@@ -25,3 +25,45 @@ jobs:
     uses: ./.github/workflows/tests.yml
     with:
       ref: ${{ github.ref }}
+
+  rust-peer:
+    needs:
+      - snapshot
+
+    uses: fluencelabs/rust-peer/.github/workflows/snapshot.yml@master
+    with:
+      image-name: "docker.fluence.dev/spell"
+      cargo-dependencies: |
+        [
+          {
+            "package": "spell-dtos",
+            "version": "=${{ needs.snapshot.outputs.cargo-version }}",
+            "registry": "fluence"
+          },
+          {
+            "package": "spell-distro",
+            "version": "=${{ needs.snapshot.outputs.cargo-version }}",
+            "registry": "fluence"
+          }
+        ]
+
+  rust-peer-tests:
+    name: "rust-peer"
+    needs:
+      - snapshot
+
+    uses: fluencelabs/rust-peer/.github/workflows/tests.yml@master
+    with:
+      cargo-dependencies: |
+        [
+          {
+            "package": "spell-dtos",
+            "version": "=${{ needs.snapshot.outputs.cargo-version }}",
+            "registry": "fluence"
+          },
+          {
+            "package": "spell-distro",
+            "version": "=${{ needs.snapshot.outputs.cargo-version }}",
+            "registry": "fluence"
+          }
+        ]
