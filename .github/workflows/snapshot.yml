@@ -22,6 +22,9 @@ jobs:
     runs-on: builder
     timeout-minutes: 60
 
+    outputs:
+      version: "${{ steps.snapshot.outputs.version }}"
+
     permissions:
       contents: read
       id-token: write
