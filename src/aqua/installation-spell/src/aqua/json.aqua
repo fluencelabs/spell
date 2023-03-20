@@ -17,14 +17,5 @@ service TriggerConfigJson("json"):
     parse(json: JsonString) -> TriggerConfig
     stringify(cfg: TriggerConfig) -> JsonString
 
-<<<<<<< HEAD
-service ISAJson("json"):
-    stringify(isa: WorkerSpellArgs) -> JsonString
-
-service JsonDefault("json"):
-    stringify(obj: ⊤) -> string
-    
-=======
 service Json("json"):
     stringify(obj: ⊤) -> string
->>>>>>> 0079a04 (pr fixes)
