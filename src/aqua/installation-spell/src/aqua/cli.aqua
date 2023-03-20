@@ -2,9 +2,10 @@ import "./config.aqua"
 import "./deploy.aqua"
 import "./console.aqua"
 import "./deal_spell.aqua"
-import "./upload.aqua"
+import upload from "./upload.aqua"
 
 import Spell from "@fluencelabs/spell/spell_service.aqua"
+import Console from "./console.aqua"
 
 -- func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
 -- func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
@@ -24,12 +25,9 @@ func get_logs(app_workers: DeployedAppWorkers) -> *Log:
     logs: *Log
     for w <- app_workers.workers:
         for i_spell <- w.installation_spells:
-            -- later it should be `on i_spell.worker_id via i_spell.host_id`
             on i_spell.worker_id via i_spell.host_id:
                 Spell i_spell.spell_id
                 get_res <- Spell.list_get_strings("logs")
                 logs <<- Log(spell_id = i_spell.spell_id, host_id = i_spell.host_id, logs = get_res.strings, worker_name = w.name)
 
-    -- for l <- logs:
-    --     co Console.print(l)
     <- logs

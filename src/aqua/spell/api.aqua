@@ -5,8 +5,8 @@ import TriggerConfig from "spell_service.aqua"
 import SpellID from "types.aqua"
 
 service PeerSpell("spell"):
-    -- init_data must be an object that corresponds to the spell function signature
-    install(script: string, init_data: ⊤, config: TriggerConfig) -> SpellID
+    -- init_args must be an object that corresponds to the spell function signature
+    install(script: string, init_args: ⊤, config: TriggerConfig) -> SpellID
     remove(spell_id: SpellID)
     update_trigger_config(spell_id: SpellID, config: TriggerConfig)
     list() -> []SpellID

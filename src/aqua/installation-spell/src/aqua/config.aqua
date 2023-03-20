@@ -44,7 +44,7 @@ data Service:
     name: string
     modules: []Module
 
-data Spell:
+data SpellDefinition:
     name: string
     script: CID
     config: CID
@@ -52,7 +52,7 @@ data Spell:
 
 data WorkerDefinition:
     services: []Service
-    spells: []Spell
+    spells: []SpellDefinition
 
 service WDJson("json"):
     stringify(wd: WorkerDefinition) -> JsonString

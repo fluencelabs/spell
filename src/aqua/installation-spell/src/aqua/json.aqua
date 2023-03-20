@@ -1,4 +1,4 @@
-import JsonString, WorkerSpellArgs from "./types.aqua"
+import JsonString from "./types.aqua"
 import WorkerDefinition from "./config.aqua"
 import ModuleConfig from "@fluencelabs/aqua-lib/builtin.aqua"
 import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
@@ -10,21 +10,21 @@ service WDJson("json"):
 service JsonStr("json"):
     parse(s: JsonString) -> string
 
-alias DynamicJsonObjHack: string
-service Json("json"):
-    obj_pairs(pairs: [][]string) -> DynamicJsonObjHack
-    stringify(obj: DynamicJsonObjHack) -> JsonString
-
 service ModuleConfigJson("json"):
     parse(json: JsonString) -> ModuleConfig
 
-service SpellConfigJson("json"):
+service TriggerConfigJson("json"):
     parse(json: JsonString) -> TriggerConfig
     stringify(cfg: TriggerConfig) -> JsonString
 
+<<<<<<< HEAD
 service ISAJson("json"):
     stringify(isa: WorkerSpellArgs) -> JsonString
 
 service JsonDefault("json"):
     stringify(obj: ⊤) -> string
     
+=======
+service Json("json"):
+    stringify(obj: ⊤) -> string
+>>>>>>> 0079a04 (pr fixes)

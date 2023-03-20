@@ -1,12 +1,13 @@
-import "./config.aqua"
+import AppDeployDefinition, LocalAppDeployConfig, LocalWorkerConfig, IPFS from "./config.aqua"
+import Module, Service, SpellDefinition, WorkerDeployDefinition, WorkerDefinition from "./config.aqua"
 import IpfsClient from "./files.aqua"
 import CID, JsonString, Path, Multiaddr, Address from "./types.aqua"
-import SpellConfigJson, JsonDefault from "./json.aqua"
+import TriggerConfigJson, Json, WDJson from "./json.aqua"
 import Console from "./console.aqua"
 
 func upload_worker_config(ipfs: Multiaddr, config: LocalWorkerConfig) -> CID:
     services: *Service
-    spells: *Spell
+    spells: *SpellDefinition
     for s <- config.services:
         modules: *Module
         for m <- s.modules:
@@ -17,11 +18,11 @@ func upload_worker_config(ipfs: Multiaddr, config: LocalWorkerConfig) -> CID:
 
     for sp <- config.spells:
         script <- IpfsClient.upload_string(ipfs, sp.script)
-        cfg_str <- SpellConfigJson.stringify(sp.config)
+        cfg_str <- TriggerConfigJson.stringify(sp.config)
         cfg <- IpfsClient.upload_string(ipfs, cfg_str)
-        init_args_str <- JsonDefault.stringify(sp.init_args)
+        init_args_str <- Json.stringify(sp.init_args)
         init_args <- IpfsClient.upload_string(ipfs, init_args_str)
-        spells <<- Spell(name = sp.name, script = script, config = cfg, init_args = init_args)
+        spells <<- SpellDefinition(name = sp.name, script = script, config = cfg, init_args = init_args)
 
     rac = WorkerDefinition(services = services, spells = spells)
     json <- WDJson.stringify(rac)
