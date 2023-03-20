@@ -51,7 +51,20 @@ jobs:
           dependencies: ${{ inputs.cargo-dependencies }}
           path: src/spell/modules/spell
 
+      - name: Download marine artifact
+        id: marine
+        uses: actions/download-artifact@v3
+        continue-on-error: true
+        with:
+          name: marine
+          path: ~/.local/bin
+
+      - name: Make marine executable
+        if: steps.marine.outcome == 'success'
+        run: chmod +x ${{ steps.marine.outputs.download-path }}/marine
+
       - name: Setup marine
+        if: steps.marine.outcome == 'failure'
         uses: fluencelabs/setup-marine@v1
 
       - name: Build and package spell
