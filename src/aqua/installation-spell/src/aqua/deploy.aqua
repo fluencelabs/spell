@@ -1,11 +1,12 @@
 import PeerSpell from "@fluencelabs/spell/api.aqua"
-import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
+import TriggerConfig, Spell from "@fluencelabs/spell/spell_service.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
+import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 
 import IpfsClient, upload_script from "./files.aqua"
 import WorkerSpellArgs, CID, WorkerID, Address from "./types.aqua"
 import IPFS, AppDeployDefinition, DeployedAppWorkers, DeployedSpell, DeployedWorkers from "./config.aqua"
-
+import Json from "./json.aqua"
 import Console from "./console.aqua"
 
 const DEAL_ID = "dummy-deal-id-123"
@@ -26,16 +27,22 @@ func deploy_single_worker(
     -- prepare spell arguments
     init_args = WorkerSpellArgs(ipfs = IPFS, worker_def_cid = worker_definition, deal_id = DEAL_ID)
 
-    worker_id: *string
+    worker_id: ?WorkerID
+    spell_id: ?SpellID
     try:
         worker_id <- Worker.create()
+        on worker_id!:
+            spell_id <- PeerSpell.install(air, init_args, trigger_config)
     catch e:
         worker_id <- Worker.get_peer_id()
+        on worker_id!:
+            -- kinda dirty update
+            spell_id <- Srv.resolve_alias("worker-spell")
+            Spell spell_id!
+            app_cid <- Json.stringify(worker_definition)
+            Spell.set_string("worker_def_cid", app_cid)
 
-    on worker_id!:
-        spell_id <- PeerSpell.install(air, init_args, trigger_config)
-
-    <- spell_id, worker_id!
+    <- spell_id!, worker_id!
 
 func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
     workers: *DeployedWorkers

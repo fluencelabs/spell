@@ -1,0 +1,4 @@
+import log from "./log.aqua"
+
+func main(spell_id: string, test_arg: string):
+    log([spell_id, "hey i am working,", test_arg])
