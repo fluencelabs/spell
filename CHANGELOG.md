@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.6](https://github.com/fluencelabs/spell/compare/spell-v0.5.5...spell-v0.5.6) (2023-03-21)
+
+
+### Bug Fixes
+
+* update rust toolchain ([#88](https://github.com/fluencelabs/spell/issues/88)) ([7ba22bf](https://github.com/fluencelabs/spell/commit/7ba22bf92d254da3de587359685ec00e8ad33e15))
+
 ## [0.5.5](https://github.com/fluencelabs/spell/compare/spell-v0.5.4...spell-v0.5.5) (2023-03-21)
 
 
