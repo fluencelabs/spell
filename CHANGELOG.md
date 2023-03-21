@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.5](https://github.com/fluencelabs/spell/compare/spell-v0.5.4...spell-v0.5.5) (2023-03-21)
+
+
+### Features
+
+* **installation-spell:** deploy spells [NET-410] ([#85](https://github.com/fluencelabs/spell/issues/85)) ([16276d9](https://github.com/fluencelabs/spell/commit/16276d91af3f223c475f43441eae32bee7760c95))
+
 ## [0.5.4](https://github.com/fluencelabs/spell/compare/spell-v0.5.3...spell-v0.5.4) (2023-03-01)
 
 
