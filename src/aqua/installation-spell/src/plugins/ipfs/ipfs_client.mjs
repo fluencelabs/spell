@@ -15,7 +15,7 @@ const alive = new Set();
 async function upload(multiaddr, content) {
     const ipfs = await client(multiaddr);
     try {
-        const result = await ipfs.add(content, { pin: true });
+        const result = await ipfs.add(content, { pin: true, cidVersion: 1});
         const cid = result.path;
         await ipfs.pin.add(cid);
         console.log(`did pin ${cid} to ${multiaddr}`)

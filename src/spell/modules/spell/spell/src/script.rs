@@ -71,7 +71,7 @@ pub fn get_script_source_from_env() -> ScriptValue {
     }
 }
 
-const SHA2_256: u64 = 0x12;
+const RAW: u64 = 0x55;
 
 #[marine]
 pub fn script_cid() -> CIDValue {
@@ -81,7 +81,7 @@ pub fn script_cid() -> CIDValue {
     let script = get_script_source_from_file();
     if script.success {
         let digest = Code::Sha2_256.digest(script.source_code.as_bytes());
-        let cid = Cid::new_v1(SHA2_256, digest);
+        let cid = Cid::new_v1(RAW, digest);
 
         CIDValue {
             v1_str: cid.to_string(),

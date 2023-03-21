@@ -11,9 +11,6 @@ import Multiaddr, CID from "./types.aqua"
 import SpellData from "./spell_data.aqua"
 import log from "./log.aqua"
 
-func script_key(spell_name: string) -> string:
-    <- Op.concat_strings("script:", spell_name)
-
 func blueprint_key(service_name: string) -> string:
     <- Op.concat_strings("blueprint:", service_name)
 
@@ -59,18 +56,10 @@ func is_spell_deployed(spell: SpellDefinition) -> bool:
             -- to check spell exists
             Srv.info(spell_id)
 
-            -- TODO: currently we have different CIDs formats,
-            -- js ipfs-client returns v0, but spell service returns v1,
-            -- this code will work after fix
-            --
-            -- Spell spell_id
-            -- stored_script <- Spell.script_cid()
-            -- log([spell_id, "script cid was:", stored_script.v1_str, "new:", spell.script])
-            -- if stored_script.v1_str == spell.script:
-            --     result <<- true
-
-            stored_script <- Spell.get_string(script_key(spell.name))
-            if stored_script.str == spell.script:
+            Spell spell_id
+            stored_script <- Spell.script_cid()
+            log([spell_id, "script cid was:", stored_script.v1_str, "new:", spell.script])
+            if stored_script.v1_str == spell.script:
                 result <<- true
             else:
                 log([spell.name, "script changed, need to redeploy"])
@@ -130,7 +119,6 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
             Spell.set_string(spell.name, sp_id)
             Spell.set_string(config_key(spell.name), spell.config)
             Spell.set_string(init_args_key(spell.name), spell.init_args)
-            Spell.set_string(script_key(spell.name), spell.script)
     catch e:
         log(["Error deploy spell", spell.name, e])
 
