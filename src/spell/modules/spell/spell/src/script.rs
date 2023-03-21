@@ -186,7 +186,7 @@ mod tests {
         );
         assert_eq!(
             spell.script_cid().v1_str,
-            "baejbeibiotlyad7mvyqiit3ie2ljecziknctzuzmi7qtmktxmib5aiu3cq"
+            "bafkreibiotlyad7mvyqiit3ie2ljecziknctzuzmi7qtmktxmib5aiu3cq"
         );
     }
 }
