@@ -36,8 +36,15 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
         if info.blueprint_id == blueprint_id:
             result <<- true
         else:
-            -- TODO: should we do smth with the old service before removal?
-            Srv.remove(srv_id)
+            log([service_name, "blueprint changed, need to redeploy"])
+            try:
+                -- TODO: should we do smth with the old service before removal?
+                log([service_name, "removing old service", srv_id])
+                Srv.remove(srv_id)
+                log([service_name, "old service successfully removed", srv_id])
+            catch e:
+                log(["Error removing service", service_name, e])
+
             result <<- false
 
     <- result!
@@ -64,7 +71,9 @@ func is_spell_deployed(spell: SpellDefinition) -> bool:
             else:
                 log([spell.name, "script changed, need to redeploy"])
                 -- TODO: should we do smth with the old spell before removal?
+                log([spell.name, "removing old spell", spell_id])
                 PeerSpell.remove(spell_id)
+                log([spell.name, "old spell successfully removed", spell_id])
                 result <<- false
     catch e:
         log(["Error check spell deployed", spell.name, e])
@@ -88,7 +97,7 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
                 spell_id <- Srv.resolve_alias(spell.name)
                 PeerSpell.update_trigger_config(spell_id, config)
                 Spell.set_string(config_key(spell.name), spell.config)
-                log([spell.name, "config is successfully updated"])
+                log([spell.name, "config successfully updated"])
 
             stored_init_args <- Spell.get_string(init_args_key(spell.name))
             if stored_init_args.str != spell.init_args:
