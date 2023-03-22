@@ -10,7 +10,7 @@ services:
       RUST_LOG: "info,run-console=debug,network=trace,network_api=warn"
       WASM_LOG: info
       FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: "/ip4/127.0.0.1/tcp/5001"
-    image: docker.fluence.dev/rust-peer:ipfs_master_1334_1
+    image: docker.fluence.dev/rust-peer:ipfs_0.1.7
     ports:
       - 7770:7770 # tcp
       - 9990:9990 # ws
@@ -34,7 +34,7 @@ services:
       RUST_LOG: "info,run-console=debug,network=trace,network_api=warn,aquamarine_0.35.4.wasm=off"
       WASM_LOG: info
       FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: "/ip4/127.0.0.1/tcp/5002"
-    image: docker.fluence.dev/rust-peer:ipfs_master_1334_1
+    image: docker.fluence.dev/rust-peer:ipfs_0.1.7
     ports:
       - 7771:7771 # tcp
       - 9991:9991 # ws
@@ -58,7 +58,7 @@ services:
       RUST_LOG: "info,run-console=debug,network=trace,network_api=warn,aquamarine_0.35.4.wasm=off"
       WASM_LOG: info
       FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: "/ip4/127.0.0.1/tcp/5003"
-    image: docker.fluence.dev/rust-peer:ipfs_master_1334_1
+    image: docker.fluence.dev/rust-peer:ipfs_0.1.7
     ports:
       - 7772:7772 # tcp
       - 9992:9992 # ws

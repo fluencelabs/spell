@@ -4,30 +4,51 @@ import "./console.aqua"
 import "./deal_spell.aqua"
 import upload from "./upload.aqua"
 
+import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 import Spell from "@fluencelabs/spell/spell_service.aqua"
-import Console from "./console.aqua"
-
--- func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
--- func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
+import resolveSubnetwork from "@fluencelabs/registry/subnetwork.aqua"
 
 func upload_deploy(config: LocalAppDeployConfig) -> DeployedAppWorkers:
     def <- upload(config)
     deployed <- deploy(def)
     <- deployed
 
-data Log:
+data LogDirect:
     spell_id: string
+    worker_id: string
     host_id: string
     worker_name: string
     logs: []string
 
-func get_logs(app_workers: DeployedAppWorkers) -> *Log:
-    logs: *Log
+func get_logs(app_workers: DeployedAppWorkers) -> *LogDirect:
+    logs: *LogDirect
     for w <- app_workers.workers:
-        for i_spell <- w.installation_spells:
-            on i_spell.worker_id via i_spell.host_id:
-                Spell i_spell.spell_id
+        for i <- w.installation_spells:
+            on i.worker_id via i.host_id:
+                Spell i.spell_id
                 get_res <- Spell.list_get_strings("logs")
-                logs <<- Log(spell_id = i_spell.spell_id, host_id = i_spell.host_id, logs = get_res.strings, worker_name = w.name)
+                logs <<- LogDirect(spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.strings, worker_name = w.name)
+
+    <- logs
+
+data LogDeal:
+    spell_id: string
+    worker_id: string
+    host_id: string
+    logs: []string
+
+func get_logs_deal(deal_id: string) -> *LogDeal:
+    logs: *LogDeal
+
+    records, err <- resolveSubnetwork(deal_id)
+    if records != nil:
+        for w <- records!:
+            worker_id = w.metadata.peer_id
+            host_id = w.metadata.relay_id!
+            on worker_id via host_id:
+                spell_id <- Srv.resolve_alias("worker-spell")
+                Spell spell_id
+                get_res <- Spell.list_get_strings("logs")
+                logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id, host_id = host_id, logs = get_res.strings)
 
     <- logs
