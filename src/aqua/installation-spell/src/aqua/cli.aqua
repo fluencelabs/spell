@@ -35,20 +35,22 @@ data LogDeal:
     spell_id: string
     worker_id: string
     host_id: string
+    deal_id: string
     logs: []string
 
-func get_logs_deal(deal_id: string) -> *LogDeal:
+func get_logs_deal(deals: []string) -> *LogDeal:
     logs: *LogDeal
 
-    records, err <- resolveSubnetwork(deal_id)
-    if records != nil:
-        for w <- records!:
-            worker_id = w.metadata.peer_id
-            host_id = w.metadata.relay_id!
-            on worker_id via host_id:
-                spell_id <- Srv.resolve_alias("worker-spell")
-                Spell spell_id
-                get_res <- Spell.list_get_strings("logs")
-                logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id, host_id = host_id, logs = get_res.strings)
+    for deal_id <- deals:
+        records, err <- resolveSubnetwork(deal_id)
+        if records != nil:
+            for w <- records!:
+                worker_id = w.metadata.peer_id
+                host_id = w.metadata.relay_id!
+                on worker_id via host_id:
+                    spell_id <- Srv.resolve_alias("worker-spell")
+                    Spell spell_id
+                    get_res <- Spell.list_get_strings("logs")
+                    logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id, host_id = host_id, deal_id = deal_id, logs = get_res.strings)
 
     <- logs
