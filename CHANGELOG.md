@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.7](https://github.com/fluencelabs/spell/compare/spell-v0.5.6...spell-v0.5.7) (2023-03-27)
+
+
+### Features
+
+* add get_logs for deal workers [NET-425] ([#90](https://github.com/fluencelabs/spell/issues/90)) ([195f8fd](https://github.com/fluencelabs/spell/commit/195f8fdd5f6af8fe5dae67369945e1a41581e9a1))
+
 ## [0.5.6](https://github.com/fluencelabs/spell/compare/spell-v0.5.5...spell-v0.5.6) (2023-03-21)
 
 
