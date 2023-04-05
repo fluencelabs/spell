@@ -102,3 +102,7 @@ jobs:
         with:
           id: ${{ steps.version.outputs.id }}
           path: src/spell/modules/spell
+
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
