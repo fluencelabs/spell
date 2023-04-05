@@ -1,2 +1,2 @@
 [registries]
-fluence = { index = "sparse+https://crates.fluence.dev/api/v1/crates" }
+fluence = { index = "git://crates.fluence.dev/index" }
