@@ -4,10 +4,22 @@ on:
   pull_request:
     paths-ignore:
       - "**.md"
-
+      - ".github/**"
+      - "!.github/workflows/e2e.yml"
+      - "!.github/workflows/snapshot.yml"
+    types:
+      - "labeled"
+      - "synchronize"
+      - "opened"
+      - "reopened"
   push:
     branches:
       - "main"
+    paths-ignore:
+      - "**.md"
+      - ".github/**"
+      - "!.github/workflows/e2e.yml"
+      - "!.github/workflows/snapshot.yml"
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
@@ -15,6 +27,9 @@ concurrency:
 
 jobs:
   snapshot:
+    if: >
+      github.event_name == 'push' ||
+      contains(github.event.pull_request.labels.*.name, 'e2e')
     name: "spell"
     uses: ./.github/workflows/snapshot.yml
     with:
@@ -24,9 +39,8 @@ jobs:
     needs:
       - snapshot
 
-    uses: fluencelabs/rust-peer/.github/workflows/snapshot.yml@master
+    uses: fluencelabs/rust-peer/.github/workflows/build.yml@master
     with:
-      image-name: "docker.fluence.dev/spell"
       cargo-dependencies: |
         [
           {
@@ -40,6 +54,17 @@ jobs:
             "registry": "fluence"
           }
         ]
+
+  rust-peer-snapshot:
+    name: "rust-peer"
+    needs:
+      - rust-peer
+
+    uses: fluencelabs/rust-peer/.github/workflows/container.yml@master
+    with:
+      image-name: "docker.fluence.dev/spell"
+      flavour: "minimal"
+      rust-peer-sha: "${{ needs.rust-peer.outputs.rust-peer-sha }}"
 
   rust-peer-tests:
     name: "rust-peer"
@@ -65,9 +90,8 @@ jobs:
   aqua-tests:
     name: "spell"
     needs:
-      - rust-peer
+      - rust-peer-snapshot
     uses: ./.github/workflows/tests.yml
     with:
       ref: ${{ github.ref }}
-      rust-peer-image: "${{ needs.rust-peer.outputs.rust-peer-image }}"
-
+      rust-peer-image: "${{ needs.rust-peer-snapshot.outputs.rust-peer-image }}"
