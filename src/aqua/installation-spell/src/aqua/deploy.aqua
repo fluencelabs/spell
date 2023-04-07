@@ -39,6 +39,7 @@ func deploy_single_worker(
     on worker_id!:
         -- Take existing worker-spell or create a new one
         try:
+            -- This alias must be set by 'air' in order for spell to be "updatable"
             spell_id <- Srv.resolve_alias("worker-spell")
             -- If spell already exists, update 'worker_def_cid' arg in its KV
             app_cid <- Json.stringify(worker_definition)
@@ -47,7 +48,6 @@ func deploy_single_worker(
         catch e:
             -- Create new spell, 'worker_def_cid' will be passed in init_args
             spell_id <- PeerSpell.install(air, init_args, trigger_config)
-            Srv.add_alias("worker-spell", spell_id!)
 
     <- spell_id!, worker_id!
 
