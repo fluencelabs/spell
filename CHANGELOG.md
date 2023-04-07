@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.9](https://github.com/fluencelabs/spell/compare/spell-v0.5.8...spell-v0.5.9) (2023-04-07)
+
+
+### Bug Fixes
+
+* **direct-hosting:** do not set alias "worker-spell" directly ([#97](https://github.com/fluencelabs/spell/issues/97)) ([ef27f55](https://github.com/fluencelabs/spell/commit/ef27f55987ffa703d02d77fbfda0ee758dd92b3d))
+
 ## [0.5.8](https://github.com/fluencelabs/spell/compare/spell-v0.5.7...spell-v0.5.8) (2023-04-07)
 
 
