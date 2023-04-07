@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.8](https://github.com/fluencelabs/spell/compare/spell-v0.5.7...spell-v0.5.8) (2023-04-07)
+
+
+### Bug Fixes
+
+* **cli:** create worker-spell if not exists ([#96](https://github.com/fluencelabs/spell/issues/96)) ([9162af8](https://github.com/fluencelabs/spell/commit/9162af86dad5f5eb2ffd8b93cdc9c5e4d694213b))
+* run PeerSpell.list test on worker ([#92](https://github.com/fluencelabs/spell/issues/92)) ([6d2fa89](https://github.com/fluencelabs/spell/commit/6d2fa89ff6e1f50dc34f734f18f5b839c12f851f))
+
 ## [0.5.7](https://github.com/fluencelabs/spell/compare/spell-v0.5.6...spell-v0.5.7) (2023-03-27)
 
 
