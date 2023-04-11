@@ -96,8 +96,8 @@ func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
                 Spell.set_u32("subnet_created", now)
                 on HOST_PEER_ID:
                     success, reg_errs <- registerWorker(subnet_id!)
-                    Spell.set_u32("worker_registered", now)
                 if success == true:
+                    Spell.set_u32("worker_registered", now)
                     log(["worker successfully registered in registry", success])
                 else:
                     log(["error registering worker", reg_errs])
