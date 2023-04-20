@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.10](https://github.com/fluencelabs/spell/compare/spell-v0.5.9...spell-v0.5.10) (2023-04-13)
+
+
+### Features
+
+* **deal:** rate limit registry calls to 12h ([#108](https://github.com/fluencelabs/spell/issues/108)) ([71f43ed](https://github.com/fluencelabs/spell/commit/71f43ed36fe010df3e29200520feca783db65c2b))
+* **sqlite:** bump sqlite up to v0.18.1 ([#107](https://github.com/fluencelabs/spell/issues/107)) ([71a735b](https://github.com/fluencelabs/spell/commit/71a735bf18d35f6f691cb67b0541c53578cdc11d))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fluencelabs/registry to v0.8.3 ([#101](https://github.com/fluencelabs/spell/issues/101)) ([540469a](https://github.com/fluencelabs/spell/commit/540469a471afd2df53b781716b189d7a998fd26b))
+* **deps:** update rust crate marine-sqlite-connector to 0.8.0 ([#105](https://github.com/fluencelabs/spell/issues/105)) ([bbfc536](https://github.com/fluencelabs/spell/commit/bbfc53651664868244b45f223e7ede0f4a8c9025))
+
 ## [0.5.9](https://github.com/fluencelabs/spell/compare/spell-v0.5.8...spell-v0.5.9) (2023-04-07)
 
 
