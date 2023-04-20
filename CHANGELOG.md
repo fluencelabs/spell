@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.11](https://github.com/fluencelabs/spell/compare/spell-v0.5.10...spell-v0.5.11) (2023-04-20)
+
+
+### Bug Fixes
+
+* **installation-spell:** fix compile errors in installation spell ([#117](https://github.com/fluencelabs/spell/issues/117)) ([7a88db1](https://github.com/fluencelabs/spell/commit/7a88db102da3ec0843dd6c8d5a89e071838342f3))
+
 ## [0.5.10](https://github.com/fluencelabs/spell/compare/spell-v0.5.9...spell-v0.5.10) (2023-04-13)
 
 
