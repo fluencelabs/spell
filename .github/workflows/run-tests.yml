@@ -34,7 +34,7 @@ jobs:
       ref: ${{ github.ref }}
 
   installation-spell:
-    name: "Check installation spell compiles"
+    name: "spell / Check installation spell compiles"
     runs-on: ubuntu-latest
 
     steps:
