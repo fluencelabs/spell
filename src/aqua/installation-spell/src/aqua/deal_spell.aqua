@@ -34,6 +34,11 @@ func resolve_workers(deal_id: Address):
     Console.print("errors:")
     Console.print(errors)
 
+-- A hack to allow using timestamp as u32 values
+-- Aqua doesn't allow truncating values
+service PeerTimeTrunc("peer"):
+    timestamp_sec() -> u32
+
 -- this is executed inside Deal Installation Spell
 func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
     spell_id <- SpellData.spell_id()
@@ -63,26 +68,27 @@ func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
         if status.str == "install finished":
             subnet_id: ?string
 
-            now <- Peer.now_sec()
+            now <- PeerTimeTrunc.timestamp_sec()
             created <- Spell.get_u32("subnet_created")
             registered <- Spell.get_u32("worker_registered")
             if created.success:
                 if registered.success:
-                    if now - created.value > DISCOVERY_TIMEOUT_SEC:
+                    if now - created.num > DISCOVERY_TIMEOUT_SEC:
                         -- Create subnet only if DISCOVERY_TIMEOUT_SEC has passed
-                        subnet_id, cre_errs <- createSubnetwork(deal_id)
-                        if subnet_id != nil:
+                        new_subnet_id, cre_errs <- createSubnetwork(deal_id)
+                        if new_subnet_id != nil:
                             log(["Subnet created", subnet_id])
+                            subnet_id <<- new_subnet_id!
                         else:
                             log(["error creating subnetwork", cre_errs])
 
                     else:
-                        if now - registered > DISCOVERY_TIMEOUT_SEC:
+                        if now - registered.num > DISCOVERY_TIMEOUT_SEC:
                             sid <- Spell.get_string("subnet_id")
                             if sid.success:
                                 -- Set subnet_id only if DISCOVERY_TIMEOUT_SEC has passed
                                 -- Intention is to rate limit 'registerWorker' call
-                                subnet_id <<- sid.value
+                                subnet_id <<- sid.str
                             else:
                                 log(["error reading subnet_id", sid])
                 else:
@@ -101,3 +107,4 @@ func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
                     log(["worker successfully registered in registry", success])
                 else:
                     log(["error registering worker", reg_errs])
+
