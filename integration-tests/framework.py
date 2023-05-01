@@ -93,7 +93,8 @@ def run_aqua(key_pair_name, func, args, relay=get_relay()):
     call = f"{func}(" + ", ".join([chr(97 + i) for i in range(0, len(args))]) + ")"
     file = "./aqua/lib.aqua"
 
-    command = f"npx fluence run --relay={relay} -f '{call}' -i {file} -k {key_pair_name} --data='{json.dumps(data)}' --timeout=100000 --no-input"
+    command = f"npx fluence run --relay={relay} -f '{call}' -i {file} -k {key_pair_name} " \
+              f"--data='{json.dumps(data)}' --timeout=100000 --no-input --quiet"
     print(command)
     c = delegator.run(command, block=True)
     if len(c.err) != 0:
@@ -104,7 +105,9 @@ def run_aqua(key_pair_name, func, args, relay=get_relay()):
 
     result = None
     if c.out != "":
+        print("before")
         print(c.out)
+        print("after")
         result = json.loads(c.out)
         print("Result:", result)
     return result

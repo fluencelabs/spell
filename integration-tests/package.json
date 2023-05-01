@@ -6,8 +6,8 @@
     "@fluencelabs/aqua-lib": "^0.7.0"
   },
   "scripts": {
-    "compile-aqua": "aqua -i . -o ./target/typescript",
-    "make-air": "aqua --no-relay -i ./aqua/test_spells.aqua -o air --air",
+    "compile-aqua": "fluence aqua -i . -o ./target/typescript",
+    "make-air": "fluence aqua --no-relay -i ./aqua/test_spells.aqua -o air --air",
     "build": "npm run compile-aqua"
   },
   "keywords": [
@@ -17,7 +17,6 @@
   "author": "Fluence Labs",
   "license": "MIT",
   "devDependencies": {
-    "@fluencelabs/aqua": "0.10.3",
     "@fluencelabs/cli": "0.3.9"
   }
 }
