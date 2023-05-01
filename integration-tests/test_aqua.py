@@ -51,15 +51,15 @@ class TestSmoke:
         # wait a period_sec bit for a spell to work
         time.sleep(1)
         new_config = empty_config()
-        update_spell_ok(self.sk, self.spell_id, new_config)
+        update_spell_ok(self.key_pair_name, self.spell_id, new_config)
 
-        counter = get_counter_ok(self.sk, self.spell_id)
+        counter = get_counter_ok(self.key_pair_name, self.spell_id)
 
         # wait a period_sec
         # If the spell wasn't updated and is still executed, then the `value` value will be incremented
         time.sleep(1)
 
-        result = run_aqua(self.sk, "get_string", [self.spell_id, "value"])
+        result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, "value"])
         assert result["success"]
         value = int(result['str'])
 
@@ -87,20 +87,20 @@ class TestInstall:
         assert len(self.spell_id) != 0
 
     def test_install_get_config(self):
-        cfg_result = run_aqua(self.sk, "get_config", [self.spell_id])
+        cfg_result = run_aqua(self.key_pair_name, "get_config", [self.spell_id])
         assert cfg_result["success"]
         assert cfg_result["config"] == self.config, "spell's config should be equal the one that was set during installtion"
 
     def test_install_get_script(self):
-        script_result = run_aqua(self.sk, "get_script", [self.spell_id])
+        script_result = run_aqua(self.key_pair_name, "get_script", [self.spell_id])
         assert script_result["success"]
         assert script_result["source_code"] == self.air_script, "spell's script should be equal the one that was set during installtion"
 
     def test_install_get_count(self):
-        counter_result = run_aqua(self.sk, "get_counter", [self.spell_id])
+        counter_result = run_aqua(self.key_pair_name, "get_counter", [self.spell_id])
         assert counter_result["success"]
         assert counter_result['num'] == 1, "the spell should be run exactly once at this point"
-        counter = get_counter_ok(self.sk, self.spell_id)
+        counter = get_counter_ok(self.key_pair_name, self.spell_id)
 
     # TODO: what is it and how is it working?
     def _test_install_location(self):
@@ -119,7 +119,7 @@ class TestRemoveApi:
     config = empty_config()
 
     def test_remove_spell(self):
-        result = run_aqua(self.sk, "remove_service", [self.spell_id])
+        result = run_aqua(self.key_pair_name, "remove_service", [self.spell_id])
         assert not result["success"]
 
 @with_spell
@@ -139,7 +139,7 @@ class TestRemoveWithAux:
     config = empty_config()
 
     worker_spell_id = None
-    worker_sk = None
+    worker_key_pair_name = None
 
     # setup here the second spell that will be sending things to the first.
     def setup_method(self):
@@ -154,33 +154,32 @@ class TestRemoveWithAux:
         # pass the storage spell id to the worker spell
         dat = {"fellow_spell_id": self.spell_id}
 
-        spell_id, sk = create_spell(script, config, dat)
+        spell_id, key_pair_name = create_spell(script, config, dat)
         self.worker_spell_id = spell_id
-        self.worker_sk = sk
+        self.worker_key_pair_name = key_pair_name
 
     def run_scenario(self):
         # remove spell stopping it
-        destroy_spell(self.worker_sk, self.worker_spell_id)
+        destroy_spell(self.worker_key_pair_name, self.worker_spell_id)
 
         # check that spell isn't available by its spell id
-        result = run_aqua(self.worker_sk, "is_spell_absent", [self.worker_spell_id])
+        result = run_aqua(self.worker_key_pair_name, "is_spell_absent", [self.worker_spell_id])
         assert result, "the spell should be unavailable"
 
         # get value from the aux spell
-        result = run_aqua(self.sk, "get_string", [self.spell_id, "value"])
+        result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, "value"])
         assert result["success"]
         assert not result["absent"]
         value = result["str"]
 
         trigger_connect()
 
-        result = run_aqua(self.sk, "get_string", [self.spell_id, "value"])
+        result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, "value"])
         assert result["success"]
         assert not result["absent"]
         value2 = result["str"]
 
         assert value == value2, "the worker spell must be stopped"
-
 
     def test_remove_never_run(self):
         # the spell initially is created with empty config so it's never run
@@ -188,17 +187,17 @@ class TestRemoveWithAux:
 
     def test_remove_stopped(self):
         # run spell
-        update_spell_ok(self.sk, self.spell_id, connect_config())
+        update_spell_ok(self.key_pair_name, self.spell_id, connect_config())
         # trigger spell
         trigger_connect()
         # stop spell
-        update_spell_ok(self.sk, self.spell_id, empty_config())
+        update_spell_ok(self.key_pair_name, self.spell_id, empty_config())
 
         self.run_scenario()
 
     def test_remove_running(self):
         # run the spell
-        update_spell_ok(self.sk, self.spell_id, connect_config())
+        update_spell_ok(self.key_pair_name, self.spell_id, connect_config())
         # trigger spell
         trigger_connect()
 
@@ -206,10 +205,10 @@ class TestRemoveWithAux:
 
 class TestList:
     def test_list(self):
-        spell_id, sk = create_spell(simple_script(), empty_config(), {})
-        spells_after_install = run_aqua(sk, "list", [])
-        destroy_spell(sk, spell_id)
-        spells_after_remove = run_aqua(sk, "list", [])
+        spell_id, key_pair_name = create_spell(simple_script(), empty_config(), {})
+        spells_after_install = run_aqua(key_pair_name, "list", [])
+        destroy_spell(key_pair_name, spell_id)
+        spells_after_remove = run_aqua(key_pair_name, "list", [])
 
         assert spell_id in spells_after_install, "spell_id must be in the list of spells after spell installation"
         assert spell_id not in spells_after_remove, "spell_id must NOT be in the list of spells after spell removal"
@@ -221,20 +220,20 @@ class TestUpdate:
     dat = {}
 
     def test_update_forbid(self):
-        other_sk = get_sk()
-        result = update_spell(other_sk, self.spell_id, empty_config())
+        other_key_pair_name = make_key()
+        result = update_spell(other_key_pair_name, self.spell_id, empty_config())
         assert not result["success"], "spell is allowed to be updated only by owner"
 
     def test_update_config(self):
         config_expected = oneshot_config()
 
-        update_spell_ok(self.sk, self.spell_id, config_expected)
+        update_spell_ok(self.key_pair_name, self.spell_id, config_expected)
 
-        config_result = run_aqua(self.sk, "get_config", [self.spell_id])
+        config_result = run_aqua(self.key_pair_name, "get_config", [self.spell_id])
         assert config_result["success"], "can't retrive spell config"
         assert config_expected == config_result["config"], "spell's config must change after update"
 
-        trigger = get_trigger_event_ok(self.sk, self.spell_id)
+        trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
         assert len(trigger[0]["timer"]) == 1, "spell must be subscribed to timer trigger which must happen at this time"
 
 @with_spell_each
@@ -244,32 +243,30 @@ class TestTriggerMailbox:
     dat = {}
 
     def test_triggers_oneshot(self):
-        trigger = get_trigger_event_ok(self.sk, self.spell_id)
+        trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
 
         assert len(trigger) == 0, "no triggers must be in the spell's trigger mailbox on empty config"
 
-
-        counter = get_counter_ok(self.sk, self.spell_id)
+        counter = get_counter_ok(self.key_pair_name, self.spell_id)
         assert counter == 0, "the spell must NOT be run"
 
-        update_spell_ok(self.sk, self.spell_id, oneshot_config())
+        update_spell_ok(self.key_pair_name, self.spell_id, oneshot_config())
 
-        trigger = get_trigger_event_ok(self.sk, self.spell_id)
+        trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
         assert len(trigger) == 1, "trigger should be retrived"
 
         assert len(trigger[0]["peer"]) == 0, "peer trigger must NOT happen"
         assert len(trigger[0]["timer"]) == 1, "timer trigger must happen"
 
-        counter = get_counter_ok(self.sk, self.spell_id)
+        counter = get_counter_ok(self.key_pair_name, self.spell_id)
         assert counter == 1, "the spell must be run"
 
-
     def test_triggers_periodic(self):
-        update_spell_ok(self.sk, self.spell_id, periodic_config(1))
+        update_spell_ok(self.key_pair_name, self.spell_id, periodic_config(1))
         time.sleep(1)
-        update_spell_ok(self.sk, self.spell_id, empty_config())
+        update_spell_ok(self.key_pair_name, self.spell_id, empty_config())
 
-        [triggers, error] = run_aqua(self.sk, "get_all_trigger_events", [self.spell_id])
+        [triggers, error] = run_aqua(self.key_pair_name, "get_all_trigger_events", [self.spell_id])
         if len(error) != 0:
             raise Exception(f"get_all_trigger_events: error while gettings trigger for spell {spell_id}: {error}")
         assert len(triggers) != 0, f"the spell {self.spell_id} must be triggered"
@@ -278,7 +275,7 @@ class TestTriggerMailbox:
             assert len(trigger['peer']) == 0, "peer trigger must NOT happen"
             assert len(trigger['timer']) == 1, "timer trigger must happen"
 
-        counter = get_counter_ok(self.sk, self.spell_id)
+        counter = get_counter_ok(self.key_pair_name, self.spell_id)
         assert counter > 0, "the spell must be run"
 
         # TODO: check if it stands
@@ -287,11 +284,11 @@ class TestTriggerMailbox:
     def test_triggers_connections(self):
         config = empty_config()
         config["connections"]["connect"] = True
-        update_spell_ok(self.sk, self.spell_id, config)
+        update_spell_ok(self.key_pair_name, self.spell_id, config)
 
         trigger_connect()
 
-        trigger = get_trigger_event_ok(self.sk, self.spell_id)
+        trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
         assert len(trigger) != 0, "trigger should be retrived"
 
         assert len(trigger[0]["peer"]) == 1, "peer trigger must happen"
@@ -301,11 +298,11 @@ class TestTriggerMailbox:
 
         config = empty_config()
         config["connections"]["disconnect"] = True
-        update_spell_ok(self.sk, self.spell_id, config)
+        update_spell_ok(self.key_pair_name, self.spell_id, config)
 
         trigger_connect()
 
-        trigger = get_trigger_event_ok(self.sk, self.spell_id)
+        trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
         assert len(trigger) != 0, "trigger should be retrived"
 
         assert len(trigger[0]["peer"]) == 1, "peer trigger must happen"
@@ -323,10 +320,10 @@ class TestConfig:
     # actually check periods between triggers
     def test_config_periodic(self):
         period_expected = 1
-        update_spell_ok(self.sk, self.spell_id, periodic_config(period_expected))
+        update_spell_ok(self.key_pair_name, self.spell_id, periodic_config(period_expected))
         time.sleep(period_expected * 2)
 
-        [triggers, error] = run_aqua(self.sk, "get_all_trigger_events", [self.spell_id])
+        [triggers, error] = run_aqua(self.key_pair_name, "get_all_trigger_events", [self.spell_id])
         if len(error) != 0:
             raise Exception(f"get_all_trigger_events: error while gettings trigger for spell {spell_id}: {error}")
         assert len(triggers) != 0, f"the spell {self.spell_id} must be triggered"
@@ -340,7 +337,7 @@ class TestConfig:
 
     def test_config_bad(self):
         def check(config):
-            result = update_spell(self.sk, self.spell_id, config)
+            result = update_spell(self.key_pair_name, self.spell_id, config)
             assert not result["success"], "bad config must not be set"
 
         bad = empty_config()
@@ -361,21 +358,21 @@ class TestConfig:
         config = oneshot_config()
         config['clock']['start_sec'] = int(time.time()) + 60 * 10
 
-        update_spell_ok(self.sk, self.spell_id, config)
+        update_spell_ok(self.key_pair_name, self.spell_id, config)
 
-        counter = get_counter_ok(self.sk, self.spell_id)
+        counter = get_counter_ok(self.key_pair_name, self.spell_id)
         assert counter == 0, "spell must NOT be run"
 
-	# Right now the spell with `end_sec` checks `now < end_sec`, not `now + period < end_sec`, so
-	# the test failing. Need to fix the node.
+    # Right now the spell with `end_sec` checks `now < end_sec`, not `now + period < end_sec`, so
+    # the test failing. Need to fix the node.
     def _test_config_end_sec(self):
         wait_sec = 8
         config = periodic_config(3)
         config['clock']['end_sec'] = int(time.time()) + wait_sec
-        update_spell_ok(self.sk, self.spell_id, config)
+        update_spell_ok(self.key_pair_name, self.spell_id, config)
         time.sleep(wait_sec)
 
-        trigger = get_trigger_event_ok(self.sk, self.spell_id)
+        trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
         assert len(trigger) == 1, "the spell must be triggered at this point"
         assert trigger[0]['timer'][0]['timestamp'] <= config['clock']['end_sec'], "the spell was triggered after `end_sec`"
         # TODO: check that the spell is stopped
@@ -392,7 +389,7 @@ class TestSpellError:
     dat = {}
 
     def test_error(self):
-        result = run_aqua(self.sk, "get_spell_errors", [self.spell_id])
+        result = run_aqua(self.key_pair_name, "get_spell_errors", [self.spell_id])
         print(result)
         assert result["success"], "get_spell_errors failed"
         errors = result["particle_errors"]
