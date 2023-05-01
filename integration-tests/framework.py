@@ -9,14 +9,25 @@ import string
 import os
 import tempfile
 from config import get_local
+import threading
+key_lock = threading.Lock()
 
 def make_key():
-    name = ''.join(random.choices(string.ascii_uppercase, k=5))
-    c = delegator.run(f"npx fluence key new {name} --no-input", block=True)
-    if len(c.err) != 0:
-        print(c.err)
-    print(f"NAME {name}")
-    return name
+    with key_lock:
+        name = ''.join(random.choices(string.ascii_uppercase, k=5))
+        c = delegator.run(f"npx fluence key new {name} --no-input", block=True)
+        if len(c.err) != 0:
+            print(c.err)
+        return name
+
+
+def delete_key(name):
+    with key_lock:
+        c = delegator.run(f"npx fluence key remove {name} --no-input", block=True)
+        if len(c.err) != 0:
+            print(c.err)
+        return name
+
 
 def get_relays():
     env = os.environ.get("FLUENCE_ENV")
@@ -26,16 +37,20 @@ def get_relays():
         if env is None:
             env = "stage"
         c = delegator.run(f"npx fluence default peers {env}", block=True)
-        peers = c.out.strip().split("\n")
+        lines = c.out.strip().split("\n");
+
+        peers = list(filter(None, list(lines[1:])))
 
     assert len(peers) != 0, c.err
     return peers
+
 
 def get_relay():
     peers = get_relays()
     peer = peers[random.randint(0, len(peers) - 1)]
     assert len(peer) != 0
     return peer
+
 
 def from_aqua(aqua, func_name):
     if len(aqua) == 0 or len(func_name) == 0:
@@ -70,6 +85,7 @@ def from_aqua(aqua, func_name):
             raise Exception(f"Unable to read compiled air script by path {air_path}: {e}")
         return air_script
 
+
 # TODO: learn how to chose the relay based on the test worker id.
 def run_aqua(key_pair_name, func, args, relay=get_relay()):
     # "a" : arg1, "b" : arg2 .....
@@ -77,7 +93,7 @@ def run_aqua(key_pair_name, func, args, relay=get_relay()):
     call = f"{func}(" + ", ".join([chr(97 + i) for i in range(0, len(args))]) + ")"
     file = "./aqua/lib.aqua"
 
-    command = f"npx fluence run --relay={relay} -f '{call}' -i {file} -k {key_pair_name} --data='{json.dumps(data)}' --timeout=100000"
+    command = f"npx fluence run --relay={relay} -f '{call}' -i {file} -k {key_pair_name} --data='{json.dumps(data)}' --timeout=100000 --no-input"
     print(command)
     c = delegator.run(command, block=True)
     if len(c.err) != 0:
@@ -93,6 +109,7 @@ def run_aqua(key_pair_name, func, args, relay=get_relay()):
         print("Result:", result)
     return result
 
+
 def get_peer_id(key_pair_name):
     return run_aqua(key_pair_name, "get_peer_id", [])
 
@@ -100,8 +117,10 @@ def get_peer_id(key_pair_name):
 def trigger_connect():
     run_aqua(make_key(), "noop", [])
 
+
 def install_spell(key_pair_name, script, config, dat):
     return run_aqua(key_pair_name, "install", [script, config, dat])
+
 
 def install_spell_ok(key_pair_name, script, config, dat={}):
     """
@@ -112,29 +131,36 @@ def install_spell_ok(key_pair_name, script, config, dat={}):
     assert len(result["spell_id"]) != 0, "spell_id must not be empty"
     return result["spell_id"]
 
+
 def remove_spell(key_pair_name, spell_id):
     return run_aqua(key_pair_name, "remove", [spell_id])
+
 
 def remove_spell_ok(key_pair_name, spell_id):
     result = remove_spell(key_pair_name, spell_id)
     assert result["success"], f"can't remove spell {spell_id}"
 
+
 def update_spell(key_pair_name, spell_id, config):
     return run_aqua(key_pair_name, "update", [spell_id, config])
+
 
 def update_spell_ok(key_pair_name, spell_id, config):
     result = update_spell(key_pair_name, spell_id, config)
     assert result["success"], f"can't update the spell {spell_id}"
+
 
 def get_trigger_event_ok(key_pair_name, spell_id):
     [trigger, error] = run_aqua(key_pair_name, "get_trigger_event", [spell_id])
     assert len(error) == 0, f"get_trigger_event: got error while retrieving triggers for spell {spell_id}: {error}"
     return trigger
 
+
 def get_counter_ok(key_pair_name, spell_id):
     counter_result = run_aqua(key_pair_name, "get_counter", [spell_id])
     assert counter_result["success"], "get_counter failed"
     return counter_result['num']
+
 
 def create_spell(script, config, dat):
     key_pair_name = make_key()
@@ -179,6 +205,7 @@ def with_spell(cls):
 
     # update setup_class to create a sepll + calling the original one
     old_setup_class = getattr(cls, "setup_class", None)
+
     def setup_class(cls):
         spell_id, key_pair_name = create_spell(air_script, config, dat)
         cls.spell_id = spell_id
@@ -191,10 +218,13 @@ def with_spell(cls):
 
     # update teardown_class to remove a sepll + calling the original one
     old_teardown_class = getattr(cls, "teardown_class", None)
+
     def teardown_class(cls):
         if old_teardown_class is not None:
             old_teardown_class()
         destroy_spell(cls.key_pair_name, cls.spell_id)
+        delete_key(cls.key_pair_name)
+        delete_key(cls.key_pair_name)
 
     cls.teardown_class = teardown_class
 
@@ -221,6 +251,7 @@ def with_spell_each(cls):
 
     # update setup_class to create a sepll + calling the original one
     old_setup_method = getattr(cls, "setup_method", None)
+
     def setup_method(cls):
         spell_id, key_pair_name = create_spell(air_script, config, dat)
         cls.spell_id = spell_id
@@ -233,10 +264,12 @@ def with_spell_each(cls):
 
     # update teardown_method to remove a sepll + calling the original one
     old_teardown_method = getattr(cls, "teardown_method", None)
+
     def teardown_method(cls):
         if old_teardown_method is not None:
             old_teardown_method()
         destroy_spell(cls.key_pair_name, cls.spell_id)
+        delete_key(cls.key_pair_name)
         cls.spell_id = None
         cls.key_pair_name = None
 
