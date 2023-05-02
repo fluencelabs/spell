@@ -8,13 +8,13 @@ import random
 import json
 import string
 import os
-import tempfile
 from config import get_local
-import threading
+import tempfile
 
+key_lock = filelock.FileLock(f"{tempfile.gettempdir()}/spell_test_run.lock")
 
 def make_key():
-    with filelock.FileLock("target/test_run.lock"):
+    with key_lock:
         name = ''.join(random.choices(string.ascii_uppercase, k=5))
         c = delegator.run(f"npx fluence key new {name} --no-input", block=True)
         if len(c.err) != 0:
@@ -23,7 +23,7 @@ def make_key():
 
 
 def delete_key(name):
-    with filelock.FileLock("target/test_run.lock"):
+    with key_lock:
         c = delegator.run(f"npx fluence key remove {name} --no-input", block=True)
         if len(c.err) != 0:
             print(c.err)
