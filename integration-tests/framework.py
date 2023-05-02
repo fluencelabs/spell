@@ -1,5 +1,6 @@
 import string
 
+import filelock
 import pytest
 import time
 import delegator
@@ -10,10 +11,10 @@ import os
 import tempfile
 from config import get_local
 import threading
-key_lock = threading.Lock()
+
 
 def make_key():
-    with key_lock:
+    with filelock.FileLock("target/test_run.lock"):
         name = ''.join(random.choices(string.ascii_uppercase, k=5))
         c = delegator.run(f"npx fluence key new {name} --no-input", block=True)
         if len(c.err) != 0:
@@ -22,7 +23,7 @@ def make_key():
 
 
 def delete_key(name):
-    with key_lock:
+    with filelock.FileLock("target/test_run.lock"):
         c = delegator.run(f"npx fluence key remove {name} --no-input", block=True)
         if len(c.err) != 0:
             print(c.err)
@@ -106,10 +107,12 @@ def run_aqua(key_pair_name, func, args, relay=get_relay()):
 
     result = None
     if c.out != "":
-        print("before")
         print(c.out)
-        print("after")
-        result = json.loads(c.out)
+        # TODO: this is a temporary hack, remove that in the future, cli should not return undefined
+        if c.out.strip() == "undefined":
+            result = dict()
+        else:
+            result = json.loads(c.out)
         print("Result:", result)
     return result
 
@@ -156,7 +159,7 @@ def update_spell_ok(key_pair_name, spell_id, config):
 
 def get_trigger_event_ok(key_pair_name, spell_id):
     [trigger, error] = run_aqua(key_pair_name, "get_trigger_event", [spell_id])
-    assert len(error) == 0, f"get_trigger_event: got error while retrieving triggers for spell {spell_id}: {error}"
+    assert error is None, f"get_trigger_event: got error while retrieving triggers for spell {spell_id}: {error}"
     return trigger
 
 
