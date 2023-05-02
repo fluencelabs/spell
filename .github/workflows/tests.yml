@@ -91,6 +91,7 @@ jobs:
 
       - name: Cleanup lockfile
         run: rm -f spell_test_run.lock
+        working-directory: integration-tests
 
       - name: Run aqua tests
         env:
