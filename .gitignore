@@ -25,3 +25,5 @@ src/aqua/*.ts
 src/aqua/installation-spell/src/air
 src/ts/src/aqua
 src/js/src/aqua
+
+spell_test_run.lock
