@@ -84,27 +84,32 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
     Spell "worker-spell"
     try:
         if is_spell_deployed(spell):
-
             log([spell.name, "spell is already deployed, checking config and init_args"])
 
             stored_config <- Spell.get_string(config_key(spell.name))
             if stored_config.str != spell.config:
                 log([spell.name, "config mismath, updating config"])
                 config_json <- Ipfs.cat_from(spell.config, ipfs)
-                config <- TriggerConfigJson.parse(config_json.contents)
+                if config_json.success:
+                    config <- TriggerConfigJson.parse(config_json.contents)
 
-                -- we can't use alias because of NET-418
-                spell_id <- Srv.resolve_alias(spell.name)
-                PeerSpell.update_trigger_config(spell_id, config)
-                Spell.set_string(config_key(spell.name), spell.config)
-                log([spell.name, "config successfully updated"])
+                    -- we can't use alias because of NET-418
+                    spell_id <- Srv.resolve_alias(spell.name)
+                    PeerSpell.update_trigger_config(spell_id, config)
+                    Spell.set_string(config_key(spell.name), spell.config)
+                    log([spell.name, "config successfully updated"])
+                else:
+                    log([spell.name, "error retrieving config", spell.config, config_json.error])
 
             stored_init_args <- Spell.get_string(init_args_key(spell.name))
             if stored_init_args.str != spell.init_args:
                 log([spell.name, "init_args changed, updating"])
                 new_init_args <- Ipfs.cat_from(spell.init_args, ipfs)
-                Spell spell.name
-                Spell.set_json_fields(new_init_args.contents)
+                if new_init_args.success:
+                    Spell spell.name
+                    Spell.set_json_fields(new_init_args.contents)
+                else:
+                    log([spell.name, "error retrieving init_args", spell.init_args, new_init_args.error])
 
                 Spell "worker-spell"
                 Spell.set_string(init_args_key(spell.name), spell.init_args)
@@ -113,21 +118,25 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
             Spell.set_string("status", "install in progress")
             script <- Ipfs.cat_from(spell.script, ipfs)
             cfg_json <- Ipfs.cat_from(spell.config, ipfs)
-            cfg <- TriggerConfigJson.parse(cfg_json.contents)
             init_args_str <- Ipfs.cat_from(spell.init_args, ipfs)
 
-            init_args <- JsonStr.parse(init_args_str.contents)
+            ipfs_ok <- and(and(script.success, cfg_json.success), init_args_str.success)
+            if ipfs_ok:
+                cfg <- TriggerConfigJson.parse(cfg_json.contents)
+                init_args <- JsonStr.parse(init_args_str.contents)
 
-            sp_id <- PeerSpell.install(script.contents, init_args, cfg)
-            log(["Installed spell", spell.name, sp_id])
-            try:
-                Srv.add_alias(spell.name, sp_id)
-            catch e:
-                log(["Error creating alias for deployed spell", spell.name, sp_id, e])
+                sp_id <- PeerSpell.install(script.contents, init_args, cfg)
+                log(["Installed spell", spell.name, sp_id])
+                try:
+                    Srv.add_alias(spell.name, sp_id)
+                catch e:
+                    log(["Error creating alias for deployed spell", spell.name, sp_id, e])
 
-            Spell.set_string(spell.name, sp_id)
-            Spell.set_string(config_key(spell.name), spell.config)
-            Spell.set_string(init_args_key(spell.name), spell.init_args)
+                Spell.set_string(spell.name, sp_id)
+                Spell.set_string(config_key(spell.name), spell.config)
+                Spell.set_string(init_args_key(spell.name), spell.init_args)
+            else:
+                log([spell.name, "error retrieving from IPFS", ["script", spell.script, script], ["cfg_json", spell.config, cfg_json], ["init_args_str", spell.init_args, init_args_str]])
     catch e:
         log(["Error deploy spell", spell.name, e])
 
@@ -139,7 +148,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
         json <- Ipfs.cat_from(worker_def_cid, ipfs)
         if json.success:
             worker_definition <- WDJson.parse(json.contents)
-            log(["parsed worker definition", worker_definition])
+            log(["parsed worker definition", worker_def_cid, worker_definition])
 
             for s <- worker_definition.services:
                 try:
@@ -147,31 +156,39 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
                     for m <- s.modules:
                         get_wasm <- Ipfs.get_from(m.wasm, ipfs)
                         json_cfg <- Ipfs.cat_from(m.config, ipfs)
-                        cfg <- ModuleConfigJson.parse(json_cfg.contents)
-                        hash <- Dist.add_module_from_vault(get_wasm.path, cfg)
-                        hashes <- Op.concat_strings("hash:", hash)
+                        ipfs_ok <- and(get_wasm.success, json_cfg.success)
+                        if ipfs_ok:
+                            cfg <- ModuleConfigJson.parse(json_cfg.contents)
+                            hash <- Dist.add_module_from_vault(get_wasm.path, cfg)
+                            hashes <- Op.concat_strings("hash:", hash)
+                        else:
+                            log([s.name, "error retrieving module", ["wasm", m.wasm, get_wasm], ["config", m.config, json_cfg]])
 
-                    blueprint <- Dist.make_blueprint(s.name, hashes)
-                    blueprint_id <- Dist.add_blueprint(blueprint)
+                    if hashes.length == s.modules.length:
+                        blueprint <- Dist.make_blueprint(s.name, hashes)
+                        blueprint_id <- Dist.add_blueprint(blueprint)
 
-                    -- TODO: check that services are still alive
-                    -- do not deploy if already deployed with the same blueprint
-                    if is_deployed(s.name, blueprint_id) == false:
-                        Spell.set_string("status", "install in progress")
+                        -- TODO: check that services are still alive
+                        -- do not deploy if already deployed with the same blueprint
+                        if is_deployed(s.name, blueprint_id) == false:
+                            Spell.set_string("status", "install in progress")
 
-                        service_id <- Srv.create(blueprint_id)
-                        log(["Created service", s.name, service_id])
-                        try:
-                            Srv.add_alias(s.name, service_id)
-                        catch e:
-                            log(["Error creating alias for deployed service", s.name, service_id, e])
+                            service_id <- Srv.create(blueprint_id)
+                            log(["Created service", s.name, service_id])
+                            try:
+                                Srv.add_alias(s.name, service_id)
+                            catch e:
+                                log(["Error creating alias for deployed service", s.name, service_id, e])
 
-                        Spell.set_string(s.name, service_id)
-                        Spell.set_string(blueprint_key(s.name), blueprint_id)
+                            Spell.set_string(s.name, service_id)
+                            Spell.set_string(blueprint_key(s.name), blueprint_id)
+                        else:
+                            log([s.name, "service is already deployed, doing nothing"])
                     else:
-                        log([s.name, "service is already deployed, doing nothing"])
+                        -- not all modules were retrieved
+                        log([s.name, "error retrieving some of the modules, see above"])
                 catch e:
-                    log(["Error deploying service", s.name, e])
+                    log([s.name, "error deploying service", e])
 
             for sp <- worker_definition.spells:
                 try:

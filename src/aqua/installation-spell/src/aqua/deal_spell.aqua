@@ -1,5 +1,4 @@
 import Op, Debug, Hash, Dist, Srv, PeerId from "@fluencelabs/aqua-lib/builtin.aqua"
-import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
 import Spell from "@fluencelabs/spell/spell_service.aqua"
 import Registry from "@fluencelabs/registry/registry-service.aqua"
 import resolveResource from "@fluencelabs/registry/resources-api.aqua"
@@ -107,4 +106,3 @@ func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
                     log(["worker successfully registered in registry", success])
                 else:
                     log(["error registering worker", reg_errs])
-

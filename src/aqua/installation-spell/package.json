@@ -19,9 +19,9 @@
   "author": "Fluence Labs",
   "license": "Apache-2.0",
   "dependencies": {
-    "@fluencelabs/aqua-ipfs": "0.5.9",
+    "@fluencelabs/aqua-ipfs": "0.5.11",
     "@fluencelabs/aqua-lib": "0.7.0",
-    "@fluencelabs/registry": "0.8.3",
+    "@fluencelabs/registry": "0.8.4",
     "@fluencelabs/spell": "0.5.11"
   },
   "devDependencies": {
