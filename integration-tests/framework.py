@@ -11,7 +11,7 @@ import os
 from config import get_local
 import tempfile
 
-key_lock = filelock.FileLock("spell_test_run.lock", timeout=30)
+key_lock = filelock.FileLock("spell_test_run.lock", timeout=60)
 
 def make_key():
     with key_lock:
