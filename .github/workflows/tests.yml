@@ -90,6 +90,8 @@ jobs:
         working-directory: integration-tests
 
       - name: Install fluence deps
+        env:
+          FLUENCE_USER_DIR: "${{ github.workspace }}/tmp/.fluence"
         run: npx fluence dependency npm install
         working-directory: integration-tests
 
@@ -100,7 +102,7 @@ jobs:
       - name: Run aqua tests
         env:
           FLUENCE_USER_DIR: "${{ github.workspace }}/tmp/.fluence"
-        run: pytest test_aqua.py
+        run: pytest -n auto test_aqua.py
         working-directory: integration-tests
 
       - name: Dump rust-peer logs on failure
