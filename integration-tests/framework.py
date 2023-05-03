@@ -96,6 +96,7 @@ def run_aqua(key_pair_name, func, args, relay=get_relay()):
 
     command = f"npx fluence run --relay={relay} -f '{call}' -i {file} -k {key_pair_name} " \
               f"--data='{json.dumps(data)}' --no-input " \
+              f"--import 'node_modules' " \
               f"--quiet"
     print(command)
     c = delegator.run(command, block=True)
