@@ -3,7 +3,7 @@ import warnings
 
 
 def test_aqua_version():
-    c = delegator.run(f"npx aqua --version", block=True)
-    print(f"Aqua version: {c.out}")
-    warnings.warn(f"Aqua version: {c.out}")
+    c = delegator.run(f"npx fluence --version", block=True)
+    print(f"Fluence cli version: {c.out}")
+    warnings.warn(f"Fluence cli version: {c.out}")
     assert True

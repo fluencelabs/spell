@@ -6,10 +6,11 @@
 
 version: 0
 npm:
-  "@fluencelabs/aqua": 0.10.0
-  "@fluencelabs/aqua-lib": 0.6.0
-  "@fluencelabs/registry": 0.4.1-subnetwork
+  "@fluencelabs/cli": 0.4.8
+  "@fluencelabs/aqua-lib": 0.7.0
+  "@fluencelabs/registry": 0.8.3
   "@fluencelabs/spell": 0.3.5
+  "@fluencelabs/aqua": 0.10.2
 cargo:
   marine: 0.12.4
   mrepl: 0.18.6

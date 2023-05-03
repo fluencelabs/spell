@@ -16,7 +16,7 @@
   "scripts": {
     "build-wasm": "(cd $npm_package_config_SERVICE_DIR; ./build.sh)",
     "generate-service-api": "marine aqua $npm_package_config_SERVICE_DIR/$npm_package_config_WASM > $npm_package_config_AQUA_API",
-    "check-aqua": "aqua -i . --dry",
+    "check-aqua": "fluence aqua -i . --dry",
     "check": "run-s build-wasm generate-service-api check-aqua"
   },
   "repository": {
@@ -34,7 +34,7 @@
   "homepage": "https://github.com/fluencelabs/spell#readme",
   "devDependencies": {
     "@fluencelabs/aqua-lib": "0.7.0",
-    "@fluencelabs/aqua": "0.9.4",
+    "@fluencelabs/cli": "0.4.8",
     "npm-run-all2": "6.0.4"
   }
 }
