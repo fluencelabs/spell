@@ -1,5 +1,3 @@
-import string
-
 import filelock
 import pytest
 import time
@@ -12,7 +10,6 @@ from config import get_local
 import tempfile
 
 key_lock = filelock.FileLock("spell_test_run.lock", timeout=120)
-
 def make_key():
     with key_lock:
         name = ''.join(random.choices(string.ascii_uppercase, k=5))
@@ -87,7 +84,7 @@ def from_aqua(aqua, func_name):
         return air_script
 
 
-# TODO: learn how to chose the relay based on the test worker id.
+# TODO: learn how to choose the relay based on the test worker id.
 def run_aqua(key_pair_name, func, args, relay=get_relay()):
     # "a" : arg1, "b" : arg2 .....
     data = {chr(97 + i): arg for (i, arg) in enumerate(args)}
@@ -231,7 +228,6 @@ def with_spell(cls):
         if old_teardown_class is not None:
             old_teardown_class()
         destroy_spell(cls.key_pair_name, cls.spell_id)
-        delete_key(cls.key_pair_name)
         delete_key(cls.key_pair_name)
 
     cls.teardown_class = teardown_class

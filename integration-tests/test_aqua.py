@@ -1,7 +1,6 @@
 import pytest
 from framework import *
 
-
 def empty_config():
     return {
         "clock": {"start_sec": 0, "end_sec": 0, "period_sec": 0},
@@ -9,12 +8,10 @@ def empty_config():
         "blockchain": {"start_block": 0, "end_block": 0}
     }
 
-
 def oneshot_config():
     config = empty_config()
     config["clock"]["start_sec"] = int(time.time())
     return config
-
 
 def periodic_config(period_sec):
     config = empty_config()
@@ -22,12 +19,10 @@ def periodic_config(period_sec):
     config["clock"]["period_sec"] = period_sec
     return config
 
-
 def connect_config():
     config = empty_config()
     config["connections"]["connect"] = True
     return config
-
 
 def simple_script():
     return '(call %init_peer_id% ("peer" "identify") [] x)'
@@ -71,7 +66,6 @@ class TestSmoke:
         assert counter == value, "values should be equal since 'value' incremented each time the spell is called"
         assert counter != 0, "the spell must be executed at least once at this point"
 
-
 @with_spell
 class TestInstall:
     """
@@ -95,14 +89,12 @@ class TestInstall:
     def test_install_get_config(self):
         cfg_result = run_aqua(self.key_pair_name, "get_config", [self.spell_id])
         assert cfg_result["success"]
-        assert cfg_result[
-                   "config"] == self.config, "spell's config should be equal the one that was set during installtion"
+        assert cfg_result["config"] == self.config, "spell's config should be equal the one that was set during installtion"
 
     def test_install_get_script(self):
         script_result = run_aqua(self.key_pair_name, "get_script", [self.spell_id])
         assert script_result["success"]
-        assert script_result[
-                   "source_code"] == self.air_script, "spell's script should be equal the one that was set during installtion"
+        assert script_result["source_code"] == self.air_script, "spell's script should be equal the one that was set during installtion"
 
     def test_install_get_count(self):
         counter_result = run_aqua(self.key_pair_name, "get_counter", [self.spell_id])
@@ -113,7 +105,6 @@ class TestInstall:
     # TODO: what is it and how is it working?
     def _test_install_location(self):
         pass
-
 
 @with_spell
 class TestRemoveApi:
@@ -130,7 +121,6 @@ class TestRemoveApi:
     def test_remove_spell(self):
         result = run_aqua(self.key_pair_name, "remove_service", [self.spell_id])
         assert not result["success"]
-
 
 @with_spell
 class TestRemoveWithAux:
@@ -191,6 +181,7 @@ class TestRemoveWithAux:
 
         assert value == value2, "the worker spell must be stopped"
 
+
     def test_remove_never_run(self):
         # the spell initially is created with empty config so it's never run
         self.run_scenario()
@@ -213,7 +204,6 @@ class TestRemoveWithAux:
 
         self.run_scenario()
 
-
 class TestList:
     def test_list(self):
         spell_id, key_pair_name = create_spell(simple_script(), empty_config(), {})
@@ -223,7 +213,6 @@ class TestList:
 
         assert spell_id in spells_after_install, "spell_id must be in the list of spells after spell installation"
         assert spell_id not in spells_after_remove, "spell_id must NOT be in the list of spells after spell removal"
-
 
 @with_spell
 class TestUpdate:
@@ -247,7 +236,6 @@ class TestUpdate:
 
         trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
         assert len(trigger["timer"]) == 1, "spell must be subscribed to timer trigger which must happen at this time"
-
 
 @with_spell_each
 class TestTriggerMailbox:
@@ -376,8 +364,8 @@ class TestConfig:
         counter = get_counter_ok(self.key_pair_name, self.spell_id)
         assert counter == 0, "spell must NOT be run"
 
-    # Right now the spell with `end_sec` checks `now < end_sec`, not `now + period < end_sec`, so
-    # the test failing. Need to fix the node.
+	# Right now the spell with `end_sec` checks `now < end_sec`, not `now + period < end_sec`, so
+	# the test failing. Need to fix the node.
     def _test_config_end_sec(self):
         wait_sec = 8
         config = periodic_config(3)
@@ -387,10 +375,8 @@ class TestConfig:
 
         trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
         assert len(trigger) == 1, "the spell must be triggered at this point"
-        assert trigger[0]['timer'][0]['timestamp'] <= config['clock'][
-            'end_sec'], "the spell was triggered after `end_sec`"
+        assert trigger[0]['timer'][0]['timestamp'] <= config['clock']['end_sec'], "the spell was triggered after `end_sec`"
         # TODO: check that the spell is stopped
-
 
 @with_spell
 class TestSpellError:
