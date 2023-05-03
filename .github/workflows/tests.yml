@@ -100,7 +100,7 @@ jobs:
       - name: Run aqua tests
         env:
           FLUENCE_USER_DIR: "${{ github.workspace }}/tmp/.fluence"
-        run: pytest -n auto test_aqua.py
+        run: pytest test_aqua.py
         working-directory: integration-tests
 
       - name: Dump rust-peer logs on failure
