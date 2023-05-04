@@ -159,8 +159,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
                         ipfs_ok <- and(get_wasm.success, json_cfg.success)
                         if ipfs_ok:
                             cfg <- ModuleConfigJson.parse(json_cfg.contents)
-                            hash <- Dist.add_module_from_vault(get_wasm.path, cfg)
-                            hashes <- Op.concat_strings("hash:", hash)
+                            hashes <- Dist.add_module_from_vault(get_wasm.path, cfg)
                         else:
                             log([s.name, "error retrieving module", ["wasm", m.wasm, get_wasm], ["config", m.config, json_cfg]])
 
