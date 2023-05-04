@@ -11,10 +11,6 @@ on:
         description: "rust-peer image tag"
         type: string
         default: "fluencelabs/rust-peer:minimal"
-      aqua-version:
-        description: "@fluencelabs/aqua version"
-        type: string
-        default: "null"
       fluence-cli-version:
         description: "@fluencelabs/cli version"
         type: string
@@ -79,19 +75,6 @@ jobs:
           version: ${{ inputs.fluence-cli-version }}
           working-directory: integration-tests
           flags: "--save-dev"
-
-      - name: Set versions in fluence.yaml
-        uses: fluencelabs/github-actions/fluence-set-dependency@main
-        env:
-          NPM_CONFIG_REGISTRY: "https://npm.fluence.dev"
-        with:
-          path: integration-tests
-          versions: >
-            {
-              "npm": {
-                "@fluencelabs/aqua": "${{ inputs.aqua-version }}"
-              }
-            }
 
       - name: Login to DockerHub
         uses: docker/login-action@v2
