@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.12](https://github.com/fluencelabs/spell/compare/spell-v0.5.11...spell-v0.5.12) (2023-05-05)
+
+
+### Features
+
+* **installation-spell:** use new blueprint ([#124](https://github.com/fluencelabs/spell/issues/124)) ([fae1552](https://github.com/fluencelabs/spell/commit/fae1552ee4dab071ff419474b191130095ed8e35))
+
+
+### Bug Fixes
+
+* **installation-spell:** better error reporting ([#121](https://github.com/fluencelabs/spell/issues/121)) ([f5d2f4d](https://github.com/fluencelabs/spell/commit/f5d2f4d90f924e6df53ba386a021889e3d85ff89))
+
 ## [0.5.11](https://github.com/fluencelabs/spell/compare/spell-v0.5.10...spell-v0.5.11) (2023-04-20)
 
 
