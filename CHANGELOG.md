@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.13](https://github.com/fluencelabs/spell/compare/spell-v0.5.12...spell-v0.5.13) (2023-05-28)
+
+
+### Features
+
+* **deps:** update registry to 0.8.6 ([#126](https://github.com/fluencelabs/spell/issues/126)) ([87daa5a](https://github.com/fluencelabs/spell/commit/87daa5a8a12d35c6ea1169bdb2df0c94268432b5))
+
 ## [0.5.12](https://github.com/fluencelabs/spell/compare/spell-v0.5.11...spell-v0.5.12) (2023-05-05)
 
 
