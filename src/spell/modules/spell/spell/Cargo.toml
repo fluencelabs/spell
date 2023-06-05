@@ -12,7 +12,7 @@ path = "src/main.rs"
 marine-rs-sdk = "0.7.1"
 marine-sqlite-connector = { workspace = true }
 eyre = "0.6.8"
-cid = "0.8.6"
+cid = "0.10.0"
 thiserror = "1.0.37"
 fstrings = "0.2.3"
 fluence-spell-dtos = { path = "../spell-dtos", version = "0.5.0" }
