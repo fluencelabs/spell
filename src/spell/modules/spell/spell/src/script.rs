@@ -1,5 +1,4 @@
 use std::fs::OpenOptions;
-use std::io;
 use std::io::Write;
 
 use marine_rs_sdk::marine;
@@ -145,14 +144,10 @@ mod tests {
         );
         let second_set = spell.set_script_source_to_file("(seq (null) (null))".to_string());
         assert!(
-            !second_set.success,
-            "set_script_source_to_file returned true expected false"
+            second_set.success,
+            "set_script_source_to_file returned false (fail), expected true (success)"
         );
-        assert_eq!(
-            second_set.error,
-            "Script can be set only once, and it was already set"
-        );
-        assert_eq!(spell.get_script_source_from_file().source_code, "(null)");
+        assert_eq!(spell.get_script_source_from_file().source_code, "(seq (null) (null))");
     }
 
     #[marine_test(
