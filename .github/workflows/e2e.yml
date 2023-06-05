@@ -60,7 +60,7 @@ jobs:
     needs:
       - rust-peer
 
-    uses: fluencelabs/rust-peer/.github/workflows/container.yml@master
+    uses: fluencelabs/rust-peer/.github/workflows/container.yml@dirty_multiarch
     with:
       image-name: "docker.fluence.dev/spell"
       flavour: "minimal"
