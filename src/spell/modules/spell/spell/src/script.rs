@@ -154,6 +154,50 @@ mod tests {
         config_path = "../tests_artifacts/Config.toml",
         modules_dir = "../tests_artifacts"
     )]
+    fn test_set_script_by_spell(spell: marine_test_env::spell::ModuleInterface) {
+        let service_id = uuid::Uuid::new_v4();
+        let particle_id = format!("spell_{}_123", service_id);
+
+        let cp = CallParameters {
+            init_peer_id: "folex".to_string(),
+            service_creator_peer_id: "folex".to_string(),
+            service_id: service_id.to_string(),
+            host_id: "".to_string(),
+            particle_id: particle_id,
+            tetraplets: vec![],
+        };
+
+        let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
+
+        assert!(set.success, "set script failed: {}", set.error);
+    }
+
+    #[marine_test(
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
+    )]
+    fn test_set_script_by_third_party(spell: marine_test_env::spell::ModuleInterface) {
+        let particle_id = "some_particle_id_from_somewhere".to_string();
+
+        let cp = CallParameters {
+            init_peer_id: "definitely not folex".to_string(),
+            service_creator_peer_id: "folex".to_string(),
+            service_id: "spell_service_id".to_string(),
+            host_id: "".to_string(),
+            particle_id: particle_id,
+            tetraplets: vec![],
+        };
+
+        let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
+
+        assert!(!set.success, "set script succeeded while shouldn't");
+        assert_eq!(set.error, "Only owner of the service and spell itself can set the script");
+    }
+
+    #[marine_test(
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
+    )]
     fn test_set_script_source_to_file_auth(spell: marine_test_env::spell::ModuleInterface) {
         let cp = CallParameters {
             init_peer_id: "folex".to_string(),
@@ -167,7 +211,7 @@ mod tests {
         let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
 
         assert!(!set.success, "set script succeeded while shouldn't");
-        assert_eq!(set.error, "Only owner of the service can set the script");
+        assert_eq!(set.error, "Only owner of the service and spell itself can set the script");
     }
 
     #[marine_test(
