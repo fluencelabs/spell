@@ -24,17 +24,19 @@ pub fn set_script_source_to_file(script: String) -> UnitValue {
         return UnitValue::error("Only owner of the service can set the script");
     }
 
+    // open file for writing, overwrite if exists, create if not exists
     let write = OpenOptions::new()
-        .create_new(true)
+        // create file if it doesn't exist
+        .create(true)
+        // remove all contents of the file if it exists
+        .truncate(true)
+        // grant writing permissions
         .write(true)
         .open(SCRIPT_FILE)
         .map(|mut f| f.write_all(script.as_bytes()));
 
     match write {
         Ok(_) => UnitValue::ok(),
-        Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
-            UnitValue::error("Script can be set only once, and it was already set")
-        }
         Err(e) => UnitValue::error(format!("Error writing script to {}: {}", SCRIPT_FILE, e)),
     }
 }
