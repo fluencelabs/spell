@@ -76,7 +76,7 @@ func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
                         -- Create subnet only if DISCOVERY_TIMEOUT_SEC has passed
                         new_subnet_id, cre_errs <- createSubnetwork(deal_id)
                         if new_subnet_id != nil:
-                            log(["Subnet created", subnet_id])
+                            log(["Subnet created", new_subnet_id!])
                             subnet_id <<- new_subnet_id!
                         else:
                             log(["error creating subnetwork", cre_errs])
