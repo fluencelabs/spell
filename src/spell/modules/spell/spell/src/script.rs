@@ -5,7 +5,7 @@ use marine_rs_sdk::marine;
 
 use fluence_spell_dtos::value::{CIDValue, ScriptValue, UnitValue};
 
-use crate::auth::is_by_creator;
+use crate::auth::{is_by_creator, is_by_spell};
 
 const SCRIPT_ENV: &str = "script";
 const SCRIPT_FILE: &str = "/tmp/script.air";
@@ -19,8 +19,8 @@ fn check_env() {
 
 #[marine]
 pub fn set_script_source_to_file(script: String) -> UnitValue {
-    if !is_by_creator() {
-        return UnitValue::error("Only owner of the service can set the script");
+    if !is_by_creator() && !is_by_spell(&marine_rs_sdk::get_call_parameters()) {
+        return UnitValue::error("Only owner of the service and spell itself can set the script");
     }
 
     // open file for writing, overwrite if exists, create if not exists
