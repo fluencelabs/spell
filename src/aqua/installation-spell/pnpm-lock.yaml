@@ -1,18 +1,22 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
 
 dependencies:
   '@fluencelabs/aqua-ipfs':
     specifier: 0.5.13
     version: 0.5.13
   '@fluencelabs/aqua-lib':
-    specifier: 0.7.0
-    version: 0.7.0
+    specifier: 0.7.1
+    version: 0.7.1
   '@fluencelabs/registry':
-    specifier: 0.8.4
-    version: 0.8.4
+    specifier: 0.8.6
+    version: 0.8.6
   '@fluencelabs/spell':
-    specifier: 0.5.12
-    version: 0.5.12
+    specifier: 0.5.13
+    version: 0.5.13
 
 devDependencies:
   '@fluencelabs/cli':
@@ -480,11 +484,15 @@ packages:
   /@fluencelabs/aqua-ipfs@0.5.13:
     resolution: {integrity: sha512-P4qHI6v0SSqacx2jqufniIzNjK9SdJ+VNBZvHXSbJOIzedu+FlMj625Z4u4IUOvPH68Yokj5QpqroMzg7NS5zA==}
     dependencies:
-      '@fluencelabs/aqua-lib': 0.7.0
+      '@fluencelabs/aqua-lib': 0.7.1
     dev: false
 
   /@fluencelabs/aqua-lib@0.7.0:
     resolution: {integrity: sha512-mJEaxfAQb6ogVM4l4qw7INK6kvLA2Y161ErwL7IVeVSkKXIeYq/qio2p2au35LYvhBNsKc7XP2qc0uztCmxZzA==}
+    dev: false
+
+  /@fluencelabs/aqua-lib@0.7.1:
+    resolution: {integrity: sha512-reVMySt1gSA7HENOm+UHuKAF9VFvyUydHMDgsuWuh/pEpOh+YP2V4IxzlhUd8zSMXpTOt4zGrT4f1C0w/3zfyQ==}
     dev: false
 
   /@fluencelabs/avm@0.35.4:
@@ -669,21 +677,21 @@ packages:
       default-import: 1.1.5
     dev: true
 
-  /@fluencelabs/registry@0.8.4:
-    resolution: {integrity: sha512-ySmnk9NCUik30Co+wV1flxMRcKPPXuF2q3jy4ynga9zePhAnC1KLkIO6SsxavQUIfIolpuADJyoQG3KLOHZP/w==}
+  /@fluencelabs/registry@0.8.6:
+    resolution: {integrity: sha512-/YUGE7n7bKL3hEdmNeGaoxecsGn78VDxVjd6tPDjDumuQZeCbKqEJvtX+PA7vFHKbVnOUMELwxe5FdMw8g0d4A==}
     dependencies:
       '@fluencelabs/aqua-lib': 0.7.0
       '@fluencelabs/trust-graph': 0.4.1
     dev: false
 
-  /@fluencelabs/spell@0.5.12:
-    resolution: {integrity: sha512-jGbDRPpKpiNSZUZuAGinDYJs1mqcTKJQRdEfEYkOyN6LyWO7QQLx2to0eQqNDkYJxImKnECGOnvIKMSteTp9Ig==}
+  /@fluencelabs/spell@0.5.13:
+    resolution: {integrity: sha512-6zM2Nn6GQBQevAYPxiEaWF3+QzzI32Z/WqPKWzvM7cS80YC8OvI0AfnNV6oWUa9DK3qEluRiVGgd2m53SSnWPA==}
     dev: false
 
   /@fluencelabs/trust-graph@0.4.1:
     resolution: {integrity: sha512-V/6ts4q/Y0uKMS6orVpPyxfdd99YFMkm9wN9U2IFtlBUWNsQZG369FK9qEizwsSRCqTchMHYs8Vh4wgZ2uRfuQ==}
     dependencies:
-      '@fluencelabs/aqua-lib': 0.7.0
+      '@fluencelabs/aqua-lib': 0.7.1
     dev: false
 
   /@iarna/toml@2.2.5:
