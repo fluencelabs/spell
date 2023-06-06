@@ -1,5 +1,4 @@
 use std::fs::OpenOptions;
-use std::io;
 use std::io::Write;
 
 use marine_rs_sdk::marine;
@@ -24,17 +23,19 @@ pub fn set_script_source_to_file(script: String) -> UnitValue {
         return UnitValue::error("Only owner of the service can set the script");
     }
 
+    // open file for writing, overwrite if exists, create if not exists
     let write = OpenOptions::new()
-        .create_new(true)
+        // create file if it doesn't exist
+        .create(true)
+        // remove all contents of the file if it exists
+        .truncate(true)
+        // grant writing permissions
         .write(true)
         .open(SCRIPT_FILE)
         .map(|mut f| f.write_all(script.as_bytes()));
 
     match write {
         Ok(_) => UnitValue::ok(),
-        Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
-            UnitValue::error("Script can be set only once, and it was already set")
-        }
         Err(e) => UnitValue::error(format!("Error writing script to {}: {}", SCRIPT_FILE, e)),
     }
 }
@@ -100,8 +101,8 @@ pub fn script_cid() -> CIDValue {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
-    use marine_rs_sdk_test::marine_test;
     use marine_rs_sdk_test::CallParameters;
+    use marine_rs_sdk_test::marine_test;
 
     use crate::schema::DB_FILE;
 
@@ -143,14 +144,52 @@ mod tests {
         );
         let second_set = spell.set_script_source_to_file("(seq (null) (null))".to_string());
         assert!(
-            !second_set.success,
-            "set_script_source_to_file returned true expected false"
+            second_set.success,
+            "set_script_source_to_file returned false (fail), expected true (success)"
         );
-        assert_eq!(
-            second_set.error,
-            "Script can be set only once, and it was already set"
-        );
-        assert_eq!(spell.get_script_source_from_file().source_code, "(null)");
+        assert_eq!(spell.get_script_source_from_file().source_code, "(seq (null) (null))");
+    }
+
+    #[marine_test(
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
+    )]
+    fn test_set_script_by_spell(spell: marine_test_env::spell::ModuleInterface) {
+        let service_id = uuid::Uuid::new_v4();
+        let particle_id = format!("spell_{}_123", service_id);
+
+        let cp = CallParameters {
+            init_peer_id: "folex".to_string(),
+            service_creator_peer_id: "folex".to_string(),
+            service_id: service_id.to_string(),
+            host_id: "".to_string(),
+            particle_id: particle_id,
+            tetraplets: vec![],
+        };
+
+        let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
+
+        assert!(set.success, "set script failed: {}", set.error);
+    }
+
+    #[marine_test(
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
+    )]
+    fn test_set_script_by_third_party(spell: marine_test_env::spell::ModuleInterface) {
+        let cp = CallParameters {
+            init_peer_id: "definitely not folex".to_string(),
+            service_creator_peer_id: "folex".to_string(),
+            service_id: "spell_service_id".to_string(),
+            host_id: "".to_string(),
+            particle_id: "some_particle_id_from_somewhere".to_string(),
+            tetraplets: vec![],
+        };
+
+        let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
+
+        assert!(!set.success, "set script succeeded while shouldn't");
+        assert_eq!(set.error, "Only owner of the service can set the script");
     }
 
     #[marine_test(
