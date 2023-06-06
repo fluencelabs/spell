@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.14](https://github.com/fluencelabs/spell/compare/spell-v0.5.13...spell-v0.5.14) (2023-06-06)
+
+
+### Features
+
+* **script:** allow to overwrite spell script ([#128](https://github.com/fluencelabs/spell/issues/128)) ([3a23274](https://github.com/fluencelabs/spell/commit/3a232742d6a95b54f4e08328922aa3dd1c8da6b8))
+
+
+### Bug Fixes
+
+* **deal:** print subnet id correctly ([#130](https://github.com/fluencelabs/spell/issues/130)) ([ea01a42](https://github.com/fluencelabs/spell/commit/ea01a429cdfcb2e28679fcb657b5d077fe0c9812))
+* **deps:** update dependency @fluencelabs/aqua-ipfs to v0.5.13 ([#110](https://github.com/fluencelabs/spell/issues/110)) ([159e1b7](https://github.com/fluencelabs/spell/commit/159e1b77683e1c76b1fb4320b9c9fb3e3fe866da))
+
 ## [0.5.13](https://github.com/fluencelabs/spell/compare/spell-v0.5.12...spell-v0.5.13) (2023-05-28)
 
 
