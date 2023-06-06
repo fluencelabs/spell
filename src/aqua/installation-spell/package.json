@@ -25,7 +25,7 @@
     "@fluencelabs/spell": "0.5.13"
   },
   "devDependencies": {
-    "@fluencelabs/cli": "0.4.8"
+    "@fluencelabs/cli": "0.4.14"
   },
   "workspaces": [
     "../spell"
