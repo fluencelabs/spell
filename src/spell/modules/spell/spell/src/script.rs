@@ -5,7 +5,7 @@ use marine_rs_sdk::marine;
 
 use fluence_spell_dtos::value::{CIDValue, ScriptValue, UnitValue};
 
-use crate::auth::{is_by_creator, is_by_spell};
+use crate::auth::is_by_creator;
 
 const SCRIPT_ENV: &str = "script";
 const SCRIPT_FILE: &str = "/tmp/script.air";
@@ -101,8 +101,8 @@ pub fn script_cid() -> CIDValue {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
-    use marine_rs_sdk_test::marine_test;
     use marine_rs_sdk_test::CallParameters;
+    use marine_rs_sdk_test::marine_test;
 
     use crate::schema::DB_FILE;
 
