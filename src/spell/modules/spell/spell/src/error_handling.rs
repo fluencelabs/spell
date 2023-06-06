@@ -219,7 +219,7 @@ mod tests {
     fn cp(service_id: String, particle_id: String) -> CallParameters {
         CallParameters {
             init_peer_id: "folex".to_string(),
-            service_creator_peer_id: "not folex".to_string(),
+            service_creator_peer_id: "folex".to_string(),
             service_id,
             host_id: "".to_string(),
             particle_id,
