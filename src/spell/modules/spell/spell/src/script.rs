@@ -19,8 +19,8 @@ fn check_env() {
 
 #[marine]
 pub fn set_script_source_to_file(script: String) -> UnitValue {
-    if !is_by_creator() && !is_by_spell(&marine_rs_sdk::get_call_parameters()) {
-        return UnitValue::error("Only owner of the service and spell itself can set the script");
+    if !is_by_creator() {
+        return UnitValue::error("Only owner of the service can set the script");
     }
 
     // open file for writing, overwrite if exists, create if not exists
@@ -177,21 +177,19 @@ mod tests {
         modules_dir = "../tests_artifacts"
     )]
     fn test_set_script_by_third_party(spell: marine_test_env::spell::ModuleInterface) {
-        let particle_id = "some_particle_id_from_somewhere".to_string();
-
         let cp = CallParameters {
             init_peer_id: "definitely not folex".to_string(),
             service_creator_peer_id: "folex".to_string(),
             service_id: "spell_service_id".to_string(),
             host_id: "".to_string(),
-            particle_id: particle_id,
+            particle_id: "some_particle_id_from_somewhere".to_string(),
             tetraplets: vec![],
         };
 
         let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
 
         assert!(!set.success, "set script succeeded while shouldn't");
-        assert_eq!(set.error, "Only owner of the service and spell itself can set the script");
+        assert_eq!(set.error, "Only owner of the service can set the script");
     }
 
     #[marine_test(
@@ -211,7 +209,7 @@ mod tests {
         let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
 
         assert!(!set.success, "set script succeeded while shouldn't");
-        assert_eq!(set.error, "Only owner of the service and spell itself can set the script");
+        assert_eq!(set.error, "Only owner of the service can set the script");
     }
 
     #[marine_test(
