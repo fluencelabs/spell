@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.15](https://github.com/fluencelabs/spell/compare/spell-v0.5.14...spell-v0.5.15) (2023-06-12)
+
+
+### Features
+
+* **installation-spell:** add dag upload to IpfsClient ([#139](https://github.com/fluencelabs/spell/issues/139)) ([2a261a4](https://github.com/fluencelabs/spell/commit/2a261a44274458921878535b0e7e16a93e7d7bd4))
+
 ## [0.5.14](https://github.com/fluencelabs/spell/compare/spell-v0.5.13...spell-v0.5.14) (2023-06-06)
 
 
