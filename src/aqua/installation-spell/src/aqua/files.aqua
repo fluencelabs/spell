@@ -6,6 +6,8 @@ service IpfsClient("ipfs_client"):
     exists(multiaddr: string, cid: CID) -> bool
     upload(multiaddr: string, path: string) -> CID
     upload_string(multiaddr: string, contents: string) -> CID
+    dag_upload(multiaddr: string, path: string) -> CID
+    dag_upload_string(multiaddr: string, contents: string) -> CID
     remove(multiaddr: string, cid: CID) -> string
 
 service FileSystem("file_system"):
