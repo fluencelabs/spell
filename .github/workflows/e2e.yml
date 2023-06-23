@@ -92,7 +92,7 @@ jobs:
   aqua-tests:
     name: "spell"
     needs:
-      - snapshot
+      - nox-snapshot
     uses: ./.github/workflows/tests.yml
     with:
       ref: ${{ github.ref }}
