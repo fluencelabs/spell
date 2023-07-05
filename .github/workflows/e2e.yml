@@ -72,7 +72,7 @@ jobs:
           {
             "package": "decider-distro",
             "version": "=${{ needs.decider.outputs.cargo-version }}",
-            "manifest": "crates/system-services/Cargo.toml"
+            "manifest": "crates/system-services/Cargo.toml",
             "registry": "fluence"
           }
         ]
@@ -111,7 +111,7 @@ jobs:
           {
             "package": "decider-distro",
             "version": "=${{ needs.decider.outputs.cargo-version }}",
-            "manifest": "crates/system-services/Cargo.toml"
+            "manifest": "crates/system-services/Cargo.toml",
             "registry": "fluence"
           }
         ]
