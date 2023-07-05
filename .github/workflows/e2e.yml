@@ -38,9 +38,8 @@ jobs:
   decider:
     needs:
       - snapshot
-    uses: fluencelabs/decider/.github/workflows/snapshot.yml@FLU-357
+    uses: fluencelabs/decider/.github/workflows/snapshot.yml@main
     with:
-      ref: FLU-357
       cargo-dependencies: |
         [
           {
