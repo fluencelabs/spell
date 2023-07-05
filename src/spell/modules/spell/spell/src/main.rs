@@ -12,6 +12,8 @@ pub mod location;
 pub mod schema;
 pub mod script;
 pub mod trigger_config;
+pub mod log;
+pub mod mailbox;
 
 module_manifest!();
 

@@ -47,10 +47,10 @@ impl TryFrom<&mut Statement> for LastErrorEntry {
     */
     fn try_from(statement: &mut Statement) -> Result<Self, Self::Error> {
         Ok(Self {
-            error_idx: statement.read::<f64>(2)? as u32,
+            error_idx: statement.read::<i64>(2)? as u32,
             last_error: LastError {
                 error_code: statement
-                    .read::<f64>(3)
+                    .read::<i64>(3)
                     .context("error reading error_code from row")?
                     as u32,
                 instruction: statement
@@ -101,9 +101,9 @@ pub fn store_error(error: LastError, error_idx: u32, particle_timestamp: u64) ->
         "#,
         )?;
         statement.bind(1, call_parameters.particle_id.as_str())?;
-        statement.bind(2, particle_timestamp as f64)?;
-        statement.bind(3, error_idx as f64)?;
-        statement.bind(4, error.error_code as f64)?;
+        statement.bind(2, particle_timestamp as i64)?;
+        statement.bind(3, error_idx as i64)?;
+        statement.bind(4, error.error_code as i64)?;
         statement.bind(5, error.instruction.as_str())?;
         statement.bind(6, error.message.as_str())?;
         statement.bind(7, error.peer_id.as_str())?;

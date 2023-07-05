@@ -45,7 +45,7 @@ pub fn list_pop_string(key: &str) -> StringValue {
         get.bind(1, key)?;
         get.bind(2, key)?;
         let string = read_string(&mut get, 1)?;
-        let list_index = get.read::<f64>(3)?;
+        let list_index = get.read::<i64>(3)?;
 
         let mut delete = db.prepare(
             r#"

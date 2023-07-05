@@ -38,13 +38,13 @@ pub fn set_trigger_config(config: TriggerConfig) -> UnitValue {
             connections,
             blockchain,
         } = config;
-        statement.bind(1, clock.start_sec as f64)?;
-        statement.bind(2, clock.end_sec as f64)?;
-        statement.bind(3, clock.period_sec as f64)?;
-        statement.bind(4, connections.connect as u32 as f64)?;
-        statement.bind(5, connections.disconnect as u32 as f64)?;
-        statement.bind(6, blockchain.start_block as f64)?;
-        statement.bind(7, blockchain.end_block as f64)?;
+        statement.bind(1, clock.start_sec as i64)?;
+        statement.bind(2, clock.end_sec as i64)?;
+        statement.bind(3, clock.period_sec as i64)?;
+        statement.bind(4, connections.connect as u32 as i64)?;
+        statement.bind(5, connections.disconnect as u32 as i64)?;
+        statement.bind(6, blockchain.start_block as i64)?;
+        statement.bind(7, blockchain.end_block as i64)?;
         statement.next()?;
     };
 
@@ -57,13 +57,13 @@ pub fn get_trigger_config() -> TriggerConfigValue {
         let conn = db();
         let mut statement = conn.prepare(r#"SELECT * FROM trigger_config"#)?;
         if let State::Row = statement.next()? {
-            let start_sec = statement.read::<f64>(0)? as u32;
-            let end_sec = statement.read::<f64>(1)? as u32;
-            let period_sec = statement.read::<f64>(2)? as u32;
-            let connect = statement.read::<f64>(3)? != 0f64;
-            let disconnect = statement.read::<f64>(4)? != 0f64;
-            let start_block = statement.read::<f64>(5)? as u32;
-            let end_block = statement.read::<f64>(6)? as u32;
+            let start_sec = statement.read::<i64>(0)? as u32;
+            let end_sec = statement.read::<i64>(1)? as u32;
+            let period_sec = statement.read::<i64>(2)? as u32;
+            let connect = statement.read::<i64>(3)? != 0i64;
+            let disconnect = statement.read::<i64>(4)? != 0i64;
+            let start_block = statement.read::<i64>(5)? as u32;
+            let end_block = statement.read::<i64>(6)? as u32;
 
             TriggerConfig {
                 clock: ClockConfig {
