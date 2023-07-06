@@ -10,7 +10,7 @@ on:
       rust-peer-image:
         description: "rust-peer image tag"
         type: string
-        default: "fluencelabs/rust-peer:minimal"
+        default: "fluencelabs/nox:unstable_minimal"
       fluence-cli-version:
         description: "@fluencelabs/cli version"
         type: string
