@@ -67,12 +67,12 @@ jobs:
       - run: npm install
         working-directory: integration-tests
 
-      - name: Set fluence-cli version
-        if: inputs.fluence-cli-version != 'null'
+      - name: Set flox version
+        if: inputs.flox-version != 'null'
         uses: fluencelabs/github-actions/npm-set-dependency@main
         with:
           package: "@fluencelabs/cli"
-          version: ${{ inputs.fluence-cli-version }}
+          version: ${{ inputs.flox-version }}
           working-directory: integration-tests
           flags: "--save-dev"
 
