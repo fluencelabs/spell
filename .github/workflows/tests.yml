@@ -59,7 +59,7 @@ jobs:
       - name: Setup node with self-hosted registry
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: "18"
           registry-url: "https://npm.fluence.dev"
           cache: "npm"
           cache-dependency-path: "integration-tests/package-lock.json"
