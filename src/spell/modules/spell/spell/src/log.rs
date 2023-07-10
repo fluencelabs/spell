@@ -16,7 +16,7 @@ pub struct AllLogsResult {
 }
 
 #[marine]
-pub fn store_log(log: String, timestamp: u64) -> UnitValue {
+pub fn store_log(log: String) -> UnitValue {
     let call_parameters = marine_rs_sdk::get_call_parameters();
 
     // We want to prevent anyone except this spell to store logs to its kv
@@ -29,13 +29,12 @@ pub fn store_log(log: String, timestamp: u64) -> UnitValue {
         let mut statement = conn.prepare(
             r#"
         INSERT INTO logs
-            (timestamp, log)
+            (log)
         VALUES
-            (?, ?)
+            (?)
         "#,
         )?;
-        statement.bind(1, timestamp as i64)?;
-        statement.bind(2, log.as_str())?;
+        statement.bind(1, log.as_str())?;
 
 
         statement.next()?;
@@ -128,14 +127,13 @@ mod tests {
     fn test_store_log(spell: marine_test_env::spell::ModuleInterface) {
         println!("test_store_log started");
 
-        let timestamp = 123;
         let log = "logloglog".to_string();
         let service_id = Uuid::new_v4();
         let particle_id = format!("spell_{}", service_id);
         let cp = cp(service_id.to_string(), particle_id);
 
 
-        let store = spell.store_log_cp(log.clone(), timestamp, cp);
+        let store = spell.store_log_cp(log.clone(), cp);
         assert!(store.success, "{}", store.error);
 
         let logs = spell.get_logs();
@@ -150,7 +148,6 @@ mod tests {
     modules_dir = "../tests_artifacts"
     )]
     fn test_store_log_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
-        let timestamp = 111;
         let log = "logloglog".to_string();
         let service_id = Uuid::new_v4();
         let cp = cp(service_id.to_string(), "spell_WRONG_123".to_string());
@@ -161,7 +158,6 @@ mod tests {
             !spell
                 .store_log_cp(
                     log,
-                    timestamp,
                     cp
                 )
                 .success
@@ -177,14 +173,13 @@ mod tests {
     modules_dir = "../tests_artifacts"
     )]
     fn test_log_lru(spell: marine_test_env::spell::ModuleInterface) {
-        let timestamp = 123;
         let log = "logloglog".to_string();
         let service_id = Uuid::new_v4();
 
         for i in 0..(DEFAULT_MAX_LOGS + 5) {
             let particle_id = format!("spell_{}_{}", service_id, i);
             let cp = cp(service_id.to_string(), particle_id.clone());
-            let store = spell.store_log_cp(log.clone(), timestamp, cp.clone());
+            let store = spell.store_log_cp(log.clone(), cp.clone());
             assert!(store.success, "{} {}", i, store.error);
         }
 

@@ -16,7 +16,7 @@ pub struct AllMailboxResult {
 }
 
 #[marine]
-pub fn store_mailbox(message: String, timestamp: u64) -> UnitValue {
+pub fn store_mailbox(message: String) -> UnitValue {
     let call_parameters = marine_rs_sdk::get_call_parameters();
 
     // We want to prevent anyone except this spell to store logs to its kv
@@ -29,13 +29,12 @@ pub fn store_mailbox(message: String, timestamp: u64) -> UnitValue {
         let mut statement = conn.prepare(
             r#"
         INSERT INTO mailbox
-            (timestamp, message)
+            (message)
         VALUES
-            (?, ?)
+            (?)
         "#,
         )?;
-        statement.bind(1, timestamp as i64)?;
-        statement.bind(2, message.as_str())?;
+        statement.bind(1, message.as_str())?;
 
 
         statement.next()?;
@@ -128,14 +127,13 @@ mod tests {
     fn test_store_mailbox(spell: marine_test_env::spell::ModuleInterface) {
         println!("test_store_mailbox started");
 
-        let timestamp = 123;
         let message = "message".to_string();
         let service_id = Uuid::new_v4();
         let particle_id = format!("spell_{}", service_id);
         let cp = cp(service_id.to_string(), particle_id);
 
 
-        let store = spell.store_mailbox_cp(message.clone(), timestamp, cp);
+        let store = spell.store_mailbox_cp(message.clone(), cp);
         assert!(store.success, "{}", store.error);
 
         let messages = spell.get_mailbox();
@@ -150,7 +148,6 @@ mod tests {
     modules_dir = "../tests_artifacts"
     )]
     fn test_store_mailbox_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
-        let timestamp = 111;
         let message = "message".to_string();
         let service_id = Uuid::new_v4();
         let cp = cp(service_id.to_string(), "spell_WRONG_123".to_string());
@@ -161,7 +158,6 @@ mod tests {
             !spell
                 .store_mailbox_cp(
                     message,
-                    timestamp,
                     cp
                 )
                 .success
@@ -177,14 +173,13 @@ mod tests {
     modules_dir = "../tests_artifacts"
     )]
     fn test_mailbox_lru(spell: marine_test_env::spell::ModuleInterface) {
-        let timestamp = 123;
         let message = "message".to_string();
         let service_id = Uuid::new_v4();
 
         for i in 0..(DEFAULT_MAX_MAILBOX + 5) {
             let particle_id = format!("spell_{}_{}", service_id, i);
             let cp = cp(service_id.to_string(), particle_id.clone());
-            let store = spell.store_mailbox_cp(message.clone(), timestamp, cp.clone());
+            let store = spell.store_mailbox_cp(message.clone(), cp.clone());
             assert!(store.success, "{} {}", i, store.error);
         }
 

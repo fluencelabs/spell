@@ -107,7 +107,7 @@ pub fn create() {
 
             CREATE TABLE IF NOT EXISTS logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp INTEGER,
+                timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
                 log TEXT
             );
 
@@ -131,7 +131,7 @@ pub fn create() {
 
             CREATE TABLE IF NOT EXISTS mailbox (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp INTEGER,
+                timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
                 message TEXT
             );
 
