@@ -54,9 +54,8 @@ jobs:
     needs:
       - decider
       - snapshot
-    uses: fluencelabs/nox/.github/workflows/build.yml@FLU-353
+    uses: fluencelabs/nox/.github/workflows/build.yml@master
     with:
-      ref: FLU-353
       cargo-dependencies: |
         [
           {
@@ -82,7 +81,7 @@ jobs:
     needs:
       - nox
 
-    uses: fluencelabs/nox/.github/workflows/container.yml@FLU-353
+    uses: fluencelabs/nox/.github/workflows/container.yml@master
     with:
       image-name: "docker.fluence.dev/spell"
       flavour: "minimal"
@@ -94,9 +93,8 @@ jobs:
       - snapshot
       - decider
 
-    uses: fluencelabs/nox/.github/workflows/tests.yml@FLU-353
+    uses: fluencelabs/nox/.github/workflows/tests.yml@master
     with:
-      ref: FLU-353
       cargo-dependencies: |
         [
           {
