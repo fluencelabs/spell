@@ -110,6 +110,7 @@ service Spell:
   list_get_strings(key: string) -> StringListValue
   list_pop_string(key: string) -> StringValue
   list_push_string(key: string, value: string) -> UnitValue
+  pop_mailbox() -> StringValue
   remove_key(key: string) -> UnitValue
   script_cid() -> CIDValue
   set_json_fields(json: string) -> UnitValue
@@ -119,5 +120,5 @@ service Spell:
   set_trigger_config(config: TriggerConfig) -> UnitValue
   set_u32(key: string, value: u32) -> UnitValue
   store_error(error: LastError, error_idx: u32, particle_timestamp: u64) -> UnitValue
-  store_log(log: string, timestamp: u64) -> UnitValue
-  store_mailbox(message: string, timestamp: u64) -> UnitValue
+  store_log(log: string) -> UnitValue
+  store_mailbox(message: string) -> UnitValue
