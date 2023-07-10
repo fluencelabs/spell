@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@fluencelabs/aqua-ipfs':
-    specifier: 0.5.13
-    version: 0.5.13
+    specifier: 0.5.17
+    version: 0.5.17
   '@fluencelabs/aqua-lib':
     specifier: 0.7.1
     version: 0.7.1
@@ -16,7 +16,7 @@ dependencies:
     version: 0.8.6
   '@fluencelabs/spell':
     specifier: 0.5.15
-    version: link:../spell
+    version: 0.5.15
 
 devDependencies:
   '@fluencelabs/cli':
@@ -481,8 +481,8 @@ packages:
     resolution: {integrity: sha512-6nnGDSY0vhxUg+Zr9p4b5yjQEHfqjso+4XWCjVbD7sRh43odx0ZFnSxOBvmTdbRXX2elJlBB1CIDEfNWPNoq2g==}
     dev: true
 
-  /@fluencelabs/aqua-ipfs@0.5.13:
-    resolution: {integrity: sha512-P4qHI6v0SSqacx2jqufniIzNjK9SdJ+VNBZvHXSbJOIzedu+FlMj625Z4u4IUOvPH68Yokj5QpqroMzg7NS5zA==}
+  /@fluencelabs/aqua-ipfs@0.5.17:
+    resolution: {integrity: sha512-NKj6amvc8nGDF9+EwqIbUEYui7zgEqhXU5hF6atRaVAr8vEAPeqPq8ADwTAk9QQOgXFkvVX9Ee4wfJ0jW0WtIw==}
     dependencies:
       '@fluencelabs/aqua-lib': 0.7.1
     dev: false
@@ -682,6 +682,10 @@ packages:
     dependencies:
       '@fluencelabs/aqua-lib': 0.7.0
       '@fluencelabs/trust-graph': 0.4.1
+    dev: false
+
+  /@fluencelabs/spell@0.5.15:
+    resolution: {integrity: sha512-vPbiWZPQdfr6jxRQRl7RyRU1YvTUH5XtEuXkPptjZzuY0HNvwqoCATMuvXsWw32vySAOcOQPBLHk5pn+S78ayA==}
     dev: false
 
   /@fluencelabs/trust-graph@0.4.1:
