@@ -1,5 +1,6 @@
 # yaml-language-server: $schema=.fluence/schemas/fluence.yaml.json
 
+
 # EXAMPLES:
 # keyPairName: myKeyPairName # Name of key pair to use. Default: defaultKeyPairName from project's .fluence/secretes.yaml or if it is empty - defaultKeyPairName from user's .fluence/secrets.yaml
 # # keyPairName is always searched in project's .fluence/secrets.yaml first and then if nothing is found it is searched in user's .fluence/secrets.yaml.
