@@ -2,9 +2,10 @@ use eyre::WrapErr;
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::State;
 
-use fluence_spell_dtos::value::UnitValue;
+use fluence_spell_dtos::value::{StringValue, UnitValue};
 
 use crate::auth::{is_by_creator, is_by_spell};
+use crate::kv::primitive::read_string;
 use crate::schema::db;
 
 
@@ -87,6 +88,30 @@ pub fn get_mailbox() -> AllMailboxResult {
             }
         }
     }
+}
+
+#[marine]
+pub fn pop_mailbox() -> StringValue {
+    let db = db();
+    let result: eyre::Result<Option<String>> = try {
+        let mut get = db.prepare(
+            r#"
+            SELECT message, id FROM mailbox ORDER BY timestamp LIMIT 1
+        "#,
+        )?;
+        let string = read_string(&mut get, 0)?;
+        let id = get.read::<i64>(1)?;
+
+        let mut delete = db.prepare(
+            r#"DELETE FROM mailbox WHERE id = ?"#,
+        )?;
+        delete.bind(1, id)?;
+        delete.next()?;
+
+        string
+    };
+
+    result.into()
 }
 
 #[test_env_helpers::after_each]
@@ -185,5 +210,34 @@ mod tests {
 
         let messages: Vec<_> = spell.get_mailbox().messages;
         assert_eq!(messages.len(), DEFAULT_MAX_MAILBOX);
+    }
+
+    #[marine_test(
+    config_path = "../tests_artifacts/Config.toml",
+    modules_dir = "../tests_artifacts"
+    )]
+    fn test_pop_mailbox(spell: marine_test_env::spell::ModuleInterface) {
+        let message = "message".to_string();
+        let service_id = Uuid::new_v4();
+        let particle_id = format!("spell_{}", service_id);
+        let cp = cp(service_id.to_string(), particle_id);
+
+
+        let store = spell.store_mailbox_cp(message.clone(), cp);
+        assert!(store.success, "{}", store.error);
+
+        let messages = spell.get_mailbox();
+        assert!(messages.success, "{}", messages.error);
+        let messages = messages.messages;
+        assert_eq!(messages.len(), 1);
+        assert_eq!(messages[0], message);
+
+        let pop = spell.pop_mailbox();
+        assert!(pop.success, "{}", pop.error);
+        assert_eq!(pop.str, message);
+
+        let messages = spell.get_mailbox();
+        assert!(messages.success, "{}", messages.error);
+        assert_eq!(messages.messages.len(), 0);
     }
 }
