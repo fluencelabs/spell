@@ -3,7 +3,7 @@ use marine_sqlite_connector::Connection;
 
 pub const DEFAULT_MAX_ERR_PARTICLES: usize = 50;
 pub const DEFAULT_MAX_MAILBOX: usize = 50;
-pub const DEFAULT_MAX_LOGS: usize = 50;
+pub const DEFAULT_MAX_LOGS: usize = 500;
 pub const DB_FILE: &'static str = "/tmp/spell.sqlite";
 
 pub fn db() -> Connection {
@@ -121,7 +121,7 @@ pub fn create() {
                     DELETE FROM logs
                     WHERE (SELECT value FROM config_table WHERE parameter = 'count_logs')
                         > (SELECT value FROM config_table WHERE parameter = 'max_logs')
-                    AND id = (SELECT id FROM logs ORDER BY timestamp LIMIT 1);
+                    AND id = (SELECT id FROM logs ORDER BY timestamp ASC, id ASC LIMIT 1);
 
                     -- decrement number of logs
                     UPDATE config_table SET value = value - 1 WHERE parameter = 'count_logs'
@@ -145,7 +145,7 @@ pub fn create() {
                   DELETE FROM mailbox
                   WHERE (SELECT value FROM config_table WHERE parameter = 'count_mailbox')
                         > (SELECT value FROM config_table WHERE parameter = 'max_mailbox')
-                  AND id = (SELECT id FROM mailbox ORDER BY timestamp LIMIT 1);
+                  AND id = (SELECT id FROM mailbox ORDER BY timestamp ASC, id ASC LIMIT 1);
 
                   -- decrement number of mailbox messages
                   UPDATE config_table SET value = value - 1 WHERE parameter = 'count_mailbox'

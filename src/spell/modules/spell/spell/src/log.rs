@@ -7,15 +7,21 @@ use fluence_spell_dtos::value::UnitValue;
 use crate::auth::{is_by_creator, is_by_spell};
 use crate::schema::db;
 
+#[marine]
+pub struct Log {
+    pub timestamp: u64,
+    pub message: String,
+}
 
 #[marine]
-pub struct AllLogsResult {
-    pub logs: Vec<String>,
+pub struct GetLogsResult {
+    pub logs: Vec<Log>,
     pub success: bool,
     pub error: String,
 }
 
 #[marine]
+/// Push a log to the db. It keeps `DEFAULT_MAX_LOGS` latest logs.
 pub fn store_log(log: String) -> UnitValue {
     let call_parameters = marine_rs_sdk::get_call_parameters();
 
@@ -26,66 +32,53 @@ pub fn store_log(log: String) -> UnitValue {
 
     let result: eyre::Result<()> = try {
         let conn = db();
-        let mut statement = conn.prepare(
-            r#"
-        INSERT INTO logs
-            (log)
-        VALUES
-            (?)
-        "#,
-        )?;
+        let mut statement = conn.prepare(r#"INSERT INTO logs (log) VALUES (?)"#)?;
         statement.bind(1, log.as_str())?;
-
 
         statement.next()?;
     };
 
     match result {
         Ok(_) => UnitValue::ok(),
-        Err(e) => UnitValue::error(format!("Error storing log: {}", e)),
+        Err(e) => UnitValue::error(format!("store_log error: {}", e)),
     }
 }
 
 #[marine]
-pub fn get_logs() -> AllLogsResult {
-    let result: eyre::Result<Vec<String>> = try {
+/// Get all logs ordered by timestamp ascending.
+pub fn get_logs() -> GetLogsResult {
+    let result: eyre::Result<Vec<Log>> = try {
         let conn = db();
-        let mut statement = conn.prepare(
-            r#"
-            SELECT
-                log
-            FROM
-                logs
-        "#,
-        )?;
+        let mut statement =
+            conn.prepare(r#"SELECT timestamp, log FROM logs ORDER BY timestamp ASC, id ASC"#)?;
         std::iter::from_fn(move || {
-            let r: eyre::Result<Option<String>> = try {
+            let r: eyre::Result<Option<Log>> = try {
                 if let State::Row = statement.next()? {
-                    Some(statement.read::<String>(0)?)
+                    Some(Log {
+                        timestamp: statement.read::<i64>(0)? as u64,
+                        message: statement.read::<String>(1)?,
+                    })
                 } else {
                     None
                 }
             };
-            r.context("error fetching log row from sqlite")
-                .transpose()
+            r.context("error fetching log row from sqlite").transpose()
         })
-            .filter_map(|r| r.ok())
-            .collect()
+        .filter_map(|r| r.ok())
+        .collect()
     };
 
     match result {
-        Ok(logs) => AllLogsResult {
+        Ok(logs) => GetLogsResult {
             logs,
             success: true,
             error: "".to_string(),
         },
-        Err(e) => {
-            AllLogsResult {
-                success: false,
-                error: format!("Error getting all logs: {}", e),
-                logs: vec![],
-            }
-        }
+        Err(e) => GetLogsResult {
+            success: false,
+            error: format!("get_logs error: {}", e),
+            logs: vec![],
+        },
     }
 }
 
@@ -121,31 +114,37 @@ mod tests {
     }
 
     #[marine_test(
-    config_path = "../tests_artifacts/Config.toml",
-    modules_dir = "../tests_artifacts"
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
     )]
     fn test_store_log(spell: marine_test_env::spell::ModuleInterface) {
         println!("test_store_log started");
 
-        let log = "logloglog".to_string();
+        let log1 = "logloglog1".to_string();
+        let log2 = "logloglog2".to_string();
         let service_id = Uuid::new_v4();
         let particle_id = format!("spell_{}", service_id);
         let cp = cp(service_id.to_string(), particle_id);
 
+        let store = spell.store_log_cp(log1.clone(), cp.clone());
+        assert!(store.success, "{}", store.error);
 
-        let store = spell.store_log_cp(log.clone(), cp);
+        std::thread::sleep(std::time::Duration::from_secs(1));
+        let store = spell.store_log_cp(log2.clone(), cp.clone());
         assert!(store.success, "{}", store.error);
 
         let logs = spell.get_logs();
         assert!(logs.success, "{}", logs.error);
         let logs = logs.logs;
-        assert_eq!(logs.len(), 1);
-        assert_eq!(logs[0], log);
+        assert_eq!(logs.len(), 2);
+        assert_eq!(logs[0].message, log1);
+        assert_eq!(logs[1].message, log2);
+        assert!(logs[0].timestamp < logs[1].timestamp);
     }
 
     #[marine_test(
-    config_path = "../tests_artifacts/Config.toml",
-    modules_dir = "../tests_artifacts"
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
     )]
     fn test_store_log_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
         let log = "logloglog".to_string();
@@ -154,14 +153,7 @@ mod tests {
 
         let logs_before: Vec<_> = spell.get_logs().logs;
 
-        assert!(
-            !spell
-                .store_log_cp(
-                    log,
-                    cp
-                )
-                .success
-        );
+        assert!(!spell.store_log_cp(log, cp).success);
 
         // make sure no log was inserted
         let logs_after: Vec<_> = spell.get_logs().logs;
@@ -169,8 +161,8 @@ mod tests {
     }
 
     #[marine_test(
-    config_path = "../tests_artifacts/Config.toml",
-    modules_dir = "../tests_artifacts"
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
     )]
     fn test_log_lru(spell: marine_test_env::spell::ModuleInterface) {
         let log = "logloglog".to_string();

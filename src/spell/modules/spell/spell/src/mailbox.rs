@@ -8,36 +8,27 @@ use crate::auth::{is_by_creator, is_by_spell};
 use crate::kv::primitive::read_string;
 use crate::schema::db;
 
-
 #[marine]
-pub struct AllMailboxResult {
+pub struct GetMailboxResult {
     pub messages: Vec<String>,
     pub success: bool,
     pub error: String,
 }
 
 #[marine]
-pub fn store_mailbox(message: String) -> UnitValue {
+/// Push a message to the mailbox. Mailbox keeps `DEFAULT_MAX_MAILBOX` latest messages.
+pub fn push_mailbox(message: String) -> UnitValue {
     let call_parameters = marine_rs_sdk::get_call_parameters();
 
     // We want to prevent anyone except this spell to store logs to its kv
     if !is_by_creator() || !is_by_spell(&call_parameters) {
-        return UnitValue::error("store_mailbox can be called only by the associated spell script");
+        return UnitValue::error("push_mailbox can be called only by the associated spell script");
     }
 
     let result: eyre::Result<()> = try {
         let conn = db();
-        let mut statement = conn.prepare(
-            r#"
-        INSERT INTO mailbox
-            (message)
-        VALUES
-            (?)
-        "#,
-        )?;
+        let mut statement = conn.prepare(r#" INSERT INTO mailbox (message) VALUES (?)"#)?;
         statement.bind(1, message.as_str())?;
-
-
         statement.next()?;
     };
 
@@ -48,17 +39,12 @@ pub fn store_mailbox(message: String) -> UnitValue {
 }
 
 #[marine]
-pub fn get_mailbox() -> AllMailboxResult {
+/// Get all messages from the mailbox ordered by timestamp ascending.
+pub fn get_mailbox() -> GetMailboxResult {
     let result: eyre::Result<Vec<String>> = try {
         let conn = db();
-        let mut statement = conn.prepare(
-            r#"
-            SELECT
-                message
-            FROM
-                mailbox
-        "#,
-        )?;
+        let mut statement =
+            conn.prepare(r#"SELECT message FROM mailbox ORDER BY timestamp ASC, id ASC"#)?;
         std::iter::from_fn(move || {
             let r: eyre::Result<Option<String>> = try {
                 if let State::Row = statement.next()? {
@@ -70,41 +56,37 @@ pub fn get_mailbox() -> AllMailboxResult {
             r.context("error fetching mailbox message row from sqlite")
                 .transpose()
         })
-            .filter_map(|r| r.ok())
-            .collect()
+        .filter_map(|r| r.ok())
+        .collect()
     };
 
     match result {
-        Ok(messages) => AllMailboxResult {
+        Ok(messages) => GetMailboxResult {
             messages,
             success: true,
             error: "".to_string(),
         },
-        Err(e) => {
-            AllMailboxResult {
-                success: false,
-                error: format!("Error getting all logs: {}", e),
-                messages: vec![],
-            }
-        }
+        Err(e) => GetMailboxResult {
+            success: false,
+            error: format!("Error getting all logs: {}", e),
+            messages: vec![],
+        },
     }
 }
 
 #[marine]
+/// Get the latest mailbox message and remove it from the mailbox.
+/// result.absent is true if there are no messages in the mailbox.
 pub fn pop_mailbox() -> StringValue {
     let db = db();
     let result: eyre::Result<Option<String>> = try {
         let mut get = db.prepare(
-            r#"
-            SELECT message, id FROM mailbox ORDER BY timestamp LIMIT 1
-        "#,
+            r#" SELECT message, id FROM mailbox ORDER BY timestamp DESC, id DESC LIMIT 1"#,
         )?;
         let string = read_string(&mut get, 0)?;
         let id = get.read::<i64>(1)?;
 
-        let mut delete = db.prepare(
-            r#"DELETE FROM mailbox WHERE id = ?"#,
-        )?;
+        let mut delete = db.prepare(r#"DELETE FROM mailbox WHERE id = ?"#)?;
         delete.bind(1, id)?;
         delete.next()?;
 
@@ -146,47 +128,44 @@ mod tests {
     }
 
     #[marine_test(
-    config_path = "../tests_artifacts/Config.toml",
-    modules_dir = "../tests_artifacts"
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
     )]
-    fn test_store_mailbox(spell: marine_test_env::spell::ModuleInterface) {
-        println!("test_store_mailbox started");
+    fn test_push_mailbox(spell: marine_test_env::spell::ModuleInterface) {
+        println!("test_push_mailbox started");
 
-        let message = "message".to_string();
+        let message1 = "message1".to_string();
+        let message2 = "message2".to_string();
         let service_id = Uuid::new_v4();
         let particle_id = format!("spell_{}", service_id);
         let cp = cp(service_id.to_string(), particle_id);
 
+        let store = spell.push_mailbox_cp(message1.clone(), cp.clone());
+        assert!(store.success, "{}", store.error);
 
-        let store = spell.store_mailbox_cp(message.clone(), cp);
+        let store = spell.push_mailbox_cp(message2.clone(), cp);
         assert!(store.success, "{}", store.error);
 
         let messages = spell.get_mailbox();
         assert!(messages.success, "{}", messages.error);
         let messages = messages.messages;
-        assert_eq!(messages.len(), 1);
-        assert_eq!(messages[0], message);
+        assert_eq!(messages.len(), 2);
+        assert_eq!(messages[0], message1);
+        assert_eq!(messages[1], message2);
     }
 
     #[marine_test(
-    config_path = "../tests_artifacts/Config.toml",
-    modules_dir = "../tests_artifacts"
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
     )]
-    fn test_store_mailbox_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
+    fn test_push_mailbox_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
         let service_id = Uuid::new_v4();
         let cp = cp(service_id.to_string(), "spell_WRONG_123".to_string());
 
         let messages_before: Vec<_> = spell.get_mailbox().messages;
 
-        assert!(
-            !spell
-                .store_mailbox_cp(
-                    message,
-                    cp
-                )
-                .success
-        );
+        assert!(!spell.push_mailbox_cp(message, cp,).success);
 
         // make sure no message was inserted
         let messages_after: Vec<_> = spell.get_mailbox().messages;
@@ -194,8 +173,8 @@ mod tests {
     }
 
     #[marine_test(
-    config_path = "../tests_artifacts/Config.toml",
-    modules_dir = "../tests_artifacts"
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
     )]
     fn test_mailbox_lru(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
@@ -204,7 +183,7 @@ mod tests {
         for i in 0..(DEFAULT_MAX_MAILBOX + 5) {
             let particle_id = format!("spell_{}_{}", service_id, i);
             let cp = cp(service_id.to_string(), particle_id.clone());
-            let store = spell.store_mailbox_cp(message.clone(), cp.clone());
+            let store = spell.push_mailbox_cp(message.clone(), cp.clone());
             assert!(store.success, "{} {}", i, store.error);
         }
 
@@ -213,8 +192,8 @@ mod tests {
     }
 
     #[marine_test(
-    config_path = "../tests_artifacts/Config.toml",
-    modules_dir = "../tests_artifacts"
+        config_path = "../tests_artifacts/Config.toml",
+        modules_dir = "../tests_artifacts"
     )]
     fn test_pop_mailbox(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
@@ -222,8 +201,7 @@ mod tests {
         let particle_id = format!("spell_{}", service_id);
         let cp = cp(service_id.to_string(), particle_id);
 
-
-        let store = spell.store_mailbox_cp(message.clone(), cp);
+        let store = spell.push_mailbox_cp(message.clone(), cp);
         assert!(store.success, "{}", store.error);
 
         let messages = spell.get_mailbox();

@@ -9,11 +9,11 @@ pub mod auth;
 pub mod error_handling;
 pub mod kv;
 pub mod location;
+pub mod log;
+pub mod mailbox;
 pub mod schema;
 pub mod script;
 pub mod trigger_config;
-pub mod log;
-pub mod mailbox;
 
 module_manifest!();
 
