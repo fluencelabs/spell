@@ -14,10 +14,29 @@ pub struct Log {
 }
 
 #[marine]
+/// `logs` contains up to `DEFAULT_MAX_LOGS` latest logs with timestamps,
+/// sorted in the order they were appeared
 pub struct GetLogsResult {
     pub logs: Vec<Log>,
     pub success: bool,
     pub error: String,
+}
+
+impl From<eyre::Result<Vec<Log>>> for GetLogsResult {
+    fn from(result: eyre::Result<Vec<Log>>) -> Self {
+        match result {
+            Ok(logs) => GetLogsResult {
+                logs,
+                success: true,
+                error: "".to_string(),
+            },
+            Err(e) => GetLogsResult {
+                success: false,
+                error: format!("get_logs error: {}", e),
+                logs: vec![],
+            },
+        }
+    }
 }
 
 #[marine]
@@ -68,18 +87,7 @@ pub fn get_logs() -> GetLogsResult {
         .collect()
     };
 
-    match result {
-        Ok(logs) => GetLogsResult {
-            logs,
-            success: true,
-            error: "".to_string(),
-        },
-        Err(e) => GetLogsResult {
-            success: false,
-            error: format!("get_logs error: {}", e),
-            logs: vec![],
-        },
-    }
+    result.into()
 }
 
 #[test_env_helpers::after_each]

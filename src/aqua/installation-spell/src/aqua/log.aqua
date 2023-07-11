@@ -10,6 +10,5 @@ func log(arg: ⊤):
     spell_id <- SpellData.spell_id()
     str <- Debug.stringify(arg)
     Spell spell_id
-    timestamp <- Peer.timestamp_sec()
     Spell.store_log(str)
     par Console.print([spell_id, arg])

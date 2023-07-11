@@ -9,10 +9,29 @@ use crate::kv::primitive::read_string;
 use crate::schema::db;
 
 #[marine]
+/// `messages` contains up to `DEFAULT_MAX_MAILBOX` latest messages,
+/// sorted in the order they were pushed
 pub struct GetMailboxResult {
     pub messages: Vec<String>,
     pub success: bool,
     pub error: String,
+}
+
+impl From<eyre::Result<Vec<String>>> for GetMailboxResult {
+    fn from(result: eyre::Result<Vec<String>>) -> Self {
+        match result {
+            Ok(messages) => GetMailboxResult {
+                messages,
+                success: true,
+                error: "".to_string(),
+            },
+            Err(e) => GetMailboxResult {
+                success: false,
+                error: format!("get_mailbox error: {}", e),
+                messages: vec![],
+            },
+        }
+    }
 }
 
 #[marine]
@@ -60,18 +79,7 @@ pub fn get_mailbox() -> GetMailboxResult {
         .collect()
     };
 
-    match result {
-        Ok(messages) => GetMailboxResult {
-            messages,
-            success: true,
-            error: "".to_string(),
-        },
-        Err(e) => GetMailboxResult {
-            success: false,
-            error: format!("Error getting all logs: {}", e),
-            messages: vec![],
-        },
-    }
+    result.into()
 }
 
 #[marine]
