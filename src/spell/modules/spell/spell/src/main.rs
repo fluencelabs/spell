@@ -11,6 +11,7 @@ pub mod kv;
 pub mod location;
 pub mod log;
 pub mod mailbox;
+mod misc;
 pub mod schema;
 pub mod script;
 pub mod trigger_config;

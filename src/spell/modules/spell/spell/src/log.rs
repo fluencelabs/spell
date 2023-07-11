@@ -1,10 +1,9 @@
-use eyre::WrapErr;
 use marine_rs_sdk::marine;
-use marine_sqlite_connector::State;
 
 use fluence_spell_dtos::value::UnitValue;
 
 use crate::auth::{is_by_creator, is_by_spell};
+use crate::misc::fetch_rows;
 use crate::schema::db;
 
 #[marine]
@@ -68,23 +67,16 @@ pub fn store_log(log: String) -> UnitValue {
 pub fn get_logs() -> GetLogsResult {
     let result: eyre::Result<Vec<Log>> = try {
         let conn = db();
-        let mut statement =
+        let statement =
             conn.prepare(r#"SELECT timestamp, log FROM logs ORDER BY timestamp ASC, id ASC"#)?;
-        std::iter::from_fn(move || {
-            let r: eyre::Result<Option<Log>> = try {
-                if let State::Row = statement.next()? {
-                    Some(Log {
-                        timestamp: statement.read::<i64>(0)? as u64,
-                        message: statement.read::<String>(1)?,
-                    })
-                } else {
-                    None
-                }
-            };
-            r.context("error fetching log row from sqlite").transpose()
-        })
-        .filter_map(|r| r.ok())
-        .collect()
+        let logs: Vec<Log> = fetch_rows(statement, |statement| {
+            Ok(Some(Log {
+                timestamp: statement.read::<i64>(0)? as u64,
+                message: statement.read::<String>(1)?,
+            }))
+        });
+
+        logs
     };
 
     result.into()

@@ -1,11 +1,10 @@
-use eyre::WrapErr;
 use marine_rs_sdk::marine;
-use marine_sqlite_connector::State;
 
 use fluence_spell_dtos::value::{StringValue, UnitValue};
 
 use crate::auth::{is_by_creator, is_by_spell};
 use crate::kv::primitive::read_string;
+use crate::misc::fetch_rows;
 use crate::schema::db;
 
 #[marine]
@@ -62,21 +61,13 @@ pub fn push_mailbox(message: String) -> UnitValue {
 pub fn get_mailbox() -> GetMailboxResult {
     let result: eyre::Result<Vec<String>> = try {
         let conn = db();
-        let mut statement =
+        let statement =
             conn.prepare(r#"SELECT message FROM mailbox ORDER BY timestamp ASC, id ASC"#)?;
-        std::iter::from_fn(move || {
-            let r: eyre::Result<Option<String>> = try {
-                if let State::Row = statement.next()? {
-                    Some(statement.read::<String>(0)?)
-                } else {
-                    None
-                }
-            };
-            r.context("error fetching mailbox message row from sqlite")
-                .transpose()
-        })
-        .filter_map(|r| r.ok())
-        .collect()
+        let messages: Vec<String> = fetch_rows(statement, |statement| {
+            Ok(Some(statement.read::<String>(0)?))
+        });
+
+        messages
     };
 
     result.into()
