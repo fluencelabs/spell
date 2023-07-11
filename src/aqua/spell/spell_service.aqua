@@ -19,16 +19,6 @@ data AllErrorsResult:
   success: bool
   error: string
 
-data AllLogsResult:
-  logs: []string
-  success: bool
-  error: string
-
-data AllMailboxResult:
-  messages: []string
-  success: bool
-  error: string
-
 data BlockChainConfig:
   start_block: u32
   end_block: u32
@@ -51,6 +41,20 @@ data ClockConfig:
 data ConnectionPoolConfig:
   connect: bool
   disconnect: bool
+
+data Log:
+  timestamp: u64
+  message: string
+
+data GetLogsResult:
+  logs: []Log
+  success: bool
+  error: string
+
+data GetMailboxResult:
+  messages: []string
+  success: bool
+  error: string
 
 data LocationValue:
   relay: string
@@ -100,8 +104,8 @@ service Spell:
   get_all_errors() -> AllErrorsResult
   get_errors(particle_id: string) -> []LastErrorEntry
   get_location() -> LocationValue
-  get_logs() -> AllLogsResult
-  get_mailbox() -> AllMailboxResult
+  get_logs() -> GetLogsResult
+  get_mailbox() -> GetMailboxResult
   get_script_source_from_env() -> ScriptValue
   get_script_source_from_file() -> ScriptValue
   get_string(key: string) -> StringValue
@@ -111,6 +115,7 @@ service Spell:
   list_pop_string(key: string) -> StringValue
   list_push_string(key: string, value: string) -> UnitValue
   pop_mailbox() -> StringValue
+  push_mailbox(message: string) -> UnitValue
   remove_key(key: string) -> UnitValue
   script_cid() -> CIDValue
   set_json_fields(json: string) -> UnitValue
@@ -121,4 +126,3 @@ service Spell:
   set_u32(key: string, value: u32) -> UnitValue
   store_error(error: LastError, error_idx: u32, particle_timestamp: u64) -> UnitValue
   store_log(log: string) -> UnitValue
-  store_mailbox(message: string) -> UnitValue
