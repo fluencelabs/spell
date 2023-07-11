@@ -7,12 +7,14 @@ pub fn is_by_creator() -> bool {
     call_parameters.init_peer_id == call_parameters.service_creator_peer_id
 }
 
-/// returns true if call was made from the associated spell script
+/// returns true if call was made from the associated spell script.
+/// true if particle id has a form of `spell_<spell_id>_<counter>`
+/// and `is_by_creator` returns true.
 pub fn is_by_spell(call_parameters: &CallParameters) -> bool {
     let particle_id: &str = &call_parameters.particle_id;
     if particle_id.starts_with("spell") {
         if let Some(spell_id) = particle_id.split("_").skip(1).next() {
-            return spell_id == call_parameters.service_id.as_str();
+            return spell_id == call_parameters.service_id.as_str() && is_by_creator();
         }
     }
 

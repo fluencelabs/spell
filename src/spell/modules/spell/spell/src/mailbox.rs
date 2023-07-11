@@ -2,7 +2,7 @@ use marine_rs_sdk::marine;
 
 use fluence_spell_dtos::value::{StringValue, UnitValue};
 
-use crate::auth::{is_by_creator, is_by_spell};
+use crate::auth::is_by_spell;
 use crate::kv::primitive::read_string;
 use crate::misc::fetch_rows;
 use crate::schema::db;
@@ -39,7 +39,7 @@ pub fn push_mailbox(message: String) -> UnitValue {
     let call_parameters = marine_rs_sdk::get_call_parameters();
 
     // We want to prevent anyone except this spell to store logs to its kv
-    if !is_by_creator() || !is_by_spell(&call_parameters) {
+    if !is_by_spell(&call_parameters) {
         return UnitValue::error("push_mailbox can be called only by the associated spell script");
     }
 

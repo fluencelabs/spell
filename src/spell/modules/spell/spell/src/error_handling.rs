@@ -7,7 +7,7 @@ use marine_sqlite_connector::{State, Statement};
 
 use fluence_spell_dtos::value::UnitValue;
 
-use crate::auth::{is_by_creator, is_by_spell};
+use crate::auth::is_by_spell;
 use crate::schema::db;
 
 /// The `%last_error%` content.
@@ -86,7 +86,7 @@ pub fn store_error(error: LastError, error_idx: u32, particle_timestamp: u64) ->
     let call_parameters = marine_rs_sdk::get_call_parameters();
 
     // We want to prevent anyone except this spell to store errors to its kv
-    if !is_by_creator() || !is_by_spell(&call_parameters) {
+    if !is_by_spell(&call_parameters) {
         return UnitValue::error("store_error can be called only by the associated spell script");
     }
 
