@@ -26,7 +26,7 @@ func get_trigger(spell_id: string) -> ?TriggerEvent, ?Error:
     error: ?Error
 
     Spell spell_id
-    s <- Spell.list_pop_string("trigger_mailbox")
+    s <- Spell.pop_mailbox()
 
     if s.success:
       if s.absent == false:
