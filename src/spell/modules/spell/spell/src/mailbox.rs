@@ -36,13 +36,6 @@ impl From<eyre::Result<Vec<String>>> for GetMailboxResult {
 #[marine]
 /// Push a message to the mailbox. Mailbox keeps `DEFAULT_MAX_MAILBOX` latest messages.
 pub fn push_mailbox(message: String) -> UnitValue {
-    let call_parameters = marine_rs_sdk::get_call_parameters();
-
-    // We want to prevent anyone except this spell to store logs to its kv
-    if !is_by_spell(&call_parameters) {
-        return UnitValue::error("push_mailbox can be called only by the associated spell script");
-    }
-
     let result: eyre::Result<()> = try {
         let conn = db();
         let mut statement = conn.prepare(r#" INSERT INTO mailbox (message) VALUES (?)"#)?;
@@ -77,6 +70,16 @@ pub fn get_mailbox() -> GetMailboxResult {
 /// Get the latest mailbox message and remove it from the mailbox.
 /// result.absent is true if there are no messages in the mailbox.
 pub fn pop_mailbox() -> StringValue {
+    let call_parameters = marine_rs_sdk::get_call_parameters();
+
+    // We want to prevent anyone except this spell to pop from mailbox
+    if !is_by_spell(&call_parameters) {
+        return Err(eyre::eyre!(
+            "pop_mailbox can be called only by the associated spell script"
+        ))
+        .into();
+    }
+
     let db = db();
     let result: eyre::Result<Option<String>> = try {
         let mut get = db.prepare(
@@ -157,16 +160,20 @@ mod tests {
         config_path = "../tests_artifacts/Config.toml",
         modules_dir = "../tests_artifacts"
     )]
-    fn test_push_mailbox_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
+    fn test_pop_mailbox_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
         let service_id = Uuid::new_v4();
-        let cp = cp(service_id.to_string(), "spell_WRONG_123".to_string());
+        let particle_id = format!("spell_{}", service_id);
+        let cp = cp(service_id.to_string(), particle_id);
 
+        let store = spell.push_mailbox_cp(message.clone(), cp);
+        assert!(store.success, "{}", store.error);
         let messages_before: Vec<_> = spell.get_mailbox().messages;
 
-        assert!(!spell.push_mailbox_cp(message, cp,).success);
+        let pop = spell.pop_mailbox();
+        assert!(!pop.success);
 
-        // make sure no message was inserted
+        // make sure no message was popped
         let messages_after: Vec<_> = spell.get_mailbox().messages;
         assert_eq!(messages_before.len(), messages_after.len());
     }
@@ -200,7 +207,7 @@ mod tests {
         let particle_id = format!("spell_{}", service_id);
         let cp = cp(service_id.to_string(), particle_id);
 
-        let store = spell.push_mailbox_cp(message.clone(), cp);
+        let store = spell.push_mailbox_cp(message.clone(), cp.clone());
         assert!(store.success, "{}", store.error);
 
         let messages = spell.get_mailbox();
@@ -209,7 +216,7 @@ mod tests {
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0], message);
 
-        let pop = spell.pop_mailbox();
+        let pop = spell.pop_mailbox_cp(cp);
         assert!(pop.success, "{}", pop.error);
         assert_eq!(pop.str, message);
 

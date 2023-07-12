@@ -7,7 +7,7 @@ pub fn is_by_creator() -> bool {
     call_parameters.init_peer_id == call_parameters.service_creator_peer_id
 }
 
-/// returns true if call was made from the associated spell script.
+/// Used to protect methods that should be called only by the spell itself.
 /// true if particle id has a form of `spell_<spell_id>_<counter>`
 /// and `is_by_creator` returns true.
 pub fn is_by_spell(call_parameters: &CallParameters) -> bool {
