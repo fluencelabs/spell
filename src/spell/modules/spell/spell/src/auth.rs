@@ -9,7 +9,7 @@ pub fn is_by_creator() -> bool {
 
 /// Used to protect methods that should be called only by the spell itself.
 /// true if particle id has a form of `spell_<spell_id>_<counter>`
-/// and `is_by_creator` returns true.
+/// and `is_by_creator` returns true (because anyone can set any particle id)
 pub fn is_by_spell(call_parameters: &CallParameters) -> bool {
     let particle_id: &str = &call_parameters.particle_id;
     if particle_id.starts_with("spell") {
