@@ -27,7 +27,7 @@ func get_logs(app_workers: DeployedAppWorkers) -> *LogDirect:
             on i.worker_id via i.host_id:
                 Spell i.spell_id
                 get_res <- Spell.get_logs()
-                logs <<- LogDirect(spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.strings, worker_name = w.name)
+                logs <<- LogDirect(spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.logs, worker_name = w.name)
 
     <- logs
 
@@ -51,6 +51,6 @@ func get_logs_deal(deals: []string) -> *LogDeal:
                     spell_id <- Srv.resolve_alias("worker-spell")
                     Spell spell_id
                     get_res <- Spell.get_logs()
-                    logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id, host_id = host_id, deal_id = deal_id, logs = get_res.strings)
+                    logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id, host_id = host_id, deal_id = deal_id, logs = get_res.logs)
 
     <- logs
