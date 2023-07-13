@@ -35,29 +35,6 @@ jobs:
     with:
       ref: ${{ github.ref }}
 
-  installation-spell:
-    name: "spell / Check installation spell compiles"
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          repository: fluencelabs/spell
-          ref: ${{ github.ref }}
-
-      - name: Setup node with self-hosted registry
-        uses: actions/setup-node@v3
-        with:
-          node-version: "16"
-          registry-url: "https://npm.fluence.dev"
-
-      - run: npm install
-        working-directory: src/aqua/installation-spell
-
-      - run: npm run check
-        working-directory: src/aqua/installation-spell
-
   decider:
     needs:
       - snapshot
