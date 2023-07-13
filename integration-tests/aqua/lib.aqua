@@ -124,19 +124,14 @@ func remove_service(id: string) -> Result:
           result <<- Result(success = false, error = err.message)
    <- result[0]
 
-func get_trigger_event(spell_id: string) -> ?TriggerEvent, ?Error:
-    on HOST_PEER_ID:
-        event, err <- get_trigger(spell_id)
-    <- event, err
-
 func get_all_trigger_events(spell_id: string) -> []TriggerEvent, ?string:
     error: ?string
     triggers: *TriggerEvent
     on HOST_PEER_ID:
         Spell spell_id
-        result <- Spell.list_get_strings("trigger_mailbox")
+        result <- Spell.get_mailbox()
         if result.success:
-            for str <- result.strings:
+            for str <- result.messages:
                 triggers <- TriggerEventJson.parse(str)
         else:
             error <<- result.error

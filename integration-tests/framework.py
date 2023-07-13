@@ -156,9 +156,9 @@ def update_spell_ok(key_pair_name, spell_id, config):
 
 
 def get_trigger_event_ok(key_pair_name, spell_id):
-    [trigger, error] = run_aqua(key_pair_name, "get_trigger_event", [spell_id])
-    assert error is None, f"get_trigger_event: got error while retrieving triggers for spell {spell_id}: {error}"
-    return trigger
+    [triggers, error] = run_aqua(key_pair_name, "get_all_trigger_events", [spell_id])
+    assert error is None, f"get_all_trigger_events: got error while retrieving triggers for spell {spell_id}: {error}"
+    return triggers[-1]
 
 
 def get_counter_ok(key_pair_name, spell_id):
