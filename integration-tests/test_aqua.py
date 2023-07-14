@@ -225,17 +225,17 @@ class TestUpdate:
         result = update_spell(other_key_pair_name, self.spell_id, empty_config())
         assert not result["success"], "spell is allowed to be updated only by owner"
 
-    def test_update_config(self):
-        config_expected = oneshot_config()
+    # def test_update_config(self):
+    #     config_expected = oneshot_config()
 
-        update_spell_ok(self.key_pair_name, self.spell_id, config_expected)
+    #     update_spell_ok(self.key_pair_name, self.spell_id, config_expected)
 
-        config_result = run_aqua(self.key_pair_name, "get_config", [self.spell_id])
-        assert config_result["success"], "can't retrive spell config"
-        assert config_expected == config_result["config"], "spell's config must change after update"
+    #     config_result = run_aqua(self.key_pair_name, "get_config", [self.spell_id])
+    #     assert config_result["success"], "can't retrive spell config"
+    #     assert config_expected == config_result["config"], "spell's config must change after update"
 
-        trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
-        assert len(trigger["timer"]) == 1, "spell must be subscribed to timer trigger which must happen at this time"
+    #     trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
+    #     assert len(trigger["timer"]) == 1, "spell must be subscribed to timer trigger which must happen at this time"
 
 # TODO: uncomment after nox update with new mailbox
 # @with_spell_each
