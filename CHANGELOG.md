@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.16](https://github.com/fluencelabs/spell/compare/spell-v0.5.15...spell-v0.5.16) (2023-07-14)
+
+
+### Features
+
+* rotate logs and mailbox [NET-496 NET-497] ([#145](https://github.com/fluencelabs/spell/issues/145)) ([ab5e5b7](https://github.com/fluencelabs/spell/commit/ab5e5b76d0904ed89e0f495b1d9e3dd4f3c92994))
+
 ## [0.5.15](https://github.com/fluencelabs/spell/compare/spell-v0.5.14...spell-v0.5.15) (2023-06-12)
 
 
