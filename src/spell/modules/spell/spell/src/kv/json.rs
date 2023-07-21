@@ -48,14 +48,15 @@ mod tests {
         config_path = "../../tests_artifacts/Config.toml",
         modules_dir = "../../tests_artifacts"
     )]
-    fn test_json(spell: marine_test_env::spell::ModuleInterface) {
+    fn set_json_fields(spell: marine_test_env::spell::ModuleInterface) {
         let json = json!({
             "a": 1,
             "b": {"foo": "bar"},
             "c": "string",
             "d": [],
             "e": ["1", "2", "3"],
-            "f": [1, "2", "three", [4], ["five"], [{"six": 7}]]
+            "f": [1, "2", "three", [4], ["five"], [{"six": 7}]],
+            "g": "0x0"
         });
         let set = spell.set_json_fields(json.to_string());
         assert!(set.success, "set_json_fields failed: {}", set.error);
