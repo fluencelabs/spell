@@ -129,7 +129,7 @@ mod tests {
         let store = spell.store_log_cp(log1.clone(), cp.clone());
         assert!(store.success, "{}", store.error);
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_millis(1500));
         let store = spell.store_log_cp(log2.clone(), cp.clone());
         assert!(store.success, "{}", store.error);
 
