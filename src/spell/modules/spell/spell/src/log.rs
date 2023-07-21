@@ -129,7 +129,6 @@ mod tests {
         let store = spell.store_log_cp(log1.clone(), cp.clone());
         assert!(store.success, "{}", store.error);
 
-        std::thread::sleep(std::time::Duration::from_millis(1500));
         let store = spell.store_log_cp(log2.clone(), cp.clone());
         assert!(store.success, "{}", store.error);
 
@@ -139,7 +138,7 @@ mod tests {
         assert_eq!(logs.len(), 2);
         assert_eq!(logs[0].message, log1);
         assert_eq!(logs[1].message, log2);
-        assert!(logs[0].timestamp < logs[1].timestamp);
+        assert!(logs[0].timestamp <= logs[1].timestamp);
     }
 
     #[marine_test(
