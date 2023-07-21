@@ -19,14 +19,15 @@ service TriggerEventJson("json"):
     parse(s: JsonString) -> TriggerEvent
 
 -- Returns TriggerEvent if any
--- Returns string Error if there was an error reading from Spell KV
--- Returns (nil, nil) if there was no TriggerEvent and no errors during KV read
+-- Returns string Error if there was an error reading from Spell Mailbox
+-- Returns (nil, nil) if there was no TriggerEvent and no errors during Mailbox read
+-- Can be called only by Worker that created the Spell
 func get_trigger(spell_id: string) -> ?TriggerEvent, ?Error:
     trigger: ?TriggerEvent
     error: ?Error
 
     Spell spell_id
-    s <- Spell.list_pop_string("trigger_mailbox")
+    s <- Spell.pop_mailbox()
 
     if s.success:
       if s.absent == false:

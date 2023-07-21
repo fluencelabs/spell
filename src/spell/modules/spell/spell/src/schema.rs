@@ -2,6 +2,8 @@ use fstrings::f;
 use marine_sqlite_connector::Connection;
 
 pub const DEFAULT_MAX_ERR_PARTICLES: usize = 50;
+pub const DEFAULT_MAX_MAILBOX: usize = 50;
+pub const DEFAULT_MAX_LOGS: usize = 500;
 pub const DB_FILE: &'static str = "/tmp/spell.sqlite";
 
 pub fn db() -> Connection {
@@ -52,19 +54,26 @@ pub fn create() {
                 message TEXT,
                 peer_id TEXT
             );
-            CREATE TABLE IF NOT EXISTS particle_count (parameter TEXT PRIMARY KEY, value INTEGER NOT NULL);
+            CREATE TABLE IF NOT EXISTS config_table (parameter TEXT PRIMARY KEY, value INTEGER NOT NULL);
             -- maximum number of particles to store information about
-            INSERT OR REPLACE INTO particle_count VALUES ('max_particles', {DEFAULT_MAX_ERR_PARTICLES});
+            INSERT OR REPLACE INTO config_table VALUES ('max_particles', {DEFAULT_MAX_ERR_PARTICLES});
             -- current count of stored particles
-            INSERT OR REPLACE INTO particle_count VALUES ('count_particles', 0);
-
+            INSERT OR REPLACE INTO config_table VALUES ('count_particles', 0);
+             -- maximum number of logs to store
+            INSERT OR REPLACE INTO config_table VALUES ('max_logs', {DEFAULT_MAX_LOGS});
+            -- current count of stored logs
+            INSERT OR REPLACE INTO config_table VALUES ('count_logs', 0);
+            -- maximum number of mailbox messages to store
+            INSERT OR REPLACE INTO config_table VALUES ('max_mailbox', {DEFAULT_MAX_MAILBOX});
+            -- current count of stored mailbox messages
+            INSERT OR REPLACE INTO config_table VALUES ('count_mailbox', 0);
 
             -- if there are more than `max_particles` particles, delete the oldest one
             CREATE TRIGGER IF NOT EXISTS errors_limit_trigger AFTER INSERT ON particles
                 FOR EACH ROW
                 -- if limit is reached
-                WHEN (SELECT value FROM particle_count WHERE parameter = 'count_particles')
-                    > (SELECT value FROM particle_count WHERE parameter = 'max_particles')
+                WHEN (SELECT value FROM config_table WHERE parameter = 'count_particles')
+                    > (SELECT value FROM config_table WHERE parameter = 'max_particles')
                 BEGIN
                     -- delete all errors for the oldest particle
                     DELETE FROM particles
@@ -79,14 +88,14 @@ pub fn create() {
                     -- remove all errors for that particle
                     DELETE FROM errors WHERE particle_id = OLD.particle_id;
                     -- decrement number of particles
-                    UPDATE particle_count SET value = value - 1 WHERE parameter = 'count_particles';
+                    UPDATE config_table SET value = value - 1 WHERE parameter = 'count_particles';
                 END;
 
-            -- when a particle is inserted, incremenet the counter
+            -- when a particle is inserted, increment the counter
             CREATE TRIGGER IF NOT EXISTS particles_count_insert_trigger AFTER INSERT ON particles
                 FOR EACH ROW
                 BEGIN
-                  UPDATE particle_count SET value = value + 1 WHERE parameter = 'count_particles';
+                  UPDATE config_table SET value = value + 1 WHERE parameter = 'count_particles';
                 END;
 
             -- when a particle error is inserted, store particle id if it wasn't there yet
@@ -95,6 +104,55 @@ pub fn create() {
                 BEGIN
                     INSERT OR IGNORE INTO particles (particle_id, timestamp) VALUES (NEW.particle_id, NEW.timestamp);
                 END;
+
+            CREATE TABLE IF NOT EXISTS logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+                log TEXT
+            );
+
+            CREATE TRIGGER IF NOT EXISTS logs_insert_and_limit_trigger AFTER INSERT ON logs
+                FOR EACH ROW
+                BEGIN
+                    -- when a log is inserted, increment the counter
+                    UPDATE config_table SET value = value + 1 WHERE parameter = 'count_logs';
+
+                    -- if there are more than `max_logs` logs, delete the oldest ones
+                    DELETE FROM logs
+                    WHERE (SELECT value FROM config_table WHERE parameter = 'count_logs')
+                        > (SELECT value FROM config_table WHERE parameter = 'max_logs')
+                    AND id = (SELECT id FROM logs ORDER BY timestamp ASC, id ASC LIMIT 1);
+
+                    -- decrement number of logs
+                    UPDATE config_table SET value = value - 1 WHERE parameter = 'count_logs'
+                    AND (SELECT value FROM config_table WHERE parameter = 'count_logs')
+                        > (SELECT value FROM config_table WHERE parameter = 'max_logs');
+                END;
+
+            CREATE TABLE IF NOT EXISTS mailbox (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+                message TEXT
+            );
+
+            CREATE TRIGGER IF NOT EXISTS mailbox_insert_and_limit_trigger AFTER INSERT ON mailbox
+                FOR EACH ROW
+                BEGIN
+                  -- when a mailbox message is inserted, increment the counter
+                  UPDATE config_table SET value = value + 1 WHERE parameter = 'count_mailbox';
+
+                  -- if there are more than `max_mailbox` messages, delete the oldest ones
+                  DELETE FROM mailbox
+                  WHERE (SELECT value FROM config_table WHERE parameter = 'count_mailbox')
+                        > (SELECT value FROM config_table WHERE parameter = 'max_mailbox')
+                  AND id = (SELECT id FROM mailbox ORDER BY timestamp ASC, id ASC LIMIT 1);
+
+                  -- decrement number of mailbox messages
+                  UPDATE config_table SET value = value - 1 WHERE parameter = 'count_mailbox'
+                  AND (SELECT value FROM config_table WHERE parameter = 'count_mailbox')
+                        > (SELECT value FROM config_table WHERE parameter = 'max_mailbox');
+                END;
+
             "#),
     )
         .expect("init sqlite db");

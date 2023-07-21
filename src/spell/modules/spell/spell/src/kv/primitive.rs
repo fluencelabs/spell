@@ -46,7 +46,7 @@ pub fn set_u32(key: &str, value: u32) -> UnitValue {
         let conn = db();
         let mut statement = conn.prepare("INSERT OR REPLACE INTO kv (key, u32) VALUES (?, ?)")?;
         statement.bind(1, key)?;
-        statement.bind(2, value as f64)?;
+        statement.bind(2, value as i64)?;
         statement.next()?;
     };
 
@@ -60,7 +60,7 @@ pub fn get_u32(key: &str) -> U32Value {
         let mut statement = conn.prepare("SELECT u32 FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
         if let State::Row = statement.next()? {
-            Some(statement.read::<f64>(0)? as u32)
+            Some(statement.read::<i64>(0)? as u32)
         } else {
             None
         }
