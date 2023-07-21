@@ -50,12 +50,11 @@ pub fn push_mailbox(message: String) -> UnitValue {
 }
 
 #[marine]
-/// Get all messages from the mailbox ordered by timestamp ascending.
+/// Get all messages from the mailbox in FIFO order.
 pub fn get_mailbox() -> GetMailboxResult {
     let result: eyre::Result<Vec<String>> = try {
         let conn = db();
-        let statement =
-            conn.prepare(r#"SELECT message FROM mailbox ORDER BY timestamp ASC, id ASC"#)?;
+        let statement = conn.prepare(r#"SELECT message FROM mailbox ORDER BY id DESC"#)?;
         let messages: Vec<String> = fetch_rows(statement, |statement| {
             Ok(Some(statement.read::<String>(0)?))
         });
@@ -82,9 +81,7 @@ pub fn pop_mailbox() -> StringValue {
 
     let db = db();
     let result: eyre::Result<Option<String>> = try {
-        let mut get = db.prepare(
-            r#" SELECT message, id FROM mailbox ORDER BY timestamp DESC, id DESC LIMIT 1"#,
-        )?;
+        let mut get = db.prepare(r#" SELECT message, id FROM mailbox ORDER BY id DESC LIMIT 1"#)?;
         let string = read_string(&mut get, 0)?;
         let id = get.read::<i64>(1)?;
 
@@ -152,8 +149,8 @@ mod tests {
         assert!(messages.success, "{}", messages.error);
         let messages = messages.messages;
         assert_eq!(messages.len(), 2);
-        assert_eq!(messages[0], message1);
-        assert_eq!(messages[1], message2);
+        assert_eq!(messages[0], message2);
+        assert_eq!(messages[1], message1);
     }
 
     #[marine_test(
