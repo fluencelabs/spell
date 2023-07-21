@@ -1,42 +1,10 @@
 use marine_rs_sdk::marine;
 
-use fluence_spell_dtos::value::UnitValue;
+use fluence_spell_dtos::value::{GetLogsResult, Log, UnitValue};
 
 use crate::auth::is_by_spell;
 use crate::misc::fetch_rows;
 use crate::schema::db;
-
-#[marine]
-pub struct Log {
-    pub timestamp: u64,
-    pub message: String,
-}
-
-#[marine]
-/// `logs` contains up to `DEFAULT_MAX_LOGS` latest logs with timestamps,
-/// sorted in the order they were appeared
-pub struct GetLogsResult {
-    pub logs: Vec<Log>,
-    pub success: bool,
-    pub error: String,
-}
-
-impl From<eyre::Result<Vec<Log>>> for GetLogsResult {
-    fn from(result: eyre::Result<Vec<Log>>) -> Self {
-        match result {
-            Ok(logs) => GetLogsResult {
-                logs,
-                success: true,
-                error: "".to_string(),
-            },
-            Err(e) => GetLogsResult {
-                success: false,
-                error: format!("get_logs error: {}", e),
-                logs: vec![],
-            },
-        }
-    }
-}
 
 #[marine]
 /// Push a log to the db. It keeps `DEFAULT_MAX_LOGS` latest logs.

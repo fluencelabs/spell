@@ -132,6 +132,7 @@ pub fn create() {
             CREATE TABLE IF NOT EXISTS mailbox (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+                init_peer_id TEXT,
                 message TEXT
             );
 

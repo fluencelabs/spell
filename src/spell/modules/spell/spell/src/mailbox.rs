@@ -1,45 +1,22 @@
 use marine_rs_sdk::marine;
+use marine_sqlite_connector::State;
 
-use fluence_spell_dtos::value::{StringValue, UnitValue};
+use fluence_spell_dtos::value::{GetMailboxResult, MailboxMessage, PopMailboxResult, UnitValue};
 
 use crate::auth::is_by_spell;
-use crate::kv::primitive::read_string;
 use crate::misc::fetch_rows;
 use crate::schema::db;
 
 #[marine]
-/// `messages` contains up to `DEFAULT_MAX_MAILBOX` latest messages,
-/// sorted in the order they were pushed
-pub struct GetMailboxResult {
-    pub messages: Vec<String>,
-    pub success: bool,
-    pub error: String,
-}
-
-impl From<eyre::Result<Vec<String>>> for GetMailboxResult {
-    fn from(result: eyre::Result<Vec<String>>) -> Self {
-        match result {
-            Ok(messages) => GetMailboxResult {
-                messages,
-                success: true,
-                error: "".to_string(),
-            },
-            Err(e) => GetMailboxResult {
-                success: false,
-                error: format!("get_mailbox error: {}", e),
-                messages: vec![],
-            },
-        }
-    }
-}
-
-#[marine]
 /// Push a message to the mailbox. Mailbox keeps `DEFAULT_MAX_MAILBOX` latest messages.
 pub fn push_mailbox(message: String) -> UnitValue {
+    let init_peer_id = marine_rs_sdk::get_call_parameters().init_peer_id;
     let result: eyre::Result<()> = try {
         let conn = db();
-        let mut statement = conn.prepare(r#" INSERT INTO mailbox (message) VALUES (?)"#)?;
-        statement.bind(1, message.as_str())?;
+        let mut statement =
+            conn.prepare(r#" INSERT INTO mailbox (init_peer_id, message) VALUES (?, ?)"#)?;
+        statement.bind(1, init_peer_id.as_str())?;
+        statement.bind(2, message.as_str())?;
         statement.next()?;
     };
 
@@ -52,11 +29,16 @@ pub fn push_mailbox(message: String) -> UnitValue {
 #[marine]
 /// Get all messages from the mailbox in FIFO order.
 pub fn get_mailbox() -> GetMailboxResult {
-    let result: eyre::Result<Vec<String>> = try {
+    let result: eyre::Result<Vec<MailboxMessage>> = try {
         let conn = db();
-        let statement = conn.prepare(r#"SELECT message FROM mailbox ORDER BY id DESC"#)?;
-        let messages: Vec<String> = fetch_rows(statement, |statement| {
-            Ok(Some(statement.read::<String>(0)?))
+        let statement = conn
+            .prepare(r#"SELECT init_peer_id, timestamp, message FROM mailbox ORDER BY id DESC"#)?;
+        let messages: Vec<MailboxMessage> = fetch_rows(statement, |statement| {
+            Ok(Some(MailboxMessage {
+                init_peer_id: statement.read::<String>(0)?,
+                timestamp: statement.read::<i64>(1)? as u64,
+                message: statement.read::<String>(2)?,
+            }))
         });
 
         messages
@@ -68,7 +50,7 @@ pub fn get_mailbox() -> GetMailboxResult {
 #[marine]
 /// Get the latest mailbox message and remove it from the mailbox.
 /// result.absent is true if there are no messages in the mailbox.
-pub fn pop_mailbox() -> StringValue {
+pub fn pop_mailbox() -> PopMailboxResult {
     let call_parameters = marine_rs_sdk::get_call_parameters();
 
     // We want to prevent anyone except this spell to pop from mailbox
@@ -80,16 +62,27 @@ pub fn pop_mailbox() -> StringValue {
     }
 
     let db = db();
-    let result: eyre::Result<Option<String>> = try {
-        let mut get = db.prepare(r#" SELECT message, id FROM mailbox ORDER BY id DESC LIMIT 1"#)?;
-        let string = read_string(&mut get, 0)?;
-        let id = get.read::<i64>(1)?;
+    let result: eyre::Result<Option<MailboxMessage>> = try {
+        let mut get = db.prepare(
+            r#" SELECT init_peer_id, timestamp, message, id FROM mailbox ORDER BY id DESC LIMIT 1"#,
+        )?;
+        let message = if let State::Row = get.next()? {
+            Some(MailboxMessage {
+                init_peer_id: get.read::<String>(0)?,
+                timestamp: get.read::<i64>(1)? as u64,
+                message: get.read::<String>(2)?,
+            })
+        } else {
+            None
+        };
 
-        let mut delete = db.prepare(r#"DELETE FROM mailbox WHERE id = ?"#)?;
-        delete.bind(1, id)?;
-        delete.next()?;
-
-        string
+        if message.is_some() {
+            let id = get.read::<i64>(3)?;
+            let mut delete = db.prepare(r#"DELETE FROM mailbox WHERE id = ?"#)?;
+            delete.bind(1, id)?;
+            delete.next()?;
+        }
+        message
     };
 
     result.into()
@@ -142,15 +135,18 @@ mod tests {
         let store = spell.push_mailbox_cp(message1.clone(), cp.clone());
         assert!(store.success, "{}", store.error);
 
-        let store = spell.push_mailbox_cp(message2.clone(), cp);
+        let store = spell.push_mailbox_cp(message2.clone(), cp.clone());
         assert!(store.success, "{}", store.error);
 
         let messages = spell.get_mailbox();
         assert!(messages.success, "{}", messages.error);
         let messages = messages.messages;
         assert_eq!(messages.len(), 2);
-        assert_eq!(messages[0], message2);
-        assert_eq!(messages[1], message1);
+        assert_eq!(messages[0].message, message2);
+        assert_eq!(messages[0].init_peer_id, cp.init_peer_id);
+        assert_eq!(messages[1].message, message1);
+        assert_eq!(messages[1].init_peer_id, cp.init_peer_id);
+        assert!(messages[0].timestamp >= messages[1].timestamp);
     }
 
     #[marine_test(
@@ -211,11 +207,13 @@ mod tests {
         assert!(messages.success, "{}", messages.error);
         let messages = messages.messages;
         assert_eq!(messages.len(), 1);
-        assert_eq!(messages[0], message);
+        assert_eq!(messages[0].message, message);
 
         let pop = spell.pop_mailbox_cp(cp);
         assert!(pop.success, "{}", pop.error);
-        assert_eq!(pop.str, message);
+        assert!(!pop.absent);
+        assert_eq!(pop.message.len(), 1);
+        assert_eq!(pop.message[0].message, message);
 
         let messages = spell.get_mailbox();
         assert!(messages.success, "{}", messages.error);
