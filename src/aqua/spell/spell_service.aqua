@@ -51,8 +51,13 @@ data GetLogsResult:
   success: bool
   error: string
 
+data MailboxMessage:
+  init_peer_id: string
+  timestamp: u64
+  message: string
+
 data GetMailboxResult:
-  messages: []string
+  messages: []MailboxMessage
   success: bool
   error: string
 
@@ -61,6 +66,12 @@ data LocationValue:
   host: string
   service_id: string
   success: bool
+  error: string
+
+data PopMailboxResult:
+  message: []MailboxMessage
+  success: bool
+  absent: bool
   error: string
 
 data ScriptValue:
@@ -114,7 +125,7 @@ service Spell:
   list_get_strings(key: string) -> StringListValue
   list_pop_string(key: string) -> StringValue
   list_push_string(key: string, value: string) -> UnitValue
-  pop_mailbox() -> StringValue
+  pop_mailbox() -> PopMailboxResult
   push_mailbox(message: string) -> UnitValue
   remove_key(key: string) -> UnitValue
   script_cid() -> CIDValue
