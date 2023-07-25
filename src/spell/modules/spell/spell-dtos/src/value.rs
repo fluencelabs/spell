@@ -1,4 +1,5 @@
 use marine_rs_sdk::{marine, CallParameters};
+use marine_sqlite_connector::Statement;
 use serde::Deserialize;
 
 use crate::error::SpellError;
@@ -307,6 +308,16 @@ pub struct MailboxMessage {
     pub init_peer_id: String,
     pub timestamp: u64,
     pub message: String,
+}
+
+impl MailboxMessage {
+    pub fn read(statement: &mut Statement) -> eyre::Result<Self> {
+        Ok(MailboxMessage {
+            init_peer_id: statement.read::<String>(0)?,
+            timestamp: statement.read::<i64>(1)? as u64,
+            message: statement.read::<String>(2)?,
+        })
+    }
 }
 
 #[marine]

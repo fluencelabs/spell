@@ -34,11 +34,7 @@ pub fn get_mailbox() -> GetMailboxResult {
         let statement = conn
             .prepare(r#"SELECT init_peer_id, timestamp, message FROM mailbox ORDER BY id DESC"#)?;
         let messages: Vec<MailboxMessage> = fetch_rows(statement, |statement| {
-            Ok(Some(MailboxMessage {
-                init_peer_id: statement.read::<String>(0)?,
-                timestamp: statement.read::<i64>(1)? as u64,
-                message: statement.read::<String>(2)?,
-            }))
+            Ok(Some(MailboxMessage::read(statement)?))
         });
 
         messages
@@ -66,22 +62,17 @@ pub fn pop_mailbox() -> PopMailboxResult {
         let mut get = db.prepare(
             r#" SELECT init_peer_id, timestamp, message, id FROM mailbox ORDER BY id DESC LIMIT 1"#,
         )?;
-        let message = if let State::Row = get.next()? {
-            Some(MailboxMessage {
-                init_peer_id: get.read::<String>(0)?,
-                timestamp: get.read::<i64>(1)? as u64,
-                message: get.read::<String>(2)?,
-            })
-        } else {
-            None
-        };
 
-        if message.is_some() {
+        let mut message = None;
+        if let State::Row = get.next()? {
+            message = Some(MailboxMessage::read(&mut get)?);
+
             let id = get.read::<i64>(3)?;
             let mut delete = db.prepare(r#"DELETE FROM mailbox WHERE id = ?"#)?;
             delete.bind(1, id)?;
             delete.next()?;
         }
+
         message
     };
 
