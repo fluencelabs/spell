@@ -31,7 +31,8 @@ func get_trigger(spell_id: string) -> ?TriggerEvent, ?Error:
 
     if s.success:
       if s.absent == false:
-        trigger <- TriggerEventJson.parse(s.str)
+        -- How to check that s.message is a valid TriggerEvent???
+        trigger <- TriggerEventJson.parse(s.message!.message)
     else:
       error <<- s.error
 
