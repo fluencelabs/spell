@@ -1,3 +1,4 @@
+use eyre::WrapErr;
 use marine_rs_sdk::{marine, CallParameters};
 use marine_sqlite_connector::Statement;
 use serde::Deserialize;
@@ -313,9 +314,15 @@ pub struct MailboxMessage {
 impl MailboxMessage {
     pub fn read(statement: &mut Statement) -> eyre::Result<Self> {
         Ok(MailboxMessage {
-            init_peer_id: statement.read::<String>(0)?,
-            timestamp: statement.read::<i64>(1)? as u64,
-            message: statement.read::<String>(2)?,
+            init_peer_id: statement
+                .read::<String>(0)
+                .context("failed to read `init_peer_id` field")?,
+            timestamp: statement
+                .read::<i64>(1)
+                .context("failed to read `timestamp` field")? as u64,
+            message: statement
+                .read::<String>(2)
+                .context("failed to read `message` field")?,
         })
     }
 }
