@@ -147,7 +147,7 @@ jobs:
         with:
           crate: marine
 
-      - name: Build and package spell
+      - name: Build spell
         working-directory: ./src/spell/modules/spell/spell
         run: ./build.sh
 
@@ -195,30 +195,6 @@ jobs:
             --from-git \
             --skip-published \
             --yes
-
-      - name: Calculate SHA256
-        id: sha
-        working-directory: ./src/spell/modules/spell/spell/artifacts/
-        run: |
-          # Calculate sha256
-          du -hs spell.tar.gz
-          sha256sum spell.tar.gz
-          sha=($(sha256sum spell.tar.gz))
-          echo "sha256=${sha}" >> $GITHUB_OUTPUT
-
-      - name: Upload spell package
-        if: needs.release-please.outputs.release-created
-        uses: softprops/action-gh-release@v1
-        with:
-          files: src/spell/modules/spell/spell/artifacts/spell.tar.gz
-          tag_name: ${{ needs.release-please.outputs.tag-name }}
-
-      - name: Upload spell package
-        if: needs.release-please.outputs.release-created
-        uses: softprops/action-gh-release@v1
-        with:
-          files: src/spell/modules/spell/spell/artifacts/spell.tar.gz
-          tag_name: ${{ needs.release-please.outputs.tag-name }}
 
   slack:
     if: always()
