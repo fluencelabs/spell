@@ -1,6 +1,6 @@
 aqua Lib declares *
 
-export list, install, remove, update, get_config, get_script, get_counter, get_string, is_spell_absent, get_all_trigger_events, remove_service, get_location, get_spell_errors, noop
+export list, install, remove, update, get_config, get_script, get_counter, get_string, is_spell_absent, remove_service, get_location, get_spell_errors, noop
 
 import "../../src/aqua/spell/api.aqua"
 import "../../src/aqua/spell/trigger.aqua"
