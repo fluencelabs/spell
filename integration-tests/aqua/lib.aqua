@@ -1,6 +1,6 @@
 aqua Lib declares *
 
-export list, install, remove, update, get_config, get_script, get_counter, get_string, is_spell_absent, remove_service, get_location, get_spell_errors, noop
+export list, install, remove, update, get_config, get_script, get_counter, get_string, is_spell_absent, get_trigger_event, get_all_trigger_events, remove_service, get_location, get_spell_errors, noop
 
 import "../../src/aqua/spell/api.aqua"
 import "../../src/aqua/spell/trigger.aqua"
@@ -123,6 +123,36 @@ func remove_service(id: string) -> Result:
       catch err:
           result <<- Result(success = false, error = err.message)
    <- result[0]
+
+func get_trigger_event(spell_id: string) -> ?TriggerEvent, ?string:
+    error: ?string
+    trigger: ?TriggerEvent
+    on HOST_PEER_ID:
+        Spell spell_id
+        result <- Spell.get_string("trigger")
+        if result.success:
+            if result.absent == false:
+                trigger <- TriggerEventJson.parse(result.str)
+        else:
+            error <<- result.error
+
+    <- trigger, error
+
+-- you should store triggers in KV;
+-- to achieve this you can use store_triggers_script from test_aqua.py
+func get_all_trigger_events(spell_id: string) -> []TriggerEvent, ?string:
+    error: ?string
+    triggers: *TriggerEvent
+    on HOST_PEER_ID:
+        Spell spell_id
+        result <- Spell.list_get_strings("triggers")
+        if result.success:
+            for trigger <- result.strings:
+                triggers <- TriggerEventJson.parse(trigger)
+        else:
+            error <<- result.error
+
+    <- triggers, error
 
 func get_spell_errors(spell_id: string) -> AllErrorsResult:
     on HOST_PEER_ID:
