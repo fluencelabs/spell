@@ -208,7 +208,7 @@ def with_spell(cls):
     config = init_param("config")
     dat = init_param("dat")
 
-    # update setup_class to create a sepll + calling the original one
+    # update setup_class to create a spell + calling the original one
     old_setup_class = getattr(cls, "setup_class", None)
 
     def setup_class(cls):

@@ -1,0 +1,51 @@
+import Spell from "@fluencelabs/spell/spell_service.aqua"
+import Peer from "@fluencelabs/aqua-lib/builtin.aqua"
+import StatusJson from "./json.aqua"
+import Status, State from "./types.aqua"
+
+const STATUS_KEY = "__installation_spell_status__"
+
+const STATUS_UNDEFINED = "STATUS_UNDEFINED"
+const INSTALLATION_IN_PROGRESS = "INSTALLATION_IN_PROGRESS"
+const INSTALLATION_FAILED = "INSTALLATION_FAILED"
+const INSTALLATION_SUCCESSFUL = "INSTALLATION_SUCCESSFUL"
+
+func get_status() -> Status:
+    Spell "worker-spell"
+    statuses <- Spell.list_get_strings(STATUS_KEY)
+    status: ?Status
+
+    if statuses.strings.length == 0:
+        status <<- Status(state = STATUS_UNDEFINED, message = "Installation has not started yet", timestamp = 0)
+    if statuses.success == false:
+        status <<- Status(state = STATUS_UNDEFINED,  message = statuses.error, timestamp = 0)
+
+    if status == nil:
+        status <- StatusJson.parse(statuses.strings[statuses.strings.length - 1])
+
+    <- status!
+
+func set_status(state: State, message: string):
+    Spell "worker-spell"
+    timestamp <- Peer.timestamp_sec()
+    status_str <- StatusJson.stringify(Status(state = state, message = message, timestamp = timestamp))
+
+    Spell.list_push_string(STATUS_KEY, status_str)
+
+service CmpU64("cmp"):
+    -- x >= y
+    gte(x: u64, y: u64) -> bool
+
+-- Is it okay that we return empty list here if there are no statuses
+-- and STATUS_UNDEFINED in get_status in the same case?
+func get_statuses_from(timestamp: u64) -> []Status:
+    Spell "worker-spell"
+    statuses <- Spell.list_get_strings(STATUS_KEY)
+    statuses_parsed: *Status
+
+    for status_str <- statuses.strings:
+        status <- StatusJson.parse(status_str)
+        if CmpU64.gte(status.timestamp, timestamp):
+            statuses_parsed <<- status
+
+    <- statuses_parsed

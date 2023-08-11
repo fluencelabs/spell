@@ -2,6 +2,7 @@ import JsonString from "./types.aqua"
 import WorkerDefinition from "./config.aqua"
 import ModuleConfig from "@fluencelabs/aqua-lib/builtin.aqua"
 import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
+import Status from "./types.aqua"
 
 service WDJson("json"):
     stringify(rac: WorkerDefinition) -> JsonString
@@ -19,3 +20,7 @@ service TriggerConfigJson("json"):
 
 service Json("json"):
     stringify(obj: ⊤) -> string
+
+service StatusJson("json"):
+    parse(json: JsonString) -> Status
+    stringify(status: Status) -> JsonString

@@ -8,8 +8,8 @@ import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 import WDJson, ModuleConfigJson, TriggerConfigJson, JsonStr from "./json.aqua"
 import SpellDefinition from "./config.aqua"
 import Multiaddr, CID from "./types.aqua"
-import SpellData from "./spell_data.aqua"
 import log from "./log.aqua"
+import "./status.aqua"
 
 func blueprint_key(service_name: string) -> string:
     <- Op.concat_strings("blueprint:", service_name)
@@ -115,7 +115,7 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
                 Spell.set_string(init_args_key(spell.name), spell.init_args)
                 log([spell.name, "init_args successfully updated"])
         else:
-            Spell.set_string("status", "install in progress")
+            set_status(INSTALLATION_IN_PROGRESS, "")
             script <- Ipfs.cat_from(spell.script, ipfs)
             cfg_json <- Ipfs.cat_from(spell.config, ipfs)
             init_args_str <- Ipfs.cat_from(spell.init_args, ipfs)
@@ -170,7 +170,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
                         -- TODO: check that services are still alive
                         -- do not deploy if already deployed with the same blueprint
                         if is_deployed(s.name, blueprint_id) == false:
-                            Spell.set_string("status", "install in progress")
+                            set_status(INSTALLATION_IN_PROGRESS, "")
 
                             service_id <- Srv.create(blueprint_id)
                             log(["Created service", s.name, service_id])
@@ -197,10 +197,13 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
                     log(["Error deploying spell", sp.name, e])
 
             log("Installation finished")
-            Spell.set_string("status", "install finished")
+            last_status <- get_status()
+            if last_status.state == INSTALLATION_IN_PROGRESS:
+                set_status(INSTALLATION_SUCCESSFUL, "")
+
         else:
             log(["Error downloading worker definition from IPFS", ipfs, worker_def_cid, json])
-            Spell.set_string("status", "install error")
+            set_status(INSTALLATION_FAILED, "")
     catch e:
         log(["Error installing worker", e])
-        Spell.set_string("status", "install error")
+        set_status(INSTALLATION_FAILED, "")

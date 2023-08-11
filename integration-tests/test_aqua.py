@@ -409,6 +409,52 @@ class TestSpellError:
 
         assert self.spell_id in errors[0]["particle_id"], "error must belong to spell_id"
 
+@with_spell
+class TestSpellStatus:
+    air_script = '''
+    (seq
+        (call %init_peer_id% ("getDataSrv" "spell_id") [] spell_id)
+        (call %init_peer_id% ("srv" "add_alias") ["worker-spell" spell_id])
+    )
+    '''
+    dat = {}
+    config = oneshot_config()
+
+    def test_status(self):
+        status = run_aqua(self.key_pair_name, "get_worker_spell_status", [])
+        assert status["state"] == "STATUS_UNDEFINED"
+        assert status["message"] == "Installation has not started yet"
+
+        statuses = run_aqua(self.key_pair_name, "get_worker_spell_statuses_from", [0])
+        assert len(statuses) == 0
+
+        run_aqua(self.key_pair_name, "set_worker_spell_status", ["INSTALLATION_IN_PROGRESS", "installation in progress"])
+        first_status = run_aqua(self.key_pair_name, "get_worker_spell_status", [])
+        assert first_status["state"] == "INSTALLATION_IN_PROGRESS"
+        assert first_status["message"] == "installation in progress"
+        assert first_status["timestamp"] > 0
+
+        statuses = run_aqua(self.key_pair_name, "get_worker_spell_statuses_from", [0])
+        assert len(statuses) == 1
+        assert statuses[0] == first_status
+
+        time.sleep(2)
+        run_aqua(self.key_pair_name, "set_worker_spell_status", ["INSTALLATION_SUCCESSFUL", "installation finished"])
+        last_status = run_aqua(self.key_pair_name, "get_worker_spell_status", [])
+        assert last_status["state"] == "INSTALLATION_SUCCESSFUL"
+        assert last_status["message"] == "installation finished"
+        assert last_status["timestamp"] > 0
+
+        statuses = run_aqua(self.key_pair_name, "get_worker_spell_statuses_from", [0])
+        assert len(statuses) == 2
+        assert statuses[0] == first_status
+        assert statuses[1] == last_status
+
+        statuses = run_aqua(self.key_pair_name, "get_worker_spell_statuses_from", [last_status["timestamp"]])
+        assert len(statuses) == 1
+        assert statuses[0] == last_status
+
+
 # TODO: decide before merging
 #
 # Do we want to write aqua code in tests?

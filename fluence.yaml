@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=.fluence/schemas/fluence.json
+# yaml-language-server: $schema=.fluence/schemas/fluence.yaml.json
 
 # EXAMPLES:
 # keyPairName: myKeyPairName # Name of key pair to use. Default: defaultKeyPairName from project's .fluence/secretes.yaml or if it is empty - defaultKeyPairName from user's .fluence/secrets.yaml

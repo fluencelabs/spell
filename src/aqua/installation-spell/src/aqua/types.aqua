@@ -9,3 +9,9 @@ data WorkerSpellArgs:
     ipfs: Multiaddr
     worker_def_cid: CID
     deal_id: Address
+
+alias State: string
+data Status:
+    state: State
+    message: string
+    timestamp: u64
