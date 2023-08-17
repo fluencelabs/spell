@@ -142,7 +142,6 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
 
 func download_service(s: Service, ipfs: Multiaddr) -> []Hash:
     hashes: *Hash
-    log([s.name, "try to install", s.modules.length, "modules"])
     for m <- s.modules:
         get_wasm <- Ipfs.get_from(m.wasm, ipfs)
         json_cfg <- Ipfs.cat_from(m.config, ipfs)
@@ -166,7 +165,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
 
             for s <- worker_definition.services:
                 try:
-                    hashes = download_service(s, ipfs)
+                    hashes <- download_service(s, ipfs)
                     if hashes.length == s.modules.length:
                         blueprint <- Dist.make_blueprint(s.name, hashes)
                         blueprint_id <- Dist.add_blueprint(blueprint)
