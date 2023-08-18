@@ -1,6 +1,6 @@
 {
   "name": "@fluencelabs/spell",
-  "version": "0.5.15",
+  "version": "0.5.17",
   "description": "Aqua API for Spells",
   "files": [
     "api.aqua",
@@ -33,8 +33,8 @@
   },
   "homepage": "https://github.com/fluencelabs/spell#readme",
   "devDependencies": {
-    "@fluencelabs/aqua-lib": "0.7.1",
-    "@fluencelabs/cli": "0.4.14",
+    "@fluencelabs/aqua-lib": "0.7.2",
+    "@fluencelabs/cli": "0.5.0",
     "npm-run-all2": "6.0.4"
   }
 }
