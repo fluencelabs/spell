@@ -6,7 +6,7 @@ import PeerSpell from "@fluencelabs/spell/api.aqua"
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 
 import WDJson, ModuleConfigJson, TriggerConfigJson, JsonStr from "./json.aqua"
-import SpellDefinition from "./config.aqua"
+import SpellDefinition, Service from "./config.aqua"
 import Multiaddr, CID from "./types.aqua"
 import log from "./log.aqua"
 import "./status.aqua"
@@ -140,6 +140,19 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
     catch e:
         log(["Error deploy spell", spell.name, e])
 
+func download_service(s: Service, ipfs: Multiaddr) -> []Hash:
+    hashes: *Hash
+    for m <- s.modules:
+        get_wasm <- Ipfs.get_from(m.wasm, ipfs)
+        json_cfg <- Ipfs.cat_from(m.config, ipfs)
+        ipfs_ok <- and(get_wasm.success, json_cfg.success)
+        if ipfs_ok:
+            cfg <- ModuleConfigJson.parse(json_cfg.contents)
+            hashes <<- Dist.add_module_from_vault(get_wasm.path, cfg)
+        else:
+            log([s.name, "error retrieving module", ["wasm", m.wasm, get_wasm], ["config", m.config, json_cfg]])
+    <- hashes
+
 func install(ipfs: Multiaddr, worker_def_cid: CID):
     Spell "worker-spell"
 
@@ -152,17 +165,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
 
             for s <- worker_definition.services:
                 try:
-                    hashes: *Hash
-                    for m <- s.modules:
-                        get_wasm <- Ipfs.get_from(m.wasm, ipfs)
-                        json_cfg <- Ipfs.cat_from(m.config, ipfs)
-                        ipfs_ok <- and(get_wasm.success, json_cfg.success)
-                        if ipfs_ok:
-                            cfg <- ModuleConfigJson.parse(json_cfg.contents)
-                            hashes <- Dist.add_module_from_vault(get_wasm.path, cfg)
-                        else:
-                            log([s.name, "error retrieving module", ["wasm", m.wasm, get_wasm], ["config", m.config, json_cfg]])
-
+                    hashes <- download_service(s, ipfs)
                     if hashes.length == s.modules.length:
                         blueprint <- Dist.make_blueprint(s.name, hashes)
                         blueprint_id <- Dist.add_blueprint(blueprint)
