@@ -70,8 +70,8 @@ mod tests {
         std::fs::remove_file(DB_FILE).ok();
     }
 
-    fn cp(service_id: String, particle_id: String) -> CallParameters {
-        CallParameters {
+    fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
+        marine_rs_sdk_test::CallParameters {
             init_peer_id: "folex".to_string(),
             service_creator_peer_id: "folex".to_string(),
             particle_id,
@@ -81,10 +81,7 @@ mod tests {
         }
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_store_log(spell: marine_test_env::spell::ModuleInterface) {
         println!("test_store_log started");
 
@@ -109,10 +106,7 @@ mod tests {
         assert!(logs[0].timestamp <= logs[1].timestamp);
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_store_log_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
         let log = "logloglog".to_string();
         let service_id = Uuid::new_v4();
@@ -127,10 +121,7 @@ mod tests {
         assert_eq!(logs_before.len(), logs_after.len());
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_log_lru(spell: marine_test_env::spell::ModuleInterface) {
         let log = "logloglog".to_string();
         let service_id = Uuid::new_v4();

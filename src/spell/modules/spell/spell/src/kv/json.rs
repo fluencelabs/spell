@@ -44,10 +44,7 @@ mod tests {
         std::fs::remove_file(DB_FILE).ok();
     }
 
-    #[marine_test(
-        config_path = "../../tests_artifacts/Config.toml",
-        modules_dir = "../../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_json(spell: marine_test_env::spell::ModuleInterface) {
         let json = json!({
             "a": 1,

@@ -216,8 +216,8 @@ mod tests {
         std::fs::remove_file(DB_FILE).ok();
     }
 
-    fn cp(service_id: String, particle_id: String) -> CallParameters {
-        CallParameters {
+    fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
+        marine_rs_sdk_test::CallParameters {
             init_peer_id: "folex".to_string(),
             service_creator_peer_id: "folex".to_string(),
             service_id,
@@ -227,10 +227,7 @@ mod tests {
         }
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_store_error(spell: marine_test_env::spell::ModuleInterface) {
         use marine_test_env::spell::LastError;
 
@@ -266,10 +263,7 @@ mod tests {
         assert_eq!(e.last_error.peer_id, error.peer_id);
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_store_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
         use marine_test_env::spell::LastError;
 
@@ -304,10 +298,7 @@ mod tests {
         }
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_error_lru(spell: marine_test_env::spell::ModuleInterface) {
         use marine_test_env::spell::LastError;
 

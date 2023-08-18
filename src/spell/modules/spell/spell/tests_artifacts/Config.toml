@@ -6,10 +6,8 @@ modules_dir = "."
     logger_enabled = false
 
     [module.wasi]
-    preopened_files = ["/tmp"]
+    preopened_files = ["tmp"]
     mapped_dirs = { "tmp" = "." }
 
 [[module]]
     name = "spell"
-
-
