@@ -30,6 +30,10 @@
 # appJSPath: ./path/to/app-js/dir # Optional. If you want to generate js files including app.js to be able to access deployed app data in aqua when using FluenceJS
 
 version: 2
+
+dependencies:
+  npm:
+    "@fluencelabs/cli": 0.5.4
 services:
   spell:
     get: src/spell
