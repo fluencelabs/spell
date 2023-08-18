@@ -1,2 +1,3 @@
+# yaml-language-server: $schema=.fluence/schemas/fluence.json
 version: 2
 aquaInputPath: aqua/*

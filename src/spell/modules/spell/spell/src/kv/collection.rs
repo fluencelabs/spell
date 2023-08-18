@@ -1,10 +1,8 @@
-use eyre::WrapErr;
+use fluence_spell_dtos::value::{StringListValue, StringValue, UnitValue};
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::State;
 
-use fluence_spell_dtos::value::{StringListValue, StringValue, UnitValue};
-
-use crate::kv::primitive::read_string;
+use crate::misc::fetch_rows;
 use crate::schema::db;
 
 #[marine]
@@ -37,27 +35,27 @@ pub fn list_pop_string(key: &str) -> StringValue {
     let result: eyre::Result<Option<String>> = try {
         let mut get = db.prepare(
             r#"
-            SELECT * FROM kv
+            SELECT string, list_index FROM kv
                 WHERE key = ?
                 AND list_index = ((SELECT COUNT(*) FROM kv WHERE key = ?) - 1)
         "#,
         )?;
         get.bind(1, key)?;
         get.bind(2, key)?;
-        let string = read_string(&mut get, 1)?;
-        let list_index = get.read::<f64>(3)?;
 
-        let mut delete = db.prepare(
-            r#"
-            DELETE FROM kv
-                WHERE key = ? AND list_index = ?
-        "#,
-        )?;
-        delete.bind(1, key)?;
-        delete.bind(2, list_index)?;
-        delete.next()?;
+        let mut result = None;
 
-        string
+        if let State::Row = get.next()? {
+            result = Some(get.read::<String>(0)?);
+            let list_index = get.read::<i64>(1)?;
+
+            let mut delete = db.prepare(r#"DELETE FROM kv WHERE key = ? AND list_index = ?"#)?;
+            delete.bind(1, key)?;
+            delete.bind(2, list_index)?;
+            delete.next()?;
+        }
+
+        result
     };
 
     result.into()
@@ -77,19 +75,11 @@ pub fn list_get_strings(key: &str) -> StringListValue {
         "#,
         )?;
         statement.bind(1, key)?;
-        std::iter::from_fn(move || {
-            let r: eyre::Result<Option<String>> = try {
-                if let State::Row = statement.next()? {
-                    Some(statement.read::<String>(0)?)
-                } else {
-                    None
-                }
-            };
-            r.context("error fetching error row from sqlite")
-                .transpose()
-        })
-        .filter_map(|r| r.ok())
-        .collect()
+        let list: Vec<String> = fetch_rows(statement, |statement| {
+            Ok(Some(statement.read::<String>(0)?))
+        });
+
+        list
     };
 
     result.into()

@@ -27,6 +27,16 @@ def connect_config():
 def simple_script():
     return '(call %init_peer_id% ("peer" "identify") [] x)'
 
+def store_triggers_script():
+    return '''
+    (seq
+        (call %init_peer_id% ("getDataSrv" "trigger") [] trigger)
+        (seq
+            (call %init_peer_id% ("json" "stringify") [trigger] trigger_str)
+            (call %init_peer_id% ("spell" "list_push_string") ["triggers" trigger_str])
+        )
+    )'''
+
 
 @with_spell
 class TestSmoke:
@@ -239,7 +249,7 @@ class TestUpdate:
 
 @with_spell_each
 class TestTriggerMailbox:
-    air_script = simple_script()
+    air_script = store_triggers_script()
     config = empty_config()
     dat = {}
 
@@ -314,7 +324,7 @@ class TestTriggerMailbox:
 
 @with_spell_each
 class TestConfig:
-    air_script = simple_script()
+    air_script = store_triggers_script()
     config = empty_config()
     dat = {}
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.5.17](https://github.com/fluencelabs/spell/compare/spell-v0.5.16...spell-v0.5.17) (2023-07-27)
+
+
+### Features
+
+* **mailbox:** get_mailbox returns in FIFO order [NET-508] ([#153](https://github.com/fluencelabs/spell/issues/153)) ([715981f](https://github.com/fluencelabs/spell/commit/715981fc0f7d41fc5f3d660da678dbef21211fad))
+* **mailbox:** store and return init_peer_id and timestamp [NET-510] ([#154](https://github.com/fluencelabs/spell/issues/154)) ([333e404](https://github.com/fluencelabs/spell/commit/333e404913e54f66672ef22b292f8d4a8af275b8))
+
+## [0.5.16](https://github.com/fluencelabs/spell/compare/spell-v0.5.15...spell-v0.5.16) (2023-07-14)
+
+
+### Features
+
+* rotate logs and mailbox [NET-496 NET-497] ([#145](https://github.com/fluencelabs/spell/issues/145)) ([ab5e5b7](https://github.com/fluencelabs/spell/commit/ab5e5b76d0904ed89e0f495b1d9e3dd4f3c92994))
+
 ## [0.5.15](https://github.com/fluencelabs/spell/compare/spell-v0.5.14...spell-v0.5.15) (2023-06-12)
 
 

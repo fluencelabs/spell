@@ -5,7 +5,7 @@ import "./deal_spell.aqua"
 import upload from "./upload.aqua"
 
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
-import Spell from "@fluencelabs/spell/spell_service.aqua"
+import Spell, Log from "@fluencelabs/spell/spell_service.aqua"
 import resolveSubnetwork from "@fluencelabs/registry/subnetwork.aqua"
 
 func upload_deploy(config: LocalAppDeployConfig) -> DeployedAppWorkers:
@@ -18,7 +18,7 @@ data LogDirect:
     worker_id: string
     host_id: string
     worker_name: string
-    logs: []string
+    logs: []Log
 
 func get_logs(app_workers: DeployedAppWorkers) -> *LogDirect:
     logs: *LogDirect
@@ -26,8 +26,8 @@ func get_logs(app_workers: DeployedAppWorkers) -> *LogDirect:
         for i <- w.installation_spells:
             on i.worker_id via i.host_id:
                 Spell i.spell_id
-                get_res <- Spell.list_get_strings("logs")
-                logs <<- LogDirect(spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.strings, worker_name = w.name)
+                get_res <- Spell.get_logs()
+                logs <<- LogDirect(spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.logs, worker_name = w.name)
 
     <- logs
 
@@ -36,7 +36,7 @@ data LogDeal:
     worker_id: string
     host_id: string
     deal_id: string
-    logs: []string
+    logs: []Log
 
 func get_logs_deal(deals: []string) -> *LogDeal:
     logs: *LogDeal
@@ -50,7 +50,7 @@ func get_logs_deal(deals: []string) -> *LogDeal:
                 on worker_id via host_id:
                     spell_id <- Srv.resolve_alias("worker-spell")
                     Spell spell_id
-                    get_res <- Spell.list_get_strings("logs")
-                    logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id, host_id = host_id, deal_id = deal_id, logs = get_res.strings)
+                    get_res <- Spell.get_logs()
+                    logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id, host_id = host_id, deal_id = deal_id, logs = get_res.logs)
 
     <- logs
