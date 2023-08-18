@@ -67,6 +67,8 @@ jobs:
       - name: Setup marine
         if: steps.marine.outcome == 'failure'
         uses: fluencelabs/setup-marine@v1
+        with:
+          version: 0.14.2
 
       - name: Build and package spell
         working-directory: ./src/spell/modules/spell/spell
