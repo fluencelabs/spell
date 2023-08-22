@@ -53,7 +53,6 @@ pub fn get_logs() -> GetLogsResult {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
-    use marine_rs_sdk::CallParameters;
     use marine_rs_sdk_test::marine_test;
     use uuid::Uuid;
 
