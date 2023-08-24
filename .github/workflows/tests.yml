@@ -25,6 +25,7 @@ env:
   FORCE_COLOR: true
   NOX_IMAGE: "${{ inputs.nox-image }}"
   FLUENCE_ENV: "${{ inputs.fluence-env }}"
+  CARGO_UNSTABLE_SPARSE_REGISTRY: true
 
 jobs:
   aqua:

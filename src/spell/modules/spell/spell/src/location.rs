@@ -68,10 +68,7 @@ mod tests {
         std::fs::remove_file(DB_FILE).ok();
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn set_location(spell: marine_test_env::spell::ModuleInterface) {
         let set = spell.set_relay_peer_id("relay".into());
         assert!(set.success, "first set failed: {}", set.error);

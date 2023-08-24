@@ -117,10 +117,7 @@ mod tests {
         std::fs::remove_file(DB_FILE).ok();
     }
 
-    #[marine_test(
-        config_path = "../../tests_artifacts/Config.toml",
-        modules_dir = "../../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_string(spell: marine_test_env::spell::ModuleInterface) {
         let key = "str".to_string();
         let str = "b".to_string();
@@ -130,10 +127,7 @@ mod tests {
         assert_eq!(get.str, "b", "get_string failed: {}", get.error);
     }
 
-    #[marine_test(
-        config_path = "../../tests_artifacts/Config.toml",
-        modules_dir = "../../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_u32(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num".to_string();
         let num = 123;
@@ -143,10 +137,7 @@ mod tests {
         assert_eq!(get.num, num, "get_u32 failed: {}", get.error);
     }
 
-    #[marine_test(
-        config_path = "../../tests_artifacts/Config.toml",
-        modules_dir = "../../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_remove_key(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num";
         let num = 123;
@@ -182,10 +173,7 @@ mod tests {
         }
     }
 
-    #[marine_test(
-        config_path = "../../tests_artifacts/Config.toml",
-        modules_dir = "../../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_u32_mutate(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num".to_string();
         let num = 123;
@@ -201,10 +189,7 @@ mod tests {
         assert_eq!(get.num, num * 2, "get_u32 failed: {}", get.error);
     }
 
-    #[marine_test(
-        config_path = "../../tests_artifacts/Config.toml",
-        modules_dir = "../../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_exists(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num".to_string();
 
@@ -233,10 +218,7 @@ mod tests {
         assert!(!exists.flag, "value still exists after remove_key");
     }
 
-    #[marine_test(
-        config_path = "../../tests_artifacts/Config.toml",
-        modules_dir = "../../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_exists_empty_key(spell: marine_test_env::spell::ModuleInterface) {
         let exists = spell.exists(String::new());
         assert!(exists.success, "exists failed: {}", exists.error);

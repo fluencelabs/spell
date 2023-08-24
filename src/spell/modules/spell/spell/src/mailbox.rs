@@ -82,7 +82,6 @@ pub fn pop_mailbox() -> PopMailboxResult {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
-    use marine_rs_sdk::CallParameters;
     use marine_rs_sdk_test::marine_test;
     use uuid::Uuid;
 
@@ -99,8 +98,8 @@ mod tests {
         std::fs::remove_file(DB_FILE).ok();
     }
 
-    fn cp(service_id: String, particle_id: String) -> CallParameters {
-        CallParameters {
+    fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
+        marine_rs_sdk_test::CallParameters {
             init_peer_id: "folex".to_string(),
             service_creator_peer_id: "folex".to_string(),
             particle_id,
@@ -110,10 +109,7 @@ mod tests {
         }
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_push_mailbox(spell: marine_test_env::spell::ModuleInterface) {
         println!("test_push_mailbox started");
 
@@ -140,10 +136,7 @@ mod tests {
         assert!(messages[0].timestamp >= messages[1].timestamp);
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_pop_mailbox_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
         let service_id = Uuid::new_v4();
@@ -162,10 +155,7 @@ mod tests {
         assert_eq!(messages_before.len(), messages_after.len());
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_mailbox_lru(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
         let service_id = Uuid::new_v4();
@@ -181,10 +171,7 @@ mod tests {
         assert_eq!(messages.len(), DEFAULT_MAX_MAILBOX);
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_pop_mailbox(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
         let service_id = Uuid::new_v4();

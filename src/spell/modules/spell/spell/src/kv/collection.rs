@@ -103,10 +103,7 @@ mod tests {
         std::fs::remove_file(DB_FILE).ok();
     }
 
-    #[marine_test(
-        config_path = "../../tests_artifacts/Config.toml",
-        modules_dir = "../../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_push_get(spell: marine_test_env::spell::ModuleInterface) {
         let key = "a";
 
@@ -122,10 +119,7 @@ mod tests {
         assert_eq!(get.strings, vec!["b", "f", "в"]);
     }
 
-    #[marine_test(
-        config_path = "../../tests_artifacts/Config.toml",
-        modules_dir = "../../tests_artifacts"
-    )]
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_push_pop_get(spell: marine_test_env::spell::ModuleInterface) {
         type SPELL = marine_test_env::spell::ModuleInterface;
         let key = "a";
