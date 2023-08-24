@@ -117,10 +117,7 @@ mod tests {
         std::fs::remove_file(DB_FILE).ok();
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_set_script_source_to_file(spell: marine_test_env::spell::ModuleInterface) {
         assert!(
             spell
@@ -131,10 +128,7 @@ mod tests {
         assert_eq!(spell.get_script_source_from_file().source_code, "(null)");
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_set_script_source_to_file_twice(spell: marine_test_env::spell::ModuleInterface) {
         assert!(
             spell
@@ -153,10 +147,7 @@ mod tests {
         );
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_set_script_by_spell(spell: marine_test_env::spell::ModuleInterface) {
         let service_id = uuid::Uuid::new_v4();
         let particle_id = format!("spell_{}_123", service_id);
@@ -175,10 +166,7 @@ mod tests {
         assert!(set.success, "set script failed: {}", set.error);
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_set_script_by_third_party(spell: marine_test_env::spell::ModuleInterface) {
         let cp = CallParameters {
             init_peer_id: "definitely not folex".to_string(),
@@ -195,10 +183,7 @@ mod tests {
         assert_eq!(set.error, "Only owner of the service can set the script");
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_set_script_source_to_file_auth(spell: marine_test_env::spell::ModuleInterface) {
         let cp = CallParameters {
             init_peer_id: "folex".to_string(),
@@ -215,10 +200,7 @@ mod tests {
         assert_eq!(set.error, "Only owner of the service can set the script");
     }
 
-    #[marine_test(
-        config_path = "../tests_artifacts/Config.toml",
-        modules_dir = "../tests_artifacts"
-    )]
+  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_cid(spell: marine_test_env::spell::ModuleInterface) {
         assert!(
             spell
