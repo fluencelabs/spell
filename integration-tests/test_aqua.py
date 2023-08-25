@@ -422,11 +422,13 @@ class TestSpellStatus:
 
     def test_status(self):
         status = run_aqua(self.key_pair_name, "get_worker_spell_status", [])
-        assert status["state"] == "STATUS_UNDEFINED"
+        assert status["state"] == "NOT_STARTED"
         assert status["message"] == "Installation has not started yet"
 
         statuses = run_aqua(self.key_pair_name, "get_worker_spell_statuses_from", [0])
-        assert len(statuses) == 0
+        assert len(statuses) == 1
+        assert statuses[0]["state"] == "NOT_STARTED"
+        assert statuses[0]["message"] == "Installation has not started yet"
 
         run_aqua(self.key_pair_name, "set_worker_spell_status", ["INSTALLATION_IN_PROGRESS", "installation in progress"])
         first_status = run_aqua(self.key_pair_name, "get_worker_spell_status", [])

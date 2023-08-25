@@ -1,4 +1,4 @@
-import Op, Hash, Dist, Srv from "@fluencelabs/aqua-lib/builtin.aqua"
+import Op, Hash, Dist, Srv, Debug from "@fluencelabs/aqua-lib/builtin.aqua"
 import and from "@fluencelabs/aqua-lib/binary.aqua"
 import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
 import Spell from "@fluencelabs/spell/spell_service.aqua"
@@ -115,7 +115,7 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
                 Spell.set_string(init_args_key(spell.name), spell.init_args)
                 log([spell.name, "init_args successfully updated"])
         else:
-            set_status(INSTALLATION_IN_PROGRESS, "")
+            set_status(INSTALLATION_IN_PROGRESS)
             script <- Ipfs.cat_from(spell.script, ipfs)
             cfg_json <- Ipfs.cat_from(spell.config, ipfs)
             init_args_str <- Ipfs.cat_from(spell.init_args, ipfs)
@@ -173,7 +173,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
                         -- TODO: check that services are still alive
                         -- do not deploy if already deployed with the same blueprint
                         if is_deployed(s.name, blueprint_id) == false:
-                            set_status(INSTALLATION_IN_PROGRESS, "")
+                            set_status(INSTALLATION_IN_PROGRESS)
 
                             service_id <- Srv.create(blueprint_id)
                             log(["Created service", s.name, service_id])
@@ -202,11 +202,13 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
             log("Installation finished")
             last_status <- get_status()
             if last_status.state == INSTALLATION_IN_PROGRESS:
-                set_status(INSTALLATION_SUCCESSFUL, "")
+                set_status(INSTALLATION_SUCCESSFUL)
 
         else:
-            log(["Error downloading worker definition from IPFS", ipfs, worker_def_cid, json])
-            set_status(INSTALLATION_FAILED, "")
+            error_msg = ["Error downloading worker definition from IPFS", ipfs, worker_def_cid, json]
+            log(error_msg)
+            set_status_msg(INSTALLATION_FAILED, Debug.stringify(error_msg))
     catch e:
-        log(["Error installing worker", e])
-        set_status(INSTALLATION_FAILED, "")
+        error_msg = ["Error installing worker", e]
+        log(error_msg)
+        set_status_msg(INSTALLATION_FAILED, Debug.stringify(error_msg))
