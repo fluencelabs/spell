@@ -183,7 +183,7 @@ func set_worker_spell_status(state: State, message: string) -> string:
     on HOST_PEER_ID:
         peer_id <- get_peer_id()
         on peer_id via HOST_PEER_ID:
-            set_status(state, message)
+            set_status_msg(state, message)
             -- HACK: we need to return smth, because otherwise particle won't be processed at all
             -- and we receive an error:
             -- `particle_protocol::libp2p_protocol::upgrade: Error processing inbound ProtocolMessage: unexpected end of file
