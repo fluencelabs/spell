@@ -110,7 +110,10 @@ def run_aqua(key_pair_name, func, args, relay=get_relay()):
         if c.out.strip() == "undefined":
             result = dict()
         else:
-            result = json.loads(c.out)
+            try:
+                result = json.loads(c.out)
+            except ValueError as e:
+                result = c.out
         print("Result:", result)
     return result
 
