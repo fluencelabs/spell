@@ -22,7 +22,7 @@
     "@fluencelabs/aqua-ipfs": "0.5.17",
     "@fluencelabs/aqua-lib": "0.7.1",
     "@fluencelabs/registry": "0.8.6",
-    "@fluencelabs/spell": "file:../spell"
+    "@fluencelabs/spell": "0.5.17"
   },
   "devDependencies": {
     "@fluencelabs/cli": "0.5.3"
