@@ -110,7 +110,10 @@ def run_aqua(key_pair_name, func, args, relay=get_relay()):
         if c.out.strip() == "undefined":
             result = dict()
         else:
-            result = json.loads(c.out)
+            try:
+                result = json.loads(c.out)
+            except ValueError as e:
+                result = c.out
         print("Result:", result)
     return result
 
@@ -208,7 +211,7 @@ def with_spell(cls):
     config = init_param("config")
     dat = init_param("dat")
 
-    # update setup_class to create a sepll + calling the original one
+    # update setup_class to create a spell + calling the original one
     old_setup_class = getattr(cls, "setup_class", None)
 
     def setup_class(cls):

@@ -1,28 +1,31 @@
 aqua Lib declares *
 
-export list, install, remove, update, get_config, get_script, get_counter, get_string, is_spell_absent, get_trigger_event, get_all_trigger_events, remove_service, get_location, get_spell_errors, noop
+export list, install, remove, update, get_config, get_script, get_counter, get_string
+export is_spell_absent, get_trigger_event, get_all_trigger_events, remove_service, get_location, get_spell_errors, noop
+export get_worker_spell_status, set_worker_spell_status, get_worker_spell_statuses_from, set_spell_alias
 
 import "../../src/aqua/spell/api.aqua"
 import "../../src/aqua/spell/trigger.aqua"
 import "../../src/aqua/spell/types.aqua"
 import "../../src/aqua/spell/spell_service.aqua"
 import "@fluencelabs/aqua-lib/builtin.aqua"
+import Worker from "@fluencelabs/aqua-lib/workers.aqua"
+import "../../src/aqua/installation-spell/src/aqua/status.aqua"
+import "../../src/aqua/installation-spell/src/aqua/types.aqua"
+import "../../src/aqua/installation-spell/src/aqua/json.aqua"
 
-service WorkerDefault("worker"):
-  get_peer_id() -> string
-  create() -> string
 
 func get_peer_id() -> string:
     worker_id: *string
     try:
-        worker_id <<- WorkerDefault.get_peer_id()
+        worker_id <<- Worker.get_peer_id()
     otherwise:
-        worker_id <<- WorkerDefault.create()
+        worker_id <<- Worker.create()
     <- worker_id!
 
 func list() -> []string:
    on HOST_PEER_ID:
-      worker_id <- WorkerDefault.get_peer_id()
+      worker_id <- Worker.get_peer_id()
       on worker_id:
           res <- PeerSpell.list()
    <- res
@@ -163,3 +166,40 @@ func get_spell_errors(spell_id: string) -> AllErrorsResult:
 func noop():
 	on HOST_PEER_ID:
 		Op.noop()
+
+func set_spell_alias(alias: string, spell_id: string) -> Result:
+    result: ?Result
+    on HOST_PEER_ID:
+        peer_id <- get_peer_id()
+        on peer_id via HOST_PEER_ID:
+            try:
+                Srv.add_alias(alias, spell_id)
+                result <<- Result(success = true, error = "")
+            catch err:
+                result <<- Result(success = false, error = err.message)
+    <- result!
+
+func set_worker_spell_status(state: State, message: string) -> string:
+    on HOST_PEER_ID:
+        peer_id <- get_peer_id()
+        on peer_id via HOST_PEER_ID:
+            set_status_msg(state, message)
+            -- HACK: we need to return smth, because otherwise particle won't be processed at all
+            -- and we receive an error:
+            -- `particle_protocol::libp2p_protocol::upgrade: Error processing inbound ProtocolMessage: unexpected end of file
+            -- Location: /opt/actions-runner/_work/nox/nox/particle-protocol/src/libp2p_protocol/upgrade.rs:119:27`
+    <- "OK"
+
+func get_worker_spell_status() -> Status:
+    on HOST_PEER_ID:
+        peer_id <- get_peer_id()
+        on peer_id via HOST_PEER_ID:
+            status <- get_status()
+    <- status
+
+func get_worker_spell_statuses_from(timestamp: u64) -> []Status:
+    on HOST_PEER_ID:
+        peer_id <- get_peer_id()
+        on peer_id via HOST_PEER_ID:
+            statuses <- get_statuses_from(timestamp)
+    <- statuses

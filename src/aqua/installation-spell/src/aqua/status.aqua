@@ -1,0 +1,62 @@
+import Spell from "@fluencelabs/spell/spell_service.aqua"
+import Peer from "@fluencelabs/aqua-lib/builtin.aqua"
+import StatusJson from "./json.aqua"
+import Status, State from "./types.aqua"
+
+const STATUS_KEY = "__installation_spell_status__"
+
+const NOT_STARTED = "NOT_STARTED"
+const STATUS_LOAD_ERROR = "STATUS_LOAD_ERROR"
+const INSTALLATION_IN_PROGRESS = "INSTALLATION_IN_PROGRESS"
+const INSTALLATION_FAILED = "INSTALLATION_FAILED"
+const INSTALLATION_SUCCESSFUL = "INSTALLATION_SUCCESSFUL"
+
+-- return the latest status
+func get_status() -> Status:
+    Spell "worker-spell"
+    statuses <- Spell.list_get_strings(STATUS_KEY)
+    status: ?Status
+
+    if statuses.success == false:
+        status <<- Status(state = STATUS_LOAD_ERROR, message = statuses.error, timestamp = 0)
+    else:
+        if statuses.strings.length == 0:
+            status <<- Status(state = NOT_STARTED, message = "Installation has not started yet", timestamp = 0)
+        else:
+            -- the latest status is the last one
+            status <- StatusJson.parse(statuses.strings[statuses.strings.length - 1])
+
+    <- status!
+
+-- append new status with `message` and with current timestamp to the list of statuses
+func set_status_msg(state: State, message: string):
+    Spell "worker-spell"
+    timestamp <- Peer.timestamp_sec()
+    status_str <- StatusJson.stringify(Status(state = state, message = message, timestamp = timestamp))
+
+    Spell.list_push_string(STATUS_KEY, status_str)
+
+-- append new status with current timestamp to the list of statuses
+func set_status(state: State):
+    set_status_msg(state, "")
+
+service CmpU64("cmp"):
+    -- x >= y
+    gte(x: u64, y: u64) -> bool
+
+-- return the most recent statuses since `timestamp` (inclusive)
+-- return NOT_STARTED status if installation has not started yet and timestamp is 0
+func get_statuses_from(timestamp: u64) -> []Status:
+    Spell "worker-spell"
+    statuses <- Spell.list_get_strings(STATUS_KEY)
+    statuses_parsed: *Status
+
+    for status_str <- statuses.strings:
+        status <- StatusJson.parse(status_str)
+        if CmpU64.gte(status.timestamp, timestamp):
+            statuses_parsed <<- status
+
+    if statuses_parsed.length == 0:
+        if timestamp == 0:
+            statuses_parsed <<- Status(state = NOT_STARTED, message = "Installation has not started yet", timestamp = 0)
+    <- statuses_parsed
