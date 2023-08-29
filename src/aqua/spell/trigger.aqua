@@ -4,6 +4,7 @@ import "@fluencelabs/aqua-lib/builtin.aqua"
 import Spell, TriggerConfig from "spell_service.aqua"
 import JsonString, Error from "types.aqua"
 
+-- TODO: should we move it to types.aqua??
 data TimerTrigger:
   timestamp: u64
 
@@ -14,26 +15,3 @@ data PeerTrigger:
 data TriggerEvent:
   timer: ?TimerTrigger
   peer: ?PeerTrigger
-
-service TriggerEventJson("json"):
-    parse(s: JsonString) -> TriggerEvent
-
--- Returns TriggerEvent if any
--- Returns string Error if there was an error reading from Spell Mailbox
--- Returns (nil, nil) if there was no TriggerEvent and no errors during Mailbox read
--- Can be called only by Worker that created the Spell
-func get_trigger(spell_id: string) -> ?TriggerEvent, ?Error:
-    trigger: ?TriggerEvent
-    error: ?Error
-
-    Spell spell_id
-    s <- Spell.pop_mailbox()
-
-    if s.success:
-      if s.absent == false:
-        -- How to check that s.message is a valid TriggerEvent???
-        trigger <- TriggerEventJson.parse(s.message!.message)
-    else:
-      error <<- s.error
-
-    <- trigger, error
