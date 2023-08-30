@@ -9,7 +9,7 @@ import os
 from config import get_local
 import tempfile
 
-key_lock = filelock.FileLock("spell_test_run.lock", timeout=120)
+key_lock = filelock.FileLock("spell_test_run.lock", timeout=150)
 def make_key():
     with key_lock:
         name = ''.join(random.choices(string.ascii_uppercase, k=5))
