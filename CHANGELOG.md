@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.18](https://github.com/fluencelabs/spell/compare/spell-v0.5.17...spell-v0.5.18) (2023-09-04)
+
+
+### Features
+
+* **installation-spell:** add statuses and tests [NET-504] ([#159](https://github.com/fluencelabs/spell/issues/159)) ([63ffeb7](https://github.com/fluencelabs/spell/commit/63ffeb72e0a823cd1202a00e212b9fd6be0d19d9))
+
+
+### Bug Fixes
+
+* **deps:** update marine-rs-sdk and sqlite-wasm-connector ([#165](https://github.com/fluencelabs/spell/issues/165)) ([aa9e8e9](https://github.com/fluencelabs/spell/commit/aa9e8e975c2bf7f6efc15744443412d81916e569))
+* **installation-spell:** fix bug on multiple services installaiton [NET-519] ([#160](https://github.com/fluencelabs/spell/issues/160)) ([68dabc5](https://github.com/fluencelabs/spell/commit/68dabc53918d2cd5d8a1dc23429dc0bd61acd293))
+* **installation-spell:** remove get_trigger [NET-533] ([#166](https://github.com/fluencelabs/spell/issues/166)) ([8352de8](https://github.com/fluencelabs/spell/commit/8352de8e3ccb6c5c46601db72d86c20715dfca60))
+
 ## [0.5.17](https://github.com/fluencelabs/spell/compare/spell-v0.5.16...spell-v0.5.17) (2023-07-27)
 
 
