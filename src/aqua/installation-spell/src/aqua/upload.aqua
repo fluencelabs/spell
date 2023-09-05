@@ -36,7 +36,8 @@ func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
         deploy_defs <<- WorkerDeployDefinition(
             name = w.name,
             hosts = w.hosts,
-            definition = definition_cid
+            definition = definition_cid,
+            dummy_deal_id = w.dummy_deal_id
         )
 
     deploy_definition = AppDeployDefinition(
