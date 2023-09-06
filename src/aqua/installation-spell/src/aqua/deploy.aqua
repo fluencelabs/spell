@@ -64,7 +64,7 @@ func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
                 on INIT_PEER_ID via HOST_PEER_ID:
                     co Console.print(["deployed spell", spell_id, worker_id, "to", h])
 
-        workers <<- DeployedWorkers(name = w.name, installation_spells = spells, definition = w.definition)
+        workers <<- DeployedWorkers(name = w.name, installation_spells = spells, definition = w.definition, dummy_deal_id = w.dummy_deal_id)
         on INIT_PEER_ID via HOST_PEER_ID:
             co Console.print(["deployed workers", workers])
 

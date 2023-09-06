@@ -81,6 +81,7 @@ data DeployedWorkers:
   name: string
   installation_spells: []DeployedSpell
   definition: CID
+  dummy_deal_id: string
 
 data DeployedAppWorkers:
   workers: []DeployedWorkers
