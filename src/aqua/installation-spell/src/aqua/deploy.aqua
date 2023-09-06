@@ -2,39 +2,34 @@ import PeerSpell from "@fluencelabs/spell/api.aqua"
 import TriggerConfig, Spell from "@fluencelabs/spell/spell_service.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
+import DealWorker as Worker from "@fluencelabs/aqua-lib/workers.aqua"
 
 import IpfsClient, upload_script from "./files.aqua"
-import WorkerSpellArgs, CID, WorkerID, Address from "./types.aqua"
+import WorkerSpellArgs, CID, WorkerID, Address, Multiaddr from "./types.aqua"
 import IPFS, AppDeployDefinition, DeployedAppWorkers, DeployedSpell, DeployedWorkers from "./config.aqua"
 import Json from "./json.aqua"
 import Console from "./console.aqua"
 
-const DEAL_ID = "dummy-deal-id-123"
-
--- Direct Hostring Worker API
-service Worker("worker"):
-  -- throws exception if the worker already exists
-  create() -> string
-  -- throws exception if the worker doesn't exist
-  get_peer_id() -> string
 
 func deploy_single_worker(
     air: string,
     trigger_config: TriggerConfig,
+    ipfs: Multiaddr,
     worker_name: string,
-    worker_definition: CID
+    worker_definition: CID,
+    dummy_deal_id: string
 ) -> SpellID, WorkerID:
     -- prepare spell arguments
-    init_args = WorkerSpellArgs(ipfs = IPFS, worker_def_cid = worker_definition, deal_id = DEAL_ID)
+    init_args = WorkerSpellArgs(ipfs = ipfs, worker_def_cid = worker_definition, deal_id = dummy_deal_id)
 
     worker_id: ?WorkerID
     spell_id: ?SpellID
 
     -- create Worker or retrieve an existing one via dummy DEAL_ID
     try:
-        worker_id <- Worker.create()
+        worker_id <- Worker.create(?[dummy_deal_id])
     catch e:
-        worker_id <- Worker.get_peer_id()
+        worker_id <- Worker.get_peer_id(?[dummy_deal_id])
 
     on worker_id!:
         -- Take existing worker-spell or create a new one
@@ -62,14 +57,16 @@ func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
                 spell_id, worker_id <- deploy_single_worker(
                     config.installation_script,
                     config.installation_trigger,
+                    config.ipfs,
                     w.name,
-                    w.definition
+                    w.definition,
+                    w.dummy_deal_id
                 )
                 spells <<- DeployedSpell(spell_id = spell_id, worker_id = worker_id, host_id = h)
                 on INIT_PEER_ID via HOST_PEER_ID:
                     co Console.print(["deployed spell", spell_id, worker_id, "to", h])
 
-        workers <<- DeployedWorkers(name = w.name, installation_spells = spells, definition = w.definition)
+        workers <<- DeployedWorkers(name = w.name, installation_spells = spells, definition = w.definition, dummy_deal_id = w.dummy_deal_id)
         on INIT_PEER_ID via HOST_PEER_ID:
             co Console.print(["deployed workers", workers])
 

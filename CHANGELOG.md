@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.19](https://github.com/fluencelabs/spell/compare/spell-v0.5.18...spell-v0.5.19) (2023-09-06)
+
+
+### Features
+
+* **installation-spell:** pass dummy deal id for direct deploy [NET-520] ([#168](https://github.com/fluencelabs/spell/issues/168)) ([37eeb42](https://github.com/fluencelabs/spell/commit/37eeb42ae6c2ff59f57f478ff6b70358de93ac94))
+* **installation-spell:** upload to ipfs on relay ([#169](https://github.com/fluencelabs/spell/issues/169)) ([5fc64fa](https://github.com/fluencelabs/spell/commit/5fc64fae9e509ecf4c90ffbbd7122b7a58c83c37))
+
 ## [0.5.18](https://github.com/fluencelabs/spell/compare/spell-v0.5.17...spell-v0.5.18) (2023-09-04)
 
 
