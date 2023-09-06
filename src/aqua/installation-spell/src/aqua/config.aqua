@@ -29,6 +29,7 @@ data LocalWorkerDeployConfig:
     name: string
     hosts: []PeerId
     config: LocalWorkerConfig
+    dummy_deal_id: string
 
 data LocalAppDeployConfig:
     installation_script: string
@@ -63,12 +64,12 @@ data WorkerDeployDefinition:
     name: string
     hosts: []PeerId
     definition: CID -- stringified WorkerDefinition
+    dummy_deal_id: string
 
 data AppDeployDefinition:
     installation_script: string
     installation_trigger: TriggerConfig
     workers: []WorkerDeployDefinition
-
 
 -- deployed DTOs
 data DeployedSpell:
@@ -80,6 +81,7 @@ data DeployedWorkers:
   name: string
   installation_spells: []DeployedSpell
   definition: CID
+  dummy_deal_id: string
 
 data DeployedAppWorkers:
   workers: []DeployedWorkers
