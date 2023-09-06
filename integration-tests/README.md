@@ -34,7 +34,8 @@ _Input config_: run indefinitely every second
 }
 ```
 
-_Input state_: 
+_Input state_:
+
 ```json
 { "value": 0 }
 ```
