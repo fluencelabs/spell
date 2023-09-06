@@ -68,7 +68,7 @@ data AppDeployDefinition:
     installation_script: string
     installation_trigger: TriggerConfig
     workers: []WorkerDeployDefinition
-
+    ipfs: Multiaddr
 
 -- deployed DTOs
 data DeployedSpell:
