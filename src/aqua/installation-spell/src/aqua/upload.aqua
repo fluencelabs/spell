@@ -32,17 +32,21 @@ func upload_worker_config(ipfs: Multiaddr, config: LocalWorkerConfig) -> CID:
 
 func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
     deploy_defs: *WorkerDeployDefinition
+    ipfs_multiaddr: ?Multiaddr
 
-    on HOST_PEER_ID:
-        res <- Ipfs.get_external_api_multiaddr()
+    if config.direct_deploy:
+        on HOST_PEER_ID:
+            res <- Ipfs.get_external_api_multiaddr()
 
-    if res.success == false:
-        Console.print(["Failed to get ipfs multiaddr: ", res.error])
+        if res.success == false:
+            Console.print(["Failed to get ipfs multiaddr: ", res.error])
 
-    ipfs_multiaddr = res.multiaddr
+        ipfs_multiaddr <<- res.multiaddr
+    else:
+        ipfs_multiaddr <<- IPFS
 
     for w <- config.workers:
-        definition_cid <- upload_worker_config(ipfs_multiaddr, w.config)
+        definition_cid <- upload_worker_config(ipfs_multiaddr!, w.config)
         deploy_defs <<- WorkerDeployDefinition(
             name = w.name,
             hosts = w.hosts,
@@ -53,6 +57,6 @@ func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
         installation_script = config.installation_script,
         installation_trigger = config.installation_trigger,
         workers = deploy_defs,
-        ipfs = ipfs_multiaddr
+        ipfs = ipfs_multiaddr!
     )
     <- deploy_definition
