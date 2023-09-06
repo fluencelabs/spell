@@ -34,7 +34,7 @@ _Input config_: run indefinitely every second
 }
 ```
 
-_Input state_:  
+_Input state_:
 ```json
 { "value": 0 }
 ```
@@ -248,7 +248,7 @@ _Input script_:
 ```air
 (xor
     (call %init_peer_id% ("not-exist" "not-exist") [] x)
-    (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1]) 
+    (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
 )
 ```
 
