@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.20](https://github.com/fluencelabs/spell/compare/spell-v0.5.19...spell-v0.5.20) (2023-09-06)
+
+
+### Features
+
+* bump spell 0.5.19 ([#171](https://github.com/fluencelabs/spell/issues/171)) ([a41cff5](https://github.com/fluencelabs/spell/commit/a41cff5ae8d3420ae55cd7f1953f5ee49bb95c27))
+
 ## [0.5.19](https://github.com/fluencelabs/spell/compare/spell-v0.5.18...spell-v0.5.19) (2023-09-06)
 
 
