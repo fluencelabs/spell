@@ -35,6 +35,7 @@ data LocalAppDeployConfig:
     installation_script: string
     installation_trigger: TriggerConfig
     workers: []LocalWorkerDeployConfig
+    direct_deploy: bool
 
 -- uploaded DTOs
 data Module:
@@ -70,6 +71,8 @@ data AppDeployDefinition:
     installation_script: string
     installation_trigger: TriggerConfig
     workers: []WorkerDeployDefinition
+    ipfs: Multiaddr
+
 
 -- deployed DTOs
 data DeployedSpell:
