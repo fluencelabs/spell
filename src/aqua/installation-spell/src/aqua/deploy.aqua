@@ -3,10 +3,11 @@ import TriggerConfig, Spell from "@fluencelabs/spell/spell_service.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 import DealWorker as Worker from "@fluencelabs/aqua-lib/workers.aqua"
+import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
 
 import IpfsClient, upload_script from "./files.aqua"
 import WorkerSpellArgs, CID, WorkerID, Address, Multiaddr from "./types.aqua"
-import IPFS, AppDeployDefinition, DeployedAppWorkers, DeployedSpell, DeployedWorkers from "./config.aqua"
+import AppDeployDefinition, DeployedAppWorkers, DeployedSpell, DeployedWorkers from "./config.aqua"
 import Json from "./json.aqua"
 import Console from "./console.aqua"
 
@@ -14,17 +15,16 @@ import Console from "./console.aqua"
 func deploy_single_worker(
     air: string,
     trigger_config: TriggerConfig,
-    ipfs: Multiaddr,
     worker_name: string,
     worker_definition: CID,
     dummy_deal_id: string
 ) -> SpellID, WorkerID:
+    ipfs <- Ipfs.get_local_api_multiaddr()
     -- prepare spell arguments
-    init_args = WorkerSpellArgs(ipfs = ipfs, worker_def_cid = worker_definition, deal_id = dummy_deal_id)
+    init_args = WorkerSpellArgs(ipfs = ipfs.multiaddr, worker_def_cid = worker_definition, deal_id = dummy_deal_id)
 
     worker_id: ?WorkerID
     spell_id: ?SpellID
-
     -- create Worker or retrieve an existing one via dummy DEAL_ID
     try:
         worker_id <- Worker.create(?[dummy_deal_id])
@@ -57,7 +57,6 @@ func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
                 spell_id, worker_id <- deploy_single_worker(
                     config.installation_script,
                     config.installation_trigger,
-                    config.ipfs,
                     w.name,
                     w.definition,
                     w.dummy_deal_id
