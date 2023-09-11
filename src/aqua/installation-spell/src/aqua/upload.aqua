@@ -2,6 +2,7 @@ import AppDeployDefinition, LocalAppDeployConfig, LocalWorkerConfig, IPFS from "
 import Module, Service, SpellDefinition, WorkerDeployDefinition, WorkerDefinition from "./config.aqua"
 import IpfsClient from "./files.aqua"
 import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+import Array from "@fluencelabs/aqua-lib/math.aqua"
 import CID, JsonString, Path, Multiaddr, Address from "./types.aqua"
 import TriggerConfigJson, Json, WDJson from "./json.aqua"
 import Console from "./console.aqua"
@@ -36,7 +37,8 @@ func upload_workers(config: LocalAppDeployConfig) -> AppDeployDefinition:
 
     for w <- config.workers:
         definition_cid: ?CID
-        for h <- w.hosts:
+        hosts = Array.dedup(w.hosts)
+        for h <- hosts:
             on h via HOST_PEER_ID:
                 ipfs <- Ipfs.get_external_api_multiaddr()
                 -- cids should be the same for all hosts
