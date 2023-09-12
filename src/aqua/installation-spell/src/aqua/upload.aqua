@@ -36,14 +36,19 @@ func upload_workers(config: LocalAppDeployConfig) -> AppDeployDefinition:
     deploy_defs: *WorkerDeployDefinition
 
     for w <- config.workers:
-        definition_cid: ?CID
         hosts = Array.dedup(w.hosts)
+        ipfs_multiaddrs: *Multiaddr
         for h <- hosts:
             on h via HOST_PEER_ID:
-                ipfs <- Ipfs.get_external_api_multiaddr()
-                -- cids should be the same for all hosts
-                -- but it definitely can be done better
-            definition_cid <- upload_worker_config(ipfs.multiaddr, w.config)
+                res <- Ipfs.get_external_api_multiaddr()
+                ipfs_multiaddrs <<- res.multiaddr
+        ipfs <- Array.dedup(ipfs_multiaddrs)
+
+        definition_cid: ?CID
+        for maddr <- ipfs:
+            -- cids should be the same for all hosts
+            -- but it definitely can be done better
+            definition_cid <- upload_worker_config(maddr, w.config)
 
         deploy_defs <<- WorkerDeployDefinition(
             name = w.name,
