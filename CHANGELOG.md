@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.21](https://github.com/fluencelabs/spell/compare/spell-v0.5.20...spell-v0.5.21) (2023-09-12)
+
+
+### Features
+
+* **installation-spell:** change ipfs configuration ([#175](https://github.com/fluencelabs/spell/issues/175)) ([0f75fa9](https://github.com/fluencelabs/spell/commit/0f75fa9dde43549aa0caa10fb8ee2bf6fc7c88b5))
+
+
+### Bug Fixes
+
+* **installation-spell:** dedup ipfs multiaddrs ([#177](https://github.com/fluencelabs/spell/issues/177)) ([ca326b0](https://github.com/fluencelabs/spell/commit/ca326b0c1750f8171394290522eee6dea3f96cb9))
+
 ## [0.5.20](https://github.com/fluencelabs/spell/compare/spell-v0.5.19...spell-v0.5.20) (2023-09-06)
 
 
