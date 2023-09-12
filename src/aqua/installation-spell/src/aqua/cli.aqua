@@ -2,14 +2,14 @@ import "./config.aqua"
 import "./deploy.aqua"
 import "./console.aqua"
 import "./deal_spell.aqua"
-import upload from "./upload.aqua"
+import upload_workers, upload_deal from "./upload.aqua"
 
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 import Spell, Log from "@fluencelabs/spell/spell_service.aqua"
 import resolveSubnetwork from "@fluencelabs/registry/subnetwork.aqua"
 
 func upload_deploy(config: LocalAppDeployConfig) -> DeployedAppWorkers:
-    def <- upload(config)
+    def <- upload_workers(config)
     deployed <- deploy(def)
     <- deployed
 

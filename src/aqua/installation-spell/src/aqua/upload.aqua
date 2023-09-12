@@ -2,6 +2,7 @@ import AppDeployDefinition, LocalAppDeployConfig, LocalWorkerConfig, IPFS from "
 import Module, Service, SpellDefinition, WorkerDeployDefinition, WorkerDefinition from "./config.aqua"
 import IpfsClient from "./files.aqua"
 import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+import Array from "@fluencelabs/aqua-lib/math.aqua"
 import CID, JsonString, Path, Multiaddr, Address from "./types.aqua"
 import TriggerConfigJson, Json, WDJson from "./json.aqua"
 import Console from "./console.aqua"
@@ -30,23 +31,40 @@ func upload_worker_config(ipfs: Multiaddr, config: LocalWorkerConfig) -> CID:
     cid <- IpfsClient.upload_string(ipfs, json)
     <- cid
 
-func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
+-- worker definition uploading for workers deploy
+func upload_workers(config: LocalAppDeployConfig) -> AppDeployDefinition:
     deploy_defs: *WorkerDeployDefinition
-    ipfs_multiaddr: ?Multiaddr
-
-    if config.direct_deploy:
-        on HOST_PEER_ID:
-            res <- Ipfs.get_external_api_multiaddr()
-
-        if res.success == false:
-            Console.print(["Failed to get ipfs multiaddr: ", res.error])
-
-        ipfs_multiaddr <<- res.multiaddr
-    else:
-        ipfs_multiaddr <<- IPFS
 
     for w <- config.workers:
-        definition_cid <- upload_worker_config(ipfs_multiaddr!, w.config)
+        definition_cid: ?CID
+        hosts = Array.dedup(w.hosts)
+        for h <- hosts:
+            on h via HOST_PEER_ID:
+                ipfs <- Ipfs.get_external_api_multiaddr()
+                -- cids should be the same for all hosts
+                -- but it definitely can be done better
+            definition_cid <- upload_worker_config(ipfs.multiaddr, w.config)
+
+        deploy_defs <<- WorkerDeployDefinition(
+            name = w.name,
+            hosts = w.hosts,
+            definition = definition_cid!,
+            dummy_deal_id = w.dummy_deal_id
+        )
+
+    deploy_definition = AppDeployDefinition(
+        installation_script = config.installation_script,
+        installation_trigger = config.installation_trigger,
+        workers = deploy_defs
+    )
+    <- deploy_definition
+
+-- worker definition uploading for deal deploy
+func upload_deal(config: LocalAppDeployConfig, ipfs: Multiaddr) -> AppDeployDefinition:
+    deploy_defs: *WorkerDeployDefinition
+
+    for w <- config.workers:
+        definition_cid <- upload_worker_config(ipfs, w.config)
         deploy_defs <<- WorkerDeployDefinition(
             name = w.name,
             hosts = w.hosts,
@@ -57,7 +75,6 @@ func upload(config: LocalAppDeployConfig) -> AppDeployDefinition:
     deploy_definition = AppDeployDefinition(
         installation_script = config.installation_script,
         installation_trigger = config.installation_trigger,
-        workers = deploy_defs,
-        ipfs = ipfs_multiaddr!
+        workers = deploy_defs
     )
     <- deploy_definition

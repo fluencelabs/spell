@@ -3,6 +3,7 @@ import TriggerConfig, Spell from "@fluencelabs/spell/spell_service.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 import DealWorker as Worker from "@fluencelabs/aqua-lib/workers.aqua"
+import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
 
 import IpfsClient, upload_script from "./files.aqua"
 import WorkerSpellArgs, CID, WorkerID, Address, Multiaddr from "./types.aqua"
@@ -54,10 +55,11 @@ func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
         spells: *DeployedSpell
         for h <- w.hosts:
             on h:
+                ipfs <- Ipfs.get_local_api_multiaddr()
                 spell_id, worker_id <- deploy_single_worker(
                     config.installation_script,
                     config.installation_trigger,
-                    config.ipfs,
+                    ipfs.multiaddr,
                     w.name,
                     w.definition,
                     w.dummy_deal_id
