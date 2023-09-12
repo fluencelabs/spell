@@ -43,7 +43,7 @@ func upload_workers(config: LocalAppDeployConfig) -> AppDeployDefinition:
                 ipfs <- Ipfs.get_external_api_multiaddr()
                 -- cids should be the same for all hosts
                 -- but it definitely can be done better
-                definition_cid <- upload_worker_config(ipfs.multiaddr, w.config)
+            definition_cid <- upload_worker_config(ipfs.multiaddr, w.config)
 
         deploy_defs <<- WorkerDeployDefinition(
             name = w.name,
