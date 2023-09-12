@@ -38,8 +38,9 @@ jobs:
   decider:
     needs:
       - snapshot
-    uses: fluencelabs/decider/.github/workflows/snapshot.yml@main
+    uses: fluencelabs/decider/.github/workflows/snapshot.yml@fix-decide-test
     with:
+      ref: fix-decide-test
       cargo-dependencies: |
         [
           {
