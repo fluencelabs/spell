@@ -76,5 +76,12 @@ func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
     <- deployed
 
 
--- TODO:
--- func remove(worker: WorkerId)
+-- remove deployed workers
+func remove(workers: DeployedAppWorkers):
+    for w <- workers.workers:
+        for h <- w.installation_spells:
+            on h.host_id:
+                Worker.remove(h.worker_id)
+                co Console.print(["removed worker", h.worker_id, "from", h.host_id])
+
+    co Console.print(["workers successfully removed"])
