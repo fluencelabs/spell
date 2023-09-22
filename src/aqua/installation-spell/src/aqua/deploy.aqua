@@ -93,5 +93,5 @@ func remove(workers: DeployedAppWorkers) -> []RemovedWorker:
                 co Console.print(["removed worker", h.worker_id, "from", h.host_id])
         removed_workers <<- RemovedWorker(name = w.name, worker_ids = removed_worker_ids)
 
-    co Console.print(["workers successfully removed"])
+    Console.print(["workers successfully removed"])
     <- removed_workers
