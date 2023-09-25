@@ -75,6 +75,23 @@ func deploy(config: AppDeployDefinition) -> DeployedAppWorkers:
     deployed = DeployedAppWorkers(workers = workers)
     <- deployed
 
+data RemovedWorker:
+    name: string
+    worker_ids: []string
 
--- TODO:
--- func remove(worker: WorkerId)
+-- remove deployed workers
+func remove(workers: DeployedAppWorkers) -> []RemovedWorker:
+    removed_workers: *RemovedWorker
+    for w <- workers.workers:
+        removed_worker_ids: *string
+        for h <- w.installation_spells:
+            on h.host_id:
+                -- This will raise an error if INIT_PEER_ID is different from Worker's owner
+                -- That's because only the one who deployed the worker, can remove it
+                Worker.remove(h.worker_id)
+                removed_worker_ids <<- h.worker_id
+                co Console.print(["removed worker", h.worker_id, "from", h.host_id])
+        removed_workers <<- RemovedWorker(name = w.name, worker_ids = removed_worker_ids)
+
+    Console.print(["workers successfully removed"])
+    <- removed_workers
