@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.22](https://github.com/fluencelabs/spell/compare/spell-v0.5.21...spell-v0.5.22) (2023-09-25)
+
+
+### Features
+
+* **installation-spell:** add worker removal for direct deploy [NET-546] ([#179](https://github.com/fluencelabs/spell/issues/179)) ([6c5e490](https://github.com/fluencelabs/spell/commit/6c5e490b89fd1a0f42a56b05667abe0a8b23fb46))
+
 ## [0.5.21](https://github.com/fluencelabs/spell/compare/spell-v0.5.20...spell-v0.5.21) (2023-09-12)
 
 
