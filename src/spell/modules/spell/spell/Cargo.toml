@@ -9,7 +9,7 @@ name = "spell"
 path = "src/main.rs"
 
 [dependencies]
-marine-rs-sdk = "0.9.0"
+marine-rs-sdk = "0.10.0"
 marine-sqlite-connector = { workspace = true }
 eyre = "0.6.8"
 cid = "0.10.0"
