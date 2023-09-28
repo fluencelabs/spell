@@ -90,7 +90,8 @@ func remove(workers: DeployedAppWorkers) -> []RemovedWorker:
                 -- That's because only the one who deployed the worker, can remove it
                 Worker.remove(h.worker_id)
                 removed_worker_ids <<- h.worker_id
-                co Console.print(["removed worker", h.worker_id, "from", h.host_id])
+                on INIT_PEER_ID via HOST_PEER_ID:
+                    co Console.print(["removed worker", h.worker_id, "from", h.host_id])
         removed_workers <<- RemovedWorker(name = w.name, worker_ids = removed_worker_ids)
 
     Console.print(["workers successfully removed"])
