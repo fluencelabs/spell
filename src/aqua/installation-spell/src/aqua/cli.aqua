@@ -5,8 +5,8 @@ import "./deal_spell.aqua"
 import upload_workers, upload_deal from "./upload.aqua"
 
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/aqua-lib/subnet.aqua"
 import Spell, Log from "@fluencelabs/spell/spell_service.aqua"
-import resolveSubnetwork from "@fluencelabs/registry/subnetwork.aqua"
 
 func upload_deploy(config: LocalAppDeployConfig) -> DeployedAppWorkers:
     def <- upload_workers(config)
@@ -41,16 +41,23 @@ data LogDeal:
 func get_logs_deal(deals: []string) -> *LogDeal:
     logs: *LogDeal
 
-    for deal_id <- deals:
-        records, err <- resolveSubnetwork(deal_id)
-        if records != nil:
-            for w <- records!:
-                worker_id = w.metadata.peer_id
-                host_id = w.metadata.relay_id!
-                on worker_id via host_id:
-                    spell_id <- Srv.resolve_alias("worker-spell")
-                    Spell spell_id
-                    get_res <- Spell.get_logs()
-                    logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id, host_id = host_id, deal_id = deal_id, logs = get_res.logs)
+    on HOST_PEER_ID:
+        for deal_id <- deals:
+            result <- Subnet.resolve(deal_id)
+            if result.success == false:
+                on INIT_PEER_ID via HOST_PEER_ID:
+                    co Console.print(["Failed to resolve subnet for deal_id: ", deal_id, " error: ", result.error])
+                for w <- result.workers:
+                    worker_id = w.worker_id
+                    host_id = w.host_id
+                    if worker_id == nil:
+                        on INIT_PEER_ID via HOST_PEER_ID:
+                            co Console.print(["Worker for deal_id:", deal_id, "and pat_id", w.pat_id, "is not installed yet"])
+                    else:
+                        on worker_id! via host_id:
+                            spell_id <- Srv.resolve_alias("worker-spell")
+                            Spell spell_id
+                            get_res <- Spell.get_logs()
+                            logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id!, host_id = host_id, deal_id = deal_id, logs = get_res.logs)
 
     <- logs
