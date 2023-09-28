@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.23](https://github.com/fluencelabs/spell/compare/spell-v0.5.22...spell-v0.5.23) (2023-09-28)
+
+
+### Bug Fixes
+
+* **installation-spell:** migrate deal.logs to subnets [NET-570] ([#181](https://github.com/fluencelabs/spell/issues/181)) ([9c39bfb](https://github.com/fluencelabs/spell/commit/9c39bfb107ed135d2b8fa5c6178a490700f4ba4f))
+
 ## [0.5.22](https://github.com/fluencelabs/spell/compare/spell-v0.5.21...spell-v0.5.22) (2023-09-25)
 
 
