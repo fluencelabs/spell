@@ -1,2 +1,4 @@
+aqua SpellData declares SpellData
+
 service SpellData("getDataSrv"):
     spell_id() -> string

@@ -1,3 +1,5 @@
+aqua Op declares *
+
 import Module, Service from "@fluencelabs/aqua-lib/builtin.aqua"
 
 
