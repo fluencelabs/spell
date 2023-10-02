@@ -7,7 +7,7 @@ import "@fluencelabs/aqua-lib/subnet.aqua"
 import Spell, Log from "@fluencelabs/spell/spell_service.aqua"
 
 import "./config.aqua"
-import "./deploy.aqua"
+import deploy from "./deploy.aqua"
 import "./console.aqua"
 import "./deal_spell.aqua"
 import upload_workers, upload_deal from "./upload.aqua"
