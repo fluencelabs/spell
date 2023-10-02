@@ -1,3 +1,5 @@
+aqua Files declares *
+
 import CID, Path, Multiaddr from "./types.aqua"
 
 
