@@ -1,3 +1,5 @@
+aqua Spell declares install
+
 import Op, Hash, Dist, Srv, Debug from "@fluencelabs/aqua-lib/builtin.aqua"
 import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
 import Spell from "@fluencelabs/spell/spell_service.aqua"
