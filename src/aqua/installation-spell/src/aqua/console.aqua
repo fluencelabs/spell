@@ -1,2 +1,4 @@
+aqua Console declares Console
+
 service Console("run-console"):
     print(anything: ⊤)
