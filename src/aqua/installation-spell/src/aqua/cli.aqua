@@ -1,12 +1,16 @@
+aqua Cli
+
+export upload_deploy, get_logs, get_logs_deal
+
+import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/aqua-lib/subnet.aqua"
+import Spell, Log from "@fluencelabs/spell/spell_service.aqua"
+
 import "./config.aqua"
 import "./deploy.aqua"
 import "./console.aqua"
 import "./deal_spell.aqua"
 import upload_workers, upload_deal from "./upload.aqua"
-
-import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
-import "@fluencelabs/aqua-lib/subnet.aqua"
-import Spell, Log from "@fluencelabs/spell/spell_service.aqua"
 
 func upload_deploy(config: LocalAppDeployConfig) -> DeployedAppWorkers:
     def <- upload_workers(config)
