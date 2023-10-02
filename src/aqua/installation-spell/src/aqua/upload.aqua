@@ -1,8 +1,13 @@
+aqua Upload declares *
+
+export upload_worker_config, upload_workers, upload_deal
+
+import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+import Array from "@fluencelabs/aqua-lib/math.aqua"
+
 import AppDeployDefinition, LocalAppDeployConfig, LocalWorkerConfig, IPFS from "./config.aqua"
 import Module, Service, SpellDefinition, WorkerDeployDefinition, WorkerDefinition from "./config.aqua"
 import IpfsClient from "./files.aqua"
-import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
-import Array from "@fluencelabs/aqua-lib/math.aqua"
 import CID, JsonString, Path, Multiaddr, Address from "./types.aqua"
 import TriggerConfigJson, Json, WDJson from "./json.aqua"
 import Console from "./console.aqua"
