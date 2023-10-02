@@ -1,3 +1,5 @@
+aqua Config declares *
+
 import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
 import PeerId from "@fluencelabs/aqua-lib/builtin.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
