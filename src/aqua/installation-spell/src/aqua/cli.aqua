@@ -47,6 +47,7 @@ func get_logs_deal(deals: []string) -> *LogDeal:
             if result.success == false:
                 on INIT_PEER_ID via HOST_PEER_ID:
                     co Console.print(["Failed to resolve subnet for deal_id: ", deal_id, " error: ", result.error])
+            else:
                 for w <- result.workers:
                     worker_id = w.worker_id
                     host_id = w.host_id
