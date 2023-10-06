@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.24](https://github.com/fluencelabs/spell/compare/spell-v0.5.23...spell-v0.5.24) (2023-10-06)
+
+
+### Bug Fixes
+
+* **installation-spell:** fix deal logs ([#186](https://github.com/fluencelabs/spell/issues/186)) ([796dcd0](https://github.com/fluencelabs/spell/commit/796dcd02a1e3730578aa4bec43e7150f5ae1b648))
+
 ## [0.5.23](https://github.com/fluencelabs/spell/compare/spell-v0.5.22...spell-v0.5.23) (2023-09-28)
 
 
