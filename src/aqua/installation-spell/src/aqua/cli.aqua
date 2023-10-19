@@ -13,52 +13,66 @@ func upload_deploy(config: LocalAppDeployConfig) -> DeployedAppWorkers:
     deployed <- deploy(def)
     <- deployed
 
-data LogDirect:
+data LogsDirectResult:
+    success: bool
+    error: ?string
     spell_id: string
     worker_id: string
     host_id: string
     worker_name: string
     logs: []Log
 
-func get_logs(app_workers: DeployedAppWorkers) -> *LogDirect:
-    logs: *LogDirect
+func get_logs(app_workers: DeployedAppWorkers) -> []LogsDirectResult:
+    logs: *LogsDirectResult
     for w <- app_workers.workers:
         for i <- w.installation_spells:
             on i.worker_id via i.host_id:
                 Spell i.spell_id
                 get_res <- Spell.get_logs()
-                logs <<- LogDirect(spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.logs, worker_name = w.name)
+                logs <<- LogsDirectResult(success = get_res.success, error = ?[get_res.error], spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.logs, worker_name = w.name)
 
     <- logs
 
-data LogDeal:
-    spell_id: string
-    worker_id: string
+data LogsDeal:
+    success: bool
+    error: ?string
     host_id: string
-    deal_id: string
+    worker_id: ?string
+    spell_id: ?string
     logs: []Log
 
-func get_logs_deal(deals: []string) -> *LogDeal:
-    logs: *LogDeal
+data LogsDealResult:
+    deal_id: string
+    success: bool
+    error: ?string
+    logs: []LogsDeal
+
+func get_logs_deal(deals: []string) -> []LogsDealResult:
+    result: *LogsDealResult
 
     on HOST_PEER_ID:
         for deal_id <- deals:
-            result <- Subnet.resolve(deal_id)
-            if result.success == false:
+            subnet_res <- Subnet.resolve(deal_id)
+            if !subnet_res.success:
                 on INIT_PEER_ID via HOST_PEER_ID:
-                    co Console.print(["Failed to resolve subnet for deal_id: ", deal_id, " error: ", result.error])
+                    result <<- LogsDealResult(deal_id = deal_id, success = false, error = subnet_res.error, logs = nil)
             else:
-                for w <- result.workers:
+                logs: *LogsDeal
+
+                for w <- subnet_res.workers:
                     worker_id = w.worker_id
                     host_id = w.host_id
-                    if worker_id == nil:
+                    if w.worker_id == nil:
                         on INIT_PEER_ID via HOST_PEER_ID:
-                            co Console.print(["Worker for deal_id:", deal_id, "and pat_id", w.pat_id, "is not installed yet"])
+                            -- worker is not installed yet
+                            logs <<- LogsDeal(success = true, error = nil, spell_id = nil, worker_id = nil, host_id = host_id, logs = nil)
                     else:
                         on worker_id! via host_id:
                             spell_id <- Srv.resolve_alias("worker-spell")
                             Spell spell_id
                             get_res <- Spell.get_logs()
-                            logs <<- LogDeal(spell_id = spell_id, worker_id = worker_id!, host_id = host_id, deal_id = deal_id, logs = get_res.logs)
+                            logs <<- LogsDeal(success = get_res.success, error = ?[get_res.error], spell_id = ?[spell_id], worker_id = worker_id, host_id = host_id, logs = get_res.logs)
 
-    <- logs
+                result <<- LogsDealResult(deal_id = deal_id, success = true, error = nil, logs = logs)
+
+    <- result
