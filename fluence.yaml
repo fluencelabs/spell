@@ -31,10 +31,6 @@
 
 version: 3
 
-dependencies:
-  npm:
-    "@fluencelabs/cli": 0.5.4
-
 services:
   spell:
     get: src/spell
