@@ -4,7 +4,7 @@ import "./console.aqua"
 import "./deal_spell.aqua"
 import upload_workers, upload_deal from "./upload.aqua"
 
-import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
+import Op, Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 import "@fluencelabs/aqua-lib/subnet.aqua"
 import Spell, Log from "@fluencelabs/spell/spell_service.aqua"
 
@@ -14,7 +14,6 @@ func upload_deploy(config: LocalAppDeployConfig) -> DeployedAppWorkers:
     <- deployed
 
 data LogsDirectResult:
-    success: bool
     error: ?string
     spell_id: string
     worker_id: string
@@ -29,12 +28,14 @@ func get_logs(app_workers: DeployedAppWorkers) -> []LogsDirectResult:
             on i.worker_id via i.host_id:
                 Spell i.spell_id
                 get_res <- Spell.get_logs()
-                logs <<- LogsDirectResult(success = get_res.success, error = ?[get_res.error], spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.logs, worker_name = w.name)
+                error: ?string
+                if !get_res.success:
+                    error <<- get_res.error
+                logs <<- LogsDirectResult(error = error, spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.logs, worker_name = w.name)
 
     <- logs
 
 data LogsDeal:
-    success: bool
     error: ?string
     host_id: string
     worker_id: ?string
@@ -42,9 +43,8 @@ data LogsDeal:
     logs: []Log
 
 data LogsDealResult:
-    deal_id: string
-    success: bool
     error: ?string
+    deal_id: string
     logs: []LogsDeal
 
 func get_logs_deal(deals: []string) -> []LogsDealResult:
@@ -54,7 +54,8 @@ func get_logs_deal(deals: []string) -> []LogsDealResult:
         for deal_id <- deals:
             subnet_res <- Subnet.resolve(deal_id)
             if !subnet_res.success:
-                result <<- LogsDealResult(deal_id = deal_id, success = false, error = subnet_res.error, logs = nil)
+                error <- Op.concat_strings("Failed to resolve subnet: ", subnet_res.error!)
+                result <<- LogsDealResult(deal_id = deal_id, success = false, error = ?[error], logs = nil)
             else:
                 logs: *LogsDeal
 
@@ -62,14 +63,14 @@ func get_logs_deal(deals: []string) -> []LogsDealResult:
                     worker_id = w.worker_id
                     host_id = w.host_id
                     if w.worker_id == nil:
-                        -- worker is not installed yet
-                        logs <<- LogsDeal(success = true, error = nil, spell_id = nil, worker_id = nil, host_id = host_id, logs = nil)
+                        logs <<- LogsDeal(error = ?["Worker is not installed yet"], spell_id = nil, worker_id = nil, host_id = host_id, logs = nil)
                     else:
                         on worker_id! via host_id:
                             spell_id <- Srv.resolve_alias("worker-spell")
                             Spell spell_id
                             get_res <- Spell.get_logs()
-                            logs <<- LogsDeal(success = get_res.success, error = ?[get_res.error], spell_id = ?[spell_id], worker_id = worker_id, host_id = host_id, logs = get_res.logs)
+                            error <- Op.concat_strings("Failed to get logs: ", get_res.error)
+                            logs <<- LogsDeal(error = ?[error], spell_id = ?[spell_id], worker_id = worker_id, host_id = host_id, logs = get_res.logs)
 
                 result <<- LogsDealResult(deal_id = deal_id, success = true, error = nil, logs = logs)
 
