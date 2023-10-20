@@ -30,7 +30,7 @@ func get_logs(app_workers: DeployedAppWorkers) -> []LogsDirectResult:
                 get_res <- Spell.get_logs()
                 error: ?string
                 if !get_res.success:
-                    error <<- get_res.error
+                    error <- Op.concat_strings("Failed to get logs: ", get_res.error)
                 logs <<- LogsDirectResult(error = error, spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.logs, worker_name = w.name)
 
     <- logs
