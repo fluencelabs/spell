@@ -54,8 +54,7 @@ func get_logs_deal(deals: []string) -> []LogsDealResult:
         for deal_id <- deals:
             subnet_res <- Subnet.resolve(deal_id)
             if !subnet_res.success:
-                on INIT_PEER_ID via HOST_PEER_ID:
-                    result <<- LogsDealResult(deal_id = deal_id, success = false, error = subnet_res.error, logs = nil)
+                result <<- LogsDealResult(deal_id = deal_id, success = false, error = subnet_res.error, logs = nil)
             else:
                 logs: *LogsDeal
 
@@ -63,9 +62,8 @@ func get_logs_deal(deals: []string) -> []LogsDealResult:
                     worker_id = w.worker_id
                     host_id = w.host_id
                     if w.worker_id == nil:
-                        on INIT_PEER_ID via HOST_PEER_ID:
-                            -- worker is not installed yet
-                            logs <<- LogsDeal(success = true, error = nil, spell_id = nil, worker_id = nil, host_id = host_id, logs = nil)
+                        -- worker is not installed yet
+                        logs <<- LogsDeal(success = true, error = nil, spell_id = nil, worker_id = nil, host_id = host_id, logs = nil)
                     else:
                         on worker_id! via host_id:
                             spell_id <- Srv.resolve_alias("worker-spell")
