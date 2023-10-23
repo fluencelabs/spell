@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.25](https://github.com/fluencelabs/spell/compare/spell-v0.5.24...spell-v0.5.25) (2023-10-23)
+
+
+### Features
+
+* **installation-spell:** return logs as result type [NET-592] ([#189](https://github.com/fluencelabs/spell/issues/189)) ([2617173](https://github.com/fluencelabs/spell/commit/261717342bb454c60e6027990cb2e4a5fd54fe31))
+
 ## [0.5.24](https://github.com/fluencelabs/spell/compare/spell-v0.5.23...spell-v0.5.24) (2023-10-06)
 
 
