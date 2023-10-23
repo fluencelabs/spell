@@ -859,7 +859,7 @@ dependencies = [
 
 [[package]]
 name = "fluence-spell-distro"
-version = "0.5.24"
+version = "0.5.25"
 dependencies = [
  "built",
  "maplit",
@@ -867,7 +867,7 @@ dependencies = [
 
 [[package]]
 name = "fluence-spell-dtos"
-version = "0.5.24"
+version = "0.5.25"
 dependencies = [
  "eyre",
  "marine-rs-sdk 0.9.0",
