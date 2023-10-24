@@ -122,3 +122,24 @@ jobs:
     with:
       ref: ${{ github.ref }}
       nox-image: "${{ needs.nox-snapshot.outputs.nox-image }}"
+
+  cli:
+    needs:
+      - spell
+      - nox-snapshot
+
+    uses: fluencelabs/cli/.github/workflows/tests.yml@FLU-483
+    with:
+      nox-image: "${{ needs.nox-snapshot.outputs.nox-image }}"
+      spell-version: "${{ needs.spell.outputs.spell-version }}"
+      installation-spell-version: "${{ needs.installation-spell.outputs.spell-version }}"
+
+  cli-snapshot:
+    name: "cli"
+    needs:
+      - spell
+
+    uses: fluencelabs/cli/.github/workflows/tests.yml@FLU-483
+    with:
+      spell-version: "${{ needs.spell.outputs.spell-version }}"
+      installation-spell-version: "${{ needs.installation-spell.outputs.spell-version }}"
