@@ -139,7 +139,7 @@ jobs:
     needs:
       - snapshot
 
-    uses: fluencelabs/cli/.github/workflows/tests.yml@FLU-483
+    uses: fluencelabs/cli/.github/workflows/snapshot.yml@FLU-483
     with:
       spell-version: "${{ needs.snapshot.outputs.spell-version }}"
       installation-spell-version: "${{ needs.snapshot.outputs.spell-version }}"
