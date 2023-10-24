@@ -69,8 +69,10 @@ func get_logs_deal(deals: []string) -> []LogsDealResult:
                             spell_id <- Srv.resolve_alias("worker-spell")
                             Spell spell_id
                             get_res <- Spell.get_logs()
-                            error <- Op.concat_strings("Failed to get logs: ", get_res.error)
-                            logs <<- LogsDeal(error = ?[error], spell_id = ?[spell_id], worker_id = worker_id, host_id = host_id, logs = get_res.logs)
+                            error: ?string
+                            if !get_res.success:
+                                error <- Op.concat_strings("Failed to get logs: ", get_res.error)
+                            logs <<- LogsDeal(error = error, spell_id = ?[spell_id], worker_id = worker_id, host_id = host_id, logs = get_res.logs)
 
                 result <<- LogsDealResult(deal_id = deal_id, success = true, error = nil, logs = logs)
 
