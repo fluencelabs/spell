@@ -125,21 +125,21 @@ jobs:
 
   cli:
     needs:
-      - spell
+      - snapshot
       - nox-snapshot
 
     uses: fluencelabs/cli/.github/workflows/tests.yml@FLU-483
     with:
       nox-image: "${{ needs.nox-snapshot.outputs.nox-image }}"
-      spell-version: "${{ needs.spell.outputs.spell-version }}"
-      installation-spell-version: "${{ needs.installation-spell.outputs.spell-version }}"
+      spell-version: "${{ needs.snapshot.outputs.spell-version }}"
+      installation-spell-version: "${{ needs.snapshot.outputs.spell-version }}"
 
   cli-snapshot:
     name: "cli"
     needs:
-      - spell
+      - snapshot
 
     uses: fluencelabs/cli/.github/workflows/tests.yml@FLU-483
     with:
-      spell-version: "${{ needs.spell.outputs.spell-version }}"
-      installation-spell-version: "${{ needs.installation-spell.outputs.spell-version }}"
+      spell-version: "${{ needs.snapshot.outputs.spell-version }}"
+      installation-spell-version: "${{ needs.snapshot.outputs.spell-version }}"
