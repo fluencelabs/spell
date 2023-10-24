@@ -16,7 +16,7 @@ on:
         type: boolean
         default: true
     outputs:
-      version:
+      cargo-version:
         description: "Cargo snapshot version"
         value: ${{ jobs.snapshot.outputs.cargo-version }}
       spell-version:
