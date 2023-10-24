@@ -128,7 +128,7 @@ jobs:
       - snapshot
       - nox-snapshot
 
-    uses: fluencelabs/cli/.github/workflows/tests.yml@FLU-483
+    uses: fluencelabs/cli/.github/workflows/tests.yml@main
     with:
       nox-image: "${{ needs.nox-snapshot.outputs.nox-image }}"
       spell-version: "${{ needs.snapshot.outputs.spell-version }}"
@@ -139,7 +139,7 @@ jobs:
     needs:
       - snapshot
 
-    uses: fluencelabs/cli/.github/workflows/snapshot.yml@FLU-483
+    uses: fluencelabs/cli/.github/workflows/snapshot.yml@main
     with:
       spell-version: "${{ needs.snapshot.outputs.spell-version }}"
       installation-spell-version: "${{ needs.snapshot.outputs.spell-version }}"
