@@ -110,7 +110,6 @@ jobs:
         with:
           node-version: "16"
           registry-url: "https://npm.fluence.dev"
-          cache: "npm"
 
       - name: Publish crate snapshots
         if: inputs.snapshot == true
