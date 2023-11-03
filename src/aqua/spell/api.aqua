@@ -6,10 +6,7 @@ import SpellID from "types.aqua"
 
 service PeerSpell("spell"):
     -- init_args must be an object that corresponds to the spell function signature
-    install(script: string, init_args: ⊤, config: TriggerConfig) -> SpellID
+    install(script: string, init_args: ⊤, config: TriggerConfig, alias: ?string) -> SpellID
     remove(spell_id: SpellID)
     update_trigger_config(spell_id: SpellID, config: TriggerConfig)
     list() -> []SpellID
-
-service Scope("scope"):
-    get_peer_id() -> PeerId
