@@ -17,6 +17,6 @@
   "author": "Fluence Labs",
   "license": "MIT",
   "devDependencies": {
-    "@fluencelabs/cli": "0.11.2"
+    "@fluencelabs/cli": "0.12.0"
   }
 }
