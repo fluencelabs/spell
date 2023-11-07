@@ -1,5 +1,6 @@
+aqua Spell declares install
+
 import Op, Hash, Dist, Srv, Debug from "@fluencelabs/aqua-lib/builtin.aqua"
-import and from "@fluencelabs/aqua-lib/binary.aqua"
 import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
 import Spell from "@fluencelabs/spell/spell_service.aqua"
 import PeerSpell from "@fluencelabs/spell/api.aqua"
@@ -23,12 +24,12 @@ func init_args_key(spell_name: string) -> string:
 -- returns 'true' if service is in spell KV and has the same blueprint_id
 -- returns 'false' otherwise
 func is_deployed(service_name: string, blueprint_id: string) -> bool:
-    result: ?bool
+    result: *bool
 
     Spell "worker-spell"
     deployed <- Spell.get_string(service_name)
 
-    if and(deployed.success, deployed.absent):
+    if deployed.success && deployed.absent:
         result <<- false
     else:
         srv_id = deployed.str
@@ -50,12 +51,12 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
     <- result!
 
 func is_spell_deployed(spell: SpellDefinition) -> bool:
-    result: ?bool
+    result: *bool
     try:
         Spell "worker-spell"
         deployed <- Spell.get_string(spell.name)
 
-        if and(deployed.success, deployed.absent):
+        if deployed.success && deployed.absent:
             result <<- false
         else:
             -- TODO: update script without redeployment
@@ -78,6 +79,7 @@ func is_spell_deployed(spell: SpellDefinition) -> bool:
     catch e:
         log(["Error check spell deployed", spell.name, e])
         result <<- false
+
     <- result!
 
 func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
@@ -120,8 +122,7 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
             cfg_json <- Ipfs.cat_from(spell.config, ipfs)
             init_args_str <- Ipfs.cat_from(spell.init_args, ipfs)
 
-            ipfs_ok <- and(and(script.success, cfg_json.success), init_args_str.success)
-            if ipfs_ok:
+            if script.success && cfg_json.success && init_args_str.success:
                 cfg <- TriggerConfigJson.parse(cfg_json.contents)
                 init_args <- JsonStr.parse(init_args_str.contents)
                 try:
@@ -142,8 +143,7 @@ func download_service(s: Service, ipfs: Multiaddr) -> []Hash:
     for m <- s.modules:
         get_wasm <- Ipfs.get_from(m.wasm, ipfs)
         json_cfg <- Ipfs.cat_from(m.config, ipfs)
-        ipfs_ok <- and(get_wasm.success, json_cfg.success)
-        if ipfs_ok:
+        if get_wasm.success && json_cfg.success:
             cfg <- ModuleConfigJson.parse(json_cfg.contents)
             hashes <<- Dist.add_module_from_vault(get_wasm.path, cfg)
         else:
@@ -169,7 +169,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
 
                         -- TODO: check that services are still alive
                         -- do not deploy if already deployed with the same blueprint
-                        if is_deployed(s.name, blueprint_id) == false:
+                        if !is_deployed(s.name, blueprint_id):
                             set_status(INSTALLATION_IN_PROGRESS)
 
                             service_id <- Srv.create(blueprint_id)

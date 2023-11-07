@@ -1,6 +1,9 @@
+aqua TriggerConfig declares *
+
 import TriggerConfig, ClockConfig, ConnectionPoolConfig, BlockChainConfig from "@fluencelabs/spell/spell_service.aqua"
-import Cast from "./op.aqua"
 import Peer from "@fluencelabs/aqua-lib/builtin.aqua"
+
+import Cast from "./op.aqua"
 
 
 func clock(c: ClockConfig) -> TriggerConfig:

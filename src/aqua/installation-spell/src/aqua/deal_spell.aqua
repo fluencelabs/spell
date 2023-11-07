@@ -1,3 +1,7 @@
+aqua DealSpell
+
+export deal_install
+
 import Address, Multiaddr, CID from "./types.aqua"
 import install from "./spell.aqua"
 import log from "./log.aqua"

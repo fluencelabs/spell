@@ -1,3 +1,7 @@
+aqua Deploy declares deploy
+
+export deploy_single_worker, deploy, remove
+
 import PeerSpell from "@fluencelabs/spell/api.aqua"
 import TriggerConfig, Spell from "@fluencelabs/spell/spell_service.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
@@ -23,13 +27,13 @@ func deploy_single_worker(
     -- prepare spell arguments
     init_args = WorkerSpellArgs(ipfs = ipfs, worker_def_cid = worker_definition, deal_id = dummy_deal_id)
 
-    worker_id: ?WorkerID
-    spell_id: ?SpellID
+    worker_id: *WorkerID
+    spell_id: *SpellID
 
     -- create Worker or retrieve an existing one via dummy DEAL_ID
     try:
         worker_id <- Worker.create(?[dummy_deal_id])
-    catch e:
+    otherwise:
         worker_id <- Worker.get_peer_id(?[dummy_deal_id])
 
     on worker_id!:
@@ -41,7 +45,7 @@ func deploy_single_worker(
             Spell resolved_spell_id
             Spell.set_string("worker_def_cid", app_cid)
             spell_id <<- resolved_spell_id
-        catch e:
+        otherwise:
             -- Create new spell, 'worker_def_cid' will be passed in init_args
             spell_id <- PeerSpell.install(air, init_args, trigger_config, "worker-spell")
 

@@ -1,3 +1,5 @@
+aqua Log declares log
+
 import Op, Debug, Peer, Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 import Spell from "@fluencelabs/spell/spell_service.aqua"
 
