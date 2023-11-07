@@ -44,7 +44,7 @@ func upload_workers(config: LocalAppDeployConfig) -> AppDeployDefinition:
                 ipfs_multiaddrs <<- res.multiaddr
         ipfs <- Array.dedup(ipfs_multiaddrs)
 
-        definition_cid: ?CID
+        definition_cid: *CID
         for maddr <- ipfs:
             -- cids should be the same for all hosts
             -- but it definitely can be done better
