@@ -1,3 +1,5 @@
+aqua Json declares *
+
 import JsonString from "./types.aqua"
 import WorkerDefinition from "./config.aqua"
 import ModuleConfig from "@fluencelabs/aqua-lib/builtin.aqua"

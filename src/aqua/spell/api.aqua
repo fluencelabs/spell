@@ -1,6 +1,7 @@
 module API declares *
 
 import "@fluencelabs/aqua-lib/builtin.aqua"
+
 import TriggerConfig from "spell_service.aqua"
 import SpellID from "types.aqua"
 

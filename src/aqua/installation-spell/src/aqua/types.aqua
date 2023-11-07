@@ -1,3 +1,5 @@
+aqua Types declares *
+
 alias CID: string
 alias Path: string
 alias Multiaddr: string
@@ -11,6 +13,7 @@ data WorkerSpellArgs:
     deal_id: Address
 
 alias State: string
+
 data Status:
     state: State
     message: string
