@@ -35,13 +35,13 @@ data InstallResult:
   error: string
   spell_id: string
 
-func install(script: string, cfg: TriggerConfig, dat: ⊤) -> InstallResult:
+func install(script: string, cfg: TriggerConfig, dat: ⊤, name: string) -> InstallResult:
     result: *InstallResult
     on HOST_PEER_ID:
         peer_id <- get_peer_id()
         on peer_id via HOST_PEER_ID:
             try:
-                sid <- PeerSpell.install(script, dat, cfg, nil)
+                sid <- PeerSpell.install(script, dat, cfg, name)
                 result <<- InstallResult(success = true, error = "", spell_id = sid)
             catch err:
                 result <<- InstallResult(success = false, error = err.message, spell_id = "")

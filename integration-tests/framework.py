@@ -127,7 +127,7 @@ def trigger_connect():
 
 
 def install_spell(key_pair_name, script, config, dat):
-    return run_aqua(key_pair_name, "install", [script, config, dat])
+    return run_aqua(key_pair_name, "install", [script, config, dat, "test-spell-" + str(time.time_ns())])
 
 
 def install_spell_ok(key_pair_name, script, config, dat={}):
