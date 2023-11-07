@@ -1,5 +1,7 @@
 aqua Files declares *
 
+export IpfsClient
+
 import CID, Path, Multiaddr from "./types.aqua"
 
 
