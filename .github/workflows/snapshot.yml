@@ -18,19 +18,27 @@ on:
     outputs:
       cargo-version:
         description: "Cargo snapshot version"
-        value: ${{ jobs.snapshot.outputs.version }}
+        value: ${{ jobs.snapshot.outputs.cargo-version }}
+      spell-version:
+        description: "@fluencelabs/spell version"
+        value: ${{ jobs.snapshot.outputs.spell-version }}
+      installation-spell-version:
+        description: "@fluencelabs/installation-spell version"
+        value: ${{ jobs.snapshot.outputs.installation-spell-version }}
 
 env:
   CARGO_UNSTABLE_SPARSE_REGISTRY: true
 
 jobs:
   snapshot:
-    name: "Build and test crates"
+    name: "Build snapshot and test crates"
     runs-on: builder
     timeout-minutes: 60
 
     outputs:
-      version: "${{ steps.snapshot.outputs.version }}"
+      cargo-version: "${{ steps.cargo-snapshot.outputs.version }}"
+      spell-version: "${{ steps.spell-snapshot.outputs.version }}"
+      installation-spell-version: "${{ steps.installation-spell-snapshot.outputs.version }}"
 
     permissions:
       contents: read
@@ -41,6 +49,21 @@ jobs:
         with:
           repository: fluencelabs/spell
           ref: ${{ inputs.ref }}
+
+      - name: Import secrets
+        if: inputs.snapshot == true
+        uses: hashicorp/vault-action@v2.5.0
+        with:
+          url: https://vault.fluence.dev
+          path: jwt/github
+          role: ci
+          method: jwt
+          jwtGithubAudience: "https://github.com/fluencelabs"
+          jwtTtl: 300
+          exportToken: false
+          secrets: |
+            kv/cargo-registry/users/ci token | CARGO_REGISTRIES_FLUENCE_TOKEN;
+            kv/npm-registry/basicauth/ci token | NODE_AUTH_TOKEN
 
       - name: Setup Rust toolchain
         uses: dsherret/rust-toolchain-file@v1
@@ -64,6 +87,11 @@ jobs:
           dependencies: ${{ inputs.cargo-dependencies }}
           path: src/spell/modules/spell
 
+      - name: Generate snapshot version
+        if: inputs.snapshot == true
+        id: version
+        uses: fluencelabs/github-actions/generate-snapshot-id@main
+
       - name: Setup marine
         uses: fluencelabs/setup-marine@v1
         with:
@@ -77,29 +105,42 @@ jobs:
         working-directory: ./src/spell/modules/spell/spell
         run: ./test.sh
 
-      - name: Import secrets
-        if: inputs.snapshot == true
-        uses: hashicorp/vault-action@v2.5.0
+      - name: Setup node with self-hosted npm registry
+        uses: actions/setup-node@v3
         with:
-          url: https://vault.fluence.dev
-          path: jwt/github
-          role: ci
-          method: jwt
-          jwtGithubAudience: "https://github.com/fluencelabs"
-          jwtTtl: 300
-          exportToken: false
-          secrets: |
-            kv/cargo-registry/users/ci token | CARGO_REGISTRIES_FLUENCE_TOKEN
-
-      - name: Generate snapshot version
-        if: inputs.snapshot == true
-        id: version
-        uses: fluencelabs/github-actions/generate-snapshot-id@main
+          node-version: "18"
+          registry-url: "https://npm.fluence.dev"
 
       - name: Publish crate snapshots
         if: inputs.snapshot == true
-        id: snapshot
+        id: cargo-snapshot
         uses: fluencelabs/github-actions/cargo-publish-snapshot@main
         with:
           id: ${{ steps.version.outputs.id }}
           path: src/spell/modules/spell
+
+      - name: Run npm i in spell
+        if: inputs.snapshot == true
+        run: npm i
+        working-directory: src/aqua/spell
+
+      - name: Run npm i in installation-spell
+        if: inputs.snapshot == true
+        run: npm i
+        working-directory: src/aqua/installation-spell
+
+      - name: Publish spell snapshot
+        if: inputs.snapshot == true
+        id: spell-snapshot
+        uses: fluencelabs/github-actions/npm-publish-snapshot@main
+        with:
+          working-directory: src/aqua/spell
+          id: ${{ steps.version.outputs.id }}
+
+      - name: Publish installation-spell snapshot
+        if: inputs.snapshot == true
+        id: installation-spell-snapshot
+        uses: fluencelabs/github-actions/npm-publish-snapshot@main
+        with:
+          working-directory: src/aqua/installation-spell
+          id: ${{ steps.version.outputs.id }}

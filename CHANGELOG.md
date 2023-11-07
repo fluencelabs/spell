@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.5.26](https://github.com/fluencelabs/spell/compare/spell-v0.5.25...spell-v0.5.26) (2023-10-24)
+
+
+### Bug Fixes
+
+* **installation-spell:** fix deal logs ([#192](https://github.com/fluencelabs/spell/issues/192)) ([629dec5](https://github.com/fluencelabs/spell/commit/629dec593c3089922c0c628486f5b3f6a8ad76f7))
+
+## [0.5.25](https://github.com/fluencelabs/spell/compare/spell-v0.5.24...spell-v0.5.25) (2023-10-23)
+
+
+### Features
+
+* **installation-spell:** return logs as result type [NET-592] ([#189](https://github.com/fluencelabs/spell/issues/189)) ([2617173](https://github.com/fluencelabs/spell/commit/261717342bb454c60e6027990cb2e4a5fd54fe31))
+
+## [0.5.24](https://github.com/fluencelabs/spell/compare/spell-v0.5.23...spell-v0.5.24) (2023-10-06)
+
+
+### Bug Fixes
+
+* **installation-spell:** fix deal logs ([#186](https://github.com/fluencelabs/spell/issues/186)) ([796dcd0](https://github.com/fluencelabs/spell/commit/796dcd02a1e3730578aa4bec43e7150f5ae1b648))
+
 ## [0.5.23](https://github.com/fluencelabs/spell/compare/spell-v0.5.22...spell-v0.5.23) (2023-09-28)
 
 

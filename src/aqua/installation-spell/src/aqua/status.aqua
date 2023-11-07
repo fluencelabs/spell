@@ -18,7 +18,7 @@ const INSTALLATION_SUCCESSFUL = "INSTALLATION_SUCCESSFUL"
 func get_status() -> Status:
     Spell "worker-spell"
     statuses <- Spell.list_get_strings(STATUS_KEY)
-    status: ?Status
+    status: *Status
 
     if !statuses.success:
         status <<- Status(state = STATUS_LOAD_ERROR, message = statuses.error, timestamp = 0)

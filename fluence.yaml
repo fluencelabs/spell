@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=.fluence/schemas/fluence.yaml.json
+# yaml-language-server: $schema=.fluence/schemas/fluence.json
 
 # EXAMPLES:
 # keyPairName: myKeyPairName # Name of key pair to use. Default: defaultKeyPairName from project's .fluence/secretes.yaml or if it is empty - defaultKeyPairName from user's .fluence/secrets.yaml
@@ -29,11 +29,8 @@
 # appTSPath: ./path/to/app-ts/dir # Optional. If you want to generate ts files including app.ts to be able to access deployed app data in aqua when using FluenceJS,
 # appJSPath: ./path/to/app-js/dir # Optional. If you want to generate js files including app.js to be able to access deployed app data in aqua when using FluenceJS
 
-version: 2
+version: 3
 
-dependencies:
-  npm:
-    "@fluencelabs/cli": 0.5.4
 services:
   spell:
     get: src/spell
