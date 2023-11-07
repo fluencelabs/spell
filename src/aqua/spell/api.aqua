@@ -4,12 +4,9 @@ import "@fluencelabs/aqua-lib/builtin.aqua"
 import TriggerConfig from "spell_service.aqua"
 import SpellID from "types.aqua"
 
-service PeerSpellExt("spell"):
-    install(script: string, init_args: ⊤, config: TriggerConfig, alias: ?string) -> SpellID
-
 service PeerSpell("spell"):
     -- init_args must be an object that corresponds to the spell function signature
-    install(script: string, init_args: ⊤, config: TriggerConfig) -> SpellID
+    install(script: string, init_args: ⊤, config: TriggerConfig, alias: ?string) -> SpellID
     remove(spell_id: SpellID)
     update_trigger_config(spell_id: SpellID, config: TriggerConfig)
     list() -> []SpellID

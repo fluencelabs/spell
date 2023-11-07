@@ -41,7 +41,7 @@ func install(script: string, cfg: TriggerConfig, dat: ⊤) -> InstallResult:
         peer_id <- get_peer_id()
         on peer_id via HOST_PEER_ID:
             try:
-                sid <- PeerSpell.install(script, dat, cfg)
+                sid <- PeerSpell.install(script, dat, cfg, nil)
                 result <<- InstallResult(success = true, error = "", spell_id = sid)
             catch err:
                 result <<- InstallResult(success = false, error = err.message, spell_id = "")

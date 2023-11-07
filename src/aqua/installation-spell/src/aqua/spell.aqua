@@ -125,7 +125,7 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
                 cfg <- TriggerConfigJson.parse(cfg_json.contents)
                 init_args <- JsonStr.parse(init_args_str.contents)
 
-                sp_id <- PeerSpell.install(script.contents, init_args, cfg)
+                sp_id <- PeerSpell.install(script.contents, init_args, cfg, nil)
                 log(["Installed spell", spell.name, sp_id])
                 try:
                     Srv.add_alias(spell.name, sp_id)
