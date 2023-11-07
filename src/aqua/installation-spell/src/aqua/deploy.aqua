@@ -23,8 +23,8 @@ func deploy_single_worker(
     -- prepare spell arguments
     init_args = WorkerSpellArgs(ipfs = ipfs, worker_def_cid = worker_definition, deal_id = dummy_deal_id)
 
-    worker_id: ?WorkerID
-    spell_id: ?SpellID
+    worker_id: *WorkerID
+    spell_id: *SpellID
 
     -- create Worker or retrieve an existing one via dummy DEAL_ID
     try:

@@ -23,7 +23,7 @@ func init_args_key(spell_name: string) -> string:
 -- returns 'true' if service is in spell KV and has the same blueprint_id
 -- returns 'false' otherwise
 func is_deployed(service_name: string, blueprint_id: string) -> bool:
-    result: ?bool
+    result: *bool
 
     Spell "worker-spell"
     deployed <- Spell.get_string(service_name)
@@ -50,7 +50,7 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
     <- result!
 
 func is_spell_deployed(spell: SpellDefinition) -> bool:
-    result: ?bool
+    result: *bool
     try:
         Spell "worker-spell"
         deployed <- Spell.get_string(spell.name)
