@@ -5,7 +5,7 @@ const path = require("path");
 
 function printUsage() {
   console.log(
-    `Usage: "ci check-consistency" or "ci bump-version %postfix%"`,
+    `Usage: "ci bump-version %postfix%"`,
   );
 }
 
@@ -14,20 +14,12 @@ const mode = process.argv[2];
 
 function validateArgs() {
   switch (mode) {
-    case "get-version":
-      return true;
-
     case "bump-version":
       postfix = process.argv[3];
       if (!postfix) {
         printUsage();
-        process.exit();
+        return false;
       }
-      return true;
-
-    case "":
-    case undefined:
-    case "check-consistency":
       return true;
 
     default:
@@ -51,8 +43,8 @@ async function getPackageJsonsRecursive(currentPath) {
           file.isDirectory()
             ? getPackageJsonsRecursive(path.join(currentPath, file.name))
             : Promise.resolve([
-                path.join(process.cwd(), currentPath, file.name),
-              ]),
+              path.join(process.cwd(), currentPath, file.name),
+            ])
         ),
     )
   ).flat();
