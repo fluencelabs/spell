@@ -139,7 +139,7 @@ async function processPackageJsons(allPackageJsons, versionsMap, fn) {
 async function run() {
   if (!validateArgs()) {
     printUsage();
-    process.exit(0);
+    process.exit(1);
   }
 
   const packageJsons = await getPackageJsonsRecursive(PATH_TO_PACKAGES);
