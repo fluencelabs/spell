@@ -131,7 +131,7 @@ jobs:
         run: pnpm -r --no-frozen-lockfile i
 
       - name: Set package version
-        run: node ci.cjs bump-version ${{ steps.version.outputs.id }}
+        run: node .github/scripts/ci.cjs bump-version ${{ steps.version.outputs.id }}
 
       - name: Publish snapshots
         if: inputs.snapshot == true
