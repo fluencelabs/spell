@@ -3,6 +3,10 @@
   "version": "0.5.26",
   "description": "Special spell that installs services from App Config",
   "main": "index.js",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  },
   "scripts": {
     "check": "fluence aqua -i . --dry --import ./node_modules"
   },
@@ -21,12 +25,9 @@
   "dependencies": {
     "@fluencelabs/aqua-ipfs": "0.5.21",
     "@fluencelabs/aqua-lib": "0.7.7",
-    "@fluencelabs/spell": "0.5.26"
+    "@fluencelabs/spell": "workspace:*"
   },
   "devDependencies": {
     "@fluencelabs/cli": "0.12.0"
-  },
-  "workspaces": [
-    "../spell"
-  ]
+  }
 }

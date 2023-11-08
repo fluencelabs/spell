@@ -8,6 +8,10 @@
     "trigger.aqua",
     "types.aqua"
   ],
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  },
   "config": {
     "SERVICE_DIR": "../../spell/modules/spell/spell",
     "WASM": "artifacts/spell.wasm",
