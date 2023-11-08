@@ -21,10 +21,10 @@ on:
         value: ${{ jobs.snapshot.outputs.cargo-version }}
       spell-version:
         description: "@fluencelabs/spell version"
-        value: ${{ fromJson(jobs.snapshot.outputs.snapshots.)['spell'] }}
+        value: ${{ fromJson(jobs.snapshot.outputs.snapshots)['spell'] }}
       installation-spell-version:
         description: "@fluencelabs/installation-spell version"
-        value: ${{ fromJson(jobs.snapshot.outputs.snapshots.)['installation-spell'] }}
+        value: ${{ fromJson(jobs.snapshot.outputs.snapshots)['installation-spell'] }}
       spell-snapshots:
         description: "spell snapshots"
         value: ${{ jobs.snapshot.outputs.snapshots }}
