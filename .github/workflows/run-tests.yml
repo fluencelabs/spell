@@ -38,8 +38,8 @@ jobs:
           node-version: "18"
           registry-url: "https://npm.fluence.dev"
 
-      - run: npm install
+      - run: pnpm install
         working-directory: src/aqua/installation-spell
 
-      - run: npm run check
+      - run: pnpm run check
         working-directory: src/aqua/installation-spell
