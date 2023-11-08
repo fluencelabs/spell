@@ -132,7 +132,7 @@ jobs:
     with:
       nox-image: "${{ needs.nox-snapshot.outputs.nox-image }}"
       spell-version: "${{ needs.snapshot.outputs.spell-version }}"
-      installation-spell-version: "${{ needs.snapshot.outputs.spell-version }}"
+      installation-spell-version: "${{ needs.snapshot.outputs.installation-spell-version }}"
 
   cli-snapshot:
     name: "cli"
@@ -142,4 +142,4 @@ jobs:
     uses: fluencelabs/cli/.github/workflows/snapshot.yml@main
     with:
       spell-version: "${{ needs.snapshot.outputs.spell-version }}"
-      installation-spell-version: "${{ needs.snapshot.outputs.spell-version }}"
+      installation-spell-version: "${{ needs.snapshot.outputs.installation-spell-version }}"
