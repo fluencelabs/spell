@@ -27,7 +27,7 @@ function validateArgs() {
   }
 }
 
-const PATH_TO_PACKAGES = "../../src/aqua/";
+const PATH_TO_PACKAGES = "./src/aqua/";
 
 async function getPackageJsonsRecursive(currentPath) {
   return (
