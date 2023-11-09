@@ -181,7 +181,7 @@ jobs:
       - run: pnpm -r i
 
       - name: Publish aqua/spell to NPM registry
-        run: pnpm publish --access public --tag unstable
+        run: pnpm --no-git-checks -r publish --access public --tag unstable
 
   slack:
     if: always()
