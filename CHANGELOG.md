@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.27](https://github.com/fluencelabs/spell/compare/spell-v0.5.26...spell-v0.5.27) (2023-11-09)
+
+
+### Features
+
+* **api:** Update PeerSpell api [NET-618] ([#198](https://github.com/fluencelabs/spell/issues/198)) ([29a4ba2](https://github.com/fluencelabs/spell/commit/29a4ba2fb13c42312fb1a051edb44b12532c0500))
+* **spell:** Use streams instead of options [LNG-277] ([#200](https://github.com/fluencelabs/spell/issues/200)) ([f3c719a](https://github.com/fluencelabs/spell/commit/f3c719a8d0b7dc8d6aa1b74e1ffbffaa8da0dc67))
+
+
+### Bug Fixes
+
+* **deps:** update marine-rs-sdk to 0.10.1 and sqlite-wasm-connector to 0.9.1 ([#195](https://github.com/fluencelabs/spell/issues/195)) ([7484c9c](https://github.com/fluencelabs/spell/commit/7484c9c89c185c06fc20b9df37a8acd97924dbad))
+
 ## [0.5.26](https://github.com/fluencelabs/spell/compare/spell-v0.5.25...spell-v0.5.26) (2023-10-24)
 
 
