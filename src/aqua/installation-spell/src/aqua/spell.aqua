@@ -125,17 +125,14 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
             if script.success && cfg_json.success && init_args_str.success:
                 cfg <- TriggerConfigJson.parse(cfg_json.contents)
                 init_args <- JsonStr.parse(init_args_str.contents)
-
-                sp_id <- PeerSpell.install(script.contents, init_args, cfg)
-                log(["Installed spell", spell.name, sp_id])
                 try:
-                    Srv.add_alias(spell.name, sp_id)
+                    sp_id <- PeerSpell.install(script.contents, init_args, cfg, spell.name)
+                    log(["Installed spell", spell.name, sp_id])
+                    Spell.set_string(spell.name, sp_id)
+                    Spell.set_string(config_key(spell.name), spell.config)
+                    Spell.set_string(init_args_key(spell.name), spell.init_args)
                 catch e:
-                    log(["Error creating alias for deployed spell", spell.name, sp_id, e])
-
-                Spell.set_string(spell.name, sp_id)
-                Spell.set_string(config_key(spell.name), spell.config)
-                Spell.set_string(init_args_key(spell.name), spell.init_args)
+                    log(["Error installing the spell", spell.name, e])
             else:
                 log([spell.name, "error retrieving from IPFS", ["script", spell.script, script], ["cfg_json", spell.config, cfg_json], ["init_args_str", spell.init_args, init_args_str]])
     catch e:

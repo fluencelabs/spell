@@ -47,9 +47,7 @@ func deploy_single_worker(
             spell_id <<- resolved_spell_id
         otherwise:
             -- Create new spell, 'worker_def_cid' will be passed in init_args
-            new_spell_id <- PeerSpell.install(air, init_args, trigger_config)
-            Srv.add_alias("worker-spell", new_spell_id)
-            spell_id <<- new_spell_id
+            spell_id <- PeerSpell.install(air, init_args, trigger_config, "worker-spell")
 
     <- spell_id!, worker_id!
 
