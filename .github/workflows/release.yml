@@ -80,26 +80,30 @@ jobs:
         working-directory: ./src/spell/modules/spell/spell
         run: ./build.sh
 
+      - uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 8
+
       - name: Setup node
         uses: actions/setup-node@v3
         with:
           node-version: "18"
           registry-url: "https://registry.npmjs.org"
+          cache: "pnpm"
+
+      - name: Run pnpm i
+        run: pnpm -r i
 
       - name: Set aqua/spell version
-        run: npm version ${{ steps.version.outputs.version }}
-        working-directory: src/aqua/spell
-
-      - name: Run npm install
-        run: npm install
+        run: pnpx npm version ${{ steps.version.outputs.version }}
         working-directory: src/aqua/spell
 
       - name: Set aqua/installation-spell version
-        run: npm version ${{ steps.version.outputs.version }}
+        run: pnpx npm version ${{ steps.version.outputs.version }}
         working-directory: src/aqua/installation-spell
 
       - name: Set aqua/spell version in installation-spell dependencies
-        run: npm i --ignore-scripts -E @fluencelabs/spell@${{ steps.version.outputs.version }}
+        run: pnpx npm i --ignore-scripts -E @fluencelabs/spell@${{ steps.version.outputs.version }}
         working-directory: src/aqua/installation-spell
 
       - name: Commit version bump
