@@ -157,36 +157,6 @@ jobs:
         with:
           crate: cargo-workspaces
 
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
-          registry-url: "https://registry.npmjs.org"
-          cache-dependency-path: "src/aqua/spell"
-          cache: "npm"
-
-      - run: npm i
-        working-directory: "src/aqua/spell"
-
-      - name: Publish aqua/spell to NPM registry
-        run: npm publish --access public --tag unstable
-        working-directory: "src/aqua/spell"
-
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18"
-          registry-url: "https://registry.npmjs.org"
-          cache-dependency-path: "src/aqua/installation-spell"
-          cache: "npm"
-
-      - run: npm i
-        working-directory: "src/aqua/installation-spell"
-
-      - name: Publish aqua/installation-spell to NPM registry
-        run: npm publish --access public --tag unstable
-        working-directory: "src/aqua/installation-spell"
-
       - name: Publish to crates.io
         working-directory: ./src/spell/modules/spell
         run: |
@@ -196,6 +166,22 @@ jobs:
             --from-git \
             --skip-published \
             --yes
+
+      - uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 8
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
+          cache: "pnpm"
+
+      - run: pnpm -r i
+
+      - name: Publish aqua/spell to NPM registry
+        run: pnpm --no-git-checks -r publish --access public --tag unstable
 
   slack:
     if: always()
