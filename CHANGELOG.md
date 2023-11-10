@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.28](https://github.com/fluencelabs/spell/compare/spell-v0.5.27...spell-v0.5.28) (2023-11-10)
+
+
+### Features
+
+* **spell:** Use streams instead of options [LNG-277] ([#209](https://github.com/fluencelabs/spell/issues/209)) ([8634815](https://github.com/fluencelabs/spell/commit/8634815474a2194eca53c5e5edd38b986e75f8d4))
+
 ## [0.5.27](https://github.com/fluencelabs/spell/compare/spell-v0.5.26...spell-v0.5.27) (2023-11-09)
 
 
