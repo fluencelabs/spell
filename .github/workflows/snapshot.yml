@@ -30,7 +30,7 @@ env:
 
 jobs:
   snapshot:
-    name: "Build snapshot and test crates"
+    name: "Build snapshots"
     runs-on: builder
     timeout-minutes: 60
 
