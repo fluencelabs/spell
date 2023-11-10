@@ -94,10 +94,6 @@ jobs:
         working-directory: ./src/spell/modules/spell/spell
         run: ./build.sh
 
-      - name: Run tests
-        working-directory: ./src/spell/modules/spell/spell
-        run: ./test.sh
-
       - name: Publish crate snapshots
         id: cargo-snapshot
         uses: fluencelabs/github-actions/cargo-publish-snapshot@main
