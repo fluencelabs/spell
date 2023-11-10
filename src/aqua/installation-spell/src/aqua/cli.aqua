@@ -32,7 +32,7 @@ func get_logs(app_workers: DeployedAppWorkers) -> []LogsDirectResult:
             on i.worker_id via i.host_id:
                 Spell i.spell_id
                 get_res <- Spell.get_logs()
-                error: ?string
+                error: *string
                 if !get_res.success:
                     error <- Op.concat_strings("Failed to get logs: ", get_res.error)
                 logs <<- LogsDirectResult(error = error, spell_id = i.spell_id, worker_id = i.worker_id, host_id = i.host_id, logs = get_res.logs, worker_name = w.name)
@@ -73,7 +73,7 @@ func get_logs_deal(deals: []string) -> []LogsDealResult:
                             spell_id <- Srv.resolve_alias("worker-spell")
                             Spell spell_id
                             get_res <- Spell.get_logs()
-                            error: ?string
+                            error: *string
                             if !get_res.success:
                                 error <- Op.concat_strings("Failed to get logs: ", get_res.error)
                             logs <<- LogsDeal(error = error, spell_id = ?[spell_id], worker_id = worker_id, host_id = host_id, logs = get_res.logs)
