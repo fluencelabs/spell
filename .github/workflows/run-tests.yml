@@ -32,7 +32,8 @@ jobs:
           repository: fluencelabs/spell
           ref: ${{ github.ref }}
 
-      - uses: pnpm/action-setup@v2.2.4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.4
         with:
           version: 8
 
@@ -48,3 +49,39 @@ jobs:
 
       - run: pnpm run check
         working-directory: src/aqua/installation-spell
+
+  cargo:
+    name: "Run cargo tests"
+    runs-on: builder
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: fluencelabs/spell
+          ref: ${{ github.ref }}
+
+      - name: Setup Rust toolchain
+        uses: dsherret/rust-toolchain-file@v1
+
+      - name: Setup cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: spell
+          save-if: false
+
+      - name: Setup cargo-nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Setup marine
+        uses: fluencelabs/setup-marine@v1
+        with:
+          artifact-name: marine
+
+      - name: Build and package spell
+        working-directory: ./src/spell/modules/spell/spell
+        run: ./build.sh
+
+      - name: Run tests
+        working-directory: ./src/spell/modules/spell/spell
+        run: ./test.sh

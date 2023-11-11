@@ -13,7 +13,7 @@ key_lock = filelock.FileLock("spell_test_run.lock", timeout=150)
 def make_key():
     with key_lock:
         name = ''.join(random.choices(string.ascii_uppercase, k=5))
-        c = delegator.run(f"npx fluence key new {name} --no-input", block=True)
+        c = delegator.run(f"fluence key new {name} --no-input", block=True)
         if len(c.err) != 0:
             print(c.err)
         return name
@@ -21,7 +21,7 @@ def make_key():
 
 def delete_key(name):
     with key_lock:
-        c = delegator.run(f"npx fluence key remove {name} --no-input", block=True)
+        c = delegator.run(f"fluence key remove {name} --no-input", block=True)
         if len(c.err) != 0:
             print(c.err)
         return name
@@ -34,7 +34,7 @@ def get_relays():
     else:
         if env is None:
             env = "stage"
-        c = delegator.run(f"npx fluence default peers {env}", block=True)
+        c = delegator.run(f"fluence default peers {env}", block=True)
         lines = c.out.strip().split("\n");
 
         peers = list(filter(None, list(lines[1:])))
@@ -64,7 +64,7 @@ def from_aqua(aqua, func_name):
             raise Exception(f"Unable to write aqua script to file by path {aqua_file}: {e}")
 
         target_dir = dir_name
-        command_compile = f"npx fluence aqua -i {aqua_file} -o {target_dir} --air --no-relay"
+        command_compile = f"fluence aqua -i {aqua_file} -o {target_dir} --air --no-relay"
         print(command_compile)
 
         c = delegator.run(command_compile, block=True)
@@ -91,7 +91,7 @@ def run_aqua(key_pair_name, func, args, relay=get_relay()):
     call = f"{func}(" + ", ".join([chr(97 + i) for i in range(0, len(args))]) + ")"
     file = "./aqua/lib.aqua"
 
-    command = f"npx fluence run --relay={relay} -f '{call}' -i {file} -k {key_pair_name} " \
+    command = f"fluence run --relay={relay} -f '{call}' -i {file} -k {key_pair_name} " \
               f"--data='{json.dumps(data)}' --no-input " \
               f"--import 'node_modules' " \
               f"--quiet"
