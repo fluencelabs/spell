@@ -18,9 +18,10 @@ const DUMMY_DEAL_ID = "dummy-deal-id"
 
 func get_worker_id() -> string:
     worker_id: *string
-    existing_worker <- Worker.get_worker_id(DUMMY_DEAL_ID)
+    deal_id <- Op.concat_strings(DUMMY_DEAL_ID, INIT_PEER_ID)
+    existing_worker <- Worker.get_worker_id(deal_id)
     if existing_worker == nil:
-        worker_id <- Worker.create(DUMMY_DEAL_ID)
+        worker_id <- Worker.create(deal_id)
     else:
         worker_id <<- existing_worker!
     <- worker_id!
