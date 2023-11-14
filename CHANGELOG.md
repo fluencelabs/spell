@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.30](https://github.com/fluencelabs/spell/compare/spell-v0.5.29...spell-v0.5.30) (2023-11-14)
+
+
+### Bug Fixes
+
+* **installation-spell:** add missing declaration ([#214](https://github.com/fluencelabs/spell/issues/214)) ([0b4875a](https://github.com/fluencelabs/spell/commit/0b4875aa96eb3312b19d9a7dc683d9c86386d8e6))
+
 ## [0.5.29](https://github.com/fluencelabs/spell/compare/spell-v0.5.28...spell-v0.5.29) (2023-11-14)
 
 
