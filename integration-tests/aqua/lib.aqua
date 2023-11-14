@@ -173,7 +173,7 @@ func set_spell_alias(alias: string, spell_id: string) -> Result:
     result: *Result
     on HOST_PEER_ID:
         worker_id <- get_worker_id()
-        on peer_id via HOST_PEER_ID:
+        on worker_id via HOST_PEER_ID:
             try:
                 Srv.add_alias(alias, spell_id)
                 result <<- Result(success = true, error = "")
