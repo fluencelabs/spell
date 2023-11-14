@@ -1,6 +1,6 @@
 aqua Lib declares *
 
-export list, install, remove, update, get_config, get_script, get_counter, get_string
+export list_spells, install, remove, update, get_config, get_script, get_counter, get_string
 export is_spell_absent, get_trigger_event, get_all_trigger_events, remove_service, get_location, get_spell_errors, noop
 export get_worker_spell_status, set_worker_spell_status, get_worker_spell_statuses_from, set_spell_alias
 
@@ -14,21 +14,23 @@ import "../../src/aqua/installation-spell/src/aqua/status.aqua"
 import "../../src/aqua/installation-spell/src/aqua/types.aqua"
 import "../../src/aqua/installation-spell/src/aqua/json.aqua"
 
+const DUMMY_DEAL_ID = "dummy-deal-id"
 
-func get_peer_id() -> string:
+func get_worker_id() -> string:
     worker_id: *string
-    try:
-        worker_id <<- Worker.get_peer_id()
-    otherwise:
-        worker_id <<- Worker.create()
+    existing_worker <- Worker.get_worker_id(DUMMY_DEAL_ID)
+    if existing_worker == nil:
+        worker_id <- Worker.create(DUMMY_DEAL_ID)
+    else:
+        worker_id <<- existing_worker!
     <- worker_id!
 
-func list() -> []string:
-   on HOST_PEER_ID:
-      worker_id <- Worker.get_peer_id()
-      on worker_id:
-          res <- PeerSpell.list()
-   <- res
+func list_spells() -> []string:
+    on HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id:
+            res <- PeerSpell.list()
+    <- res
 
 data InstallResult:
   success: bool
@@ -38,8 +40,8 @@ data InstallResult:
 func install(script: string, cfg: TriggerConfig, dat: ⊤, name: string) -> InstallResult:
     result: *InstallResult
     on HOST_PEER_ID:
-        peer_id <- get_peer_id()
-        on peer_id via HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id via HOST_PEER_ID:
             try:
                 sid <- PeerSpell.install(script, dat, cfg, name)
                 result <<- InstallResult(success = true, error = "", spell_id = sid)
@@ -52,22 +54,22 @@ data Result:
   error: string
 
 func remove(spell_id: string) -> Result:
-   result: *Result
-   on HOST_PEER_ID:
-     peer_id <- get_peer_id()
-     on peer_id via HOST_PEER_ID:
-        try:
-            PeerSpell.remove(spell_id)
-            result <<- Result(success = true, error = "")
-        catch err:
-            result <<- Result(success = false, error = err.message)
-   <- result[0]
+    result: *Result
+    on HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id via HOST_PEER_ID:
+            try:
+                PeerSpell.remove(spell_id)
+                result <<- Result(success = true, error = "")
+            catch err:
+                result <<- Result(success = false, error = err.message)
+    <- result[0]
 
 func update(spell_id: string, config: TriggerConfig) -> Result:
    result: *Result
    on HOST_PEER_ID:
-     peer_id <- get_peer_id()
-     on peer_id via HOST_PEER_ID:
+     worker_id <- get_worker_id()
+     on worker_id via HOST_PEER_ID:
         try:
             PeerSpell.update_trigger_config(spell_id, config)
             result <<- Result(success = true, error = "")
@@ -170,7 +172,7 @@ func noop():
 func set_spell_alias(alias: string, spell_id: string) -> Result:
     result: *Result
     on HOST_PEER_ID:
-        peer_id <- get_peer_id()
+        worker_id <- get_worker_id()
         on peer_id via HOST_PEER_ID:
             try:
                 Srv.add_alias(alias, spell_id)
@@ -181,8 +183,8 @@ func set_spell_alias(alias: string, spell_id: string) -> Result:
 
 func set_worker_spell_status(state: State, message: string) -> string:
     on HOST_PEER_ID:
-        peer_id <- get_peer_id()
-        on peer_id via HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id via HOST_PEER_ID:
             set_status_msg(state, message)
             -- HACK: we need to return smth, because otherwise particle won't be processed at all
             -- and we receive an error:
@@ -192,14 +194,14 @@ func set_worker_spell_status(state: State, message: string) -> string:
 
 func get_worker_spell_status() -> Status:
     on HOST_PEER_ID:
-        peer_id <- get_peer_id()
-        on peer_id via HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id via HOST_PEER_ID:
             status <- get_status()
     <- status
 
 func get_worker_spell_statuses_from(timestamp: u64) -> []Status:
     on HOST_PEER_ID:
-        peer_id <- get_peer_id()
-        on peer_id via HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id via HOST_PEER_ID:
             statuses <- get_statuses_from(timestamp)
     <- statuses

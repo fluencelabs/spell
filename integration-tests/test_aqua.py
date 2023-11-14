@@ -217,9 +217,9 @@ class TestRemoveWithAux:
 class TestList:
     def test_list(self):
         spell_id, key_pair_name = create_spell(simple_script(), empty_config(), {})
-        spells_after_install = run_aqua(key_pair_name, "list", [])
+        spells_after_install = run_aqua(key_pair_name, "list_spells", [])
         destroy_spell(key_pair_name, spell_id)
-        spells_after_remove = run_aqua(key_pair_name, "list", [])
+        spells_after_remove = run_aqua(key_pair_name, "list_spells", [])
 
         assert spell_id in spells_after_install, "spell_id must be in the list of spells after spell installation"
         assert spell_id not in spells_after_remove, "spell_id must NOT be in the list of spells after spell removal"

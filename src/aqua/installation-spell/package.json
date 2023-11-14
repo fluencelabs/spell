@@ -26,8 +26,5 @@
     "@fluencelabs/aqua-ipfs": "0.5.21",
     "@fluencelabs/aqua-lib": "0.8.0",
     "@fluencelabs/spell": "workspace:*"
-  },
-  "devDependencies": {
-    "@fluencelabs/cli": "0.12.4"
   }
 }
