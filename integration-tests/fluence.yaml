@@ -1,5 +1,7 @@
 # yaml-language-server: $schema=.fluence/schemas/fluence.json
-version: 2
+version: 4
+
 aquaInputPath: aqua/*
+
 aquaImports:
   - node_modules

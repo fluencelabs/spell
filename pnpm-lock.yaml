@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
@@ -12,21 +12,21 @@ importers:
         specifier: 0.5.21
         version: 0.5.21
       '@fluencelabs/aqua-lib':
-        specifier: 0.7.7
-        version: 0.7.7
+        specifier: 0.8.0
+        version: 0.8.0
       '@fluencelabs/spell':
         specifier: workspace:*
         version: link:../spell
     devDependencies:
       '@fluencelabs/cli':
-        specifier: 0.12.0
-        version: 0.12.0(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2)
+        specifier: 0.12.4
+        version: 0.12.4(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2)
 
   src/aqua/spell:
     devDependencies:
       '@fluencelabs/aqua-lib':
-        specifier: 0.7.2
-        version: 0.7.2
+        specifier: 0.8.0
+        version: 0.8.0
       '@fluencelabs/cli':
         specifier: 0.12.0
         version: 0.12.0(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2)
@@ -526,13 +526,12 @@ packages:
       '@fluencelabs/aqua-lib': 0.7.7
     dev: false
 
-  /@fluencelabs/aqua-lib@0.7.2:
-    resolution: {integrity: sha512-P4ZYSnNeFPTgykHJr6Uzllqj36aeUxM0CNAXXnydL2ZFlWthGatOlzeZi1MnTvczxsHakhKDgx9oH3Ehh4auew==}
-    dev: true
-
   /@fluencelabs/aqua-lib@0.7.7:
     resolution: {integrity: sha512-/RvIwaLGmNuzkoFTRXOp66BTiVVkmljiY1Do3f/wRnYWZO8jdjQ/bmO+v1rhGZ7+DYzTL1YT54Vxt5/ralnPvA==}
     dev: false
+
+  /@fluencelabs/aqua-lib@0.8.0:
+    resolution: {integrity: sha512-rnOpmXKLtzs9VhkA869iuXynB7ibtpz/I37QXzHJbp8RWPeWhcJjKRU4za1i62OqTX/sbnRgip8DcO7XRX+XsQ==}
 
   /@fluencelabs/aqua-to-js@0.1.0:
     resolution: {integrity: sha512-FMV6cSxBjVAqIuVuyLF1rzy6QTw6fmOAwty0lb0ClnH/r+4FmE5KskYgfIZ48O6w6gqjOPult+uv78MNGS09yw==}
@@ -546,6 +545,72 @@ packages:
 
   /@fluencelabs/cli@0.12.0(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2):
     resolution: {integrity: sha512-tMwt5zbZS+XG4q4SPW4tkA7aSrpTzzZtuKsQtJ8kMu0EXEiixzH4HR2Hn4TYJhjCnX3vKmemk8crVGLBOqK/vw==}
+    engines: {node: '=18'}
+    hasBin: true
+    dependencies:
+      '@fluencelabs/air-beautify-wasm': 0.3.4
+      '@fluencelabs/aqua-api': 0.12.4
+      '@fluencelabs/aqua-to-js': 0.1.0
+      '@fluencelabs/deal-aurora': 0.2.17(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(ethers@6.6.0)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2)
+      '@fluencelabs/fluence-network-environment': 1.1.2
+      '@fluencelabs/js-client': 0.4.2
+      '@iarna/toml': 2.2.5
+      '@mswjs/interceptors': 0.25.10
+      '@multiformats/multiaddr': 12.1.10
+      '@oclif/color': 1.0.13
+      '@oclif/core': 3.10.7(typescript@5.2.2)
+      '@oclif/plugin-autocomplete': 2.3.10(@types/node@20.9.0)(typescript@5.2.2)
+      '@oclif/plugin-help': 6.0.5(typescript@5.2.2)
+      '@oclif/plugin-not-found': 3.0.3(typescript@5.2.2)
+      '@oclif/plugin-update': 4.1.3(typescript@5.2.2)
+      '@walletconnect/universal-provider': 2.4.7(@types/node@20.9.0)(debug@4.3.4)(lokijs@1.5.12)(typescript@5.2.2)
+      ajv: 8.12.0
+      chokidar: 3.5.3
+      countly-sdk-nodejs: 22.6.0
+      debug: 4.3.4(supports-color@8.1.1)
+      decompress: 4.2.1
+      dotenv: 16.3.1
+      ethers: 6.6.0
+      filenamify: 6.0.0
+      inquirer: 9.2.12
+      ipfs-http-client: 60.0.1
+      lodash-es: 4.17.21
+      lokijs: 1.5.12
+      multiformats: 12.1.3
+      node_modules-path: 2.0.7
+      npm: 10.2.3
+      platform: 1.3.6
+      semver: 7.5.4
+      yaml: 2.3.4
+      yaml-diff-patch: 2.0.0
+    transitivePeerDependencies:
+      - '@nomicfoundation/hardhat-chai-matchers'
+      - '@nomicfoundation/hardhat-ethers'
+      - '@nomicfoundation/hardhat-network-helpers'
+      - '@nomicfoundation/hardhat-verify'
+      - '@react-native-async-storage/async-storage'
+      - '@swc/core'
+      - '@swc/wasm'
+      - '@typechain/ethers-v6'
+      - '@typechain/hardhat'
+      - '@types/chai'
+      - '@types/mocha'
+      - '@types/node'
+      - bufferutil
+      - chai
+      - encoding
+      - hardhat
+      - hardhat-gas-reporter
+      - solidity-coverage
+      - supports-color
+      - ts-node
+      - typechain
+      - typescript
+      - utf-8-validate
+    dev: true
+
+  /@fluencelabs/cli@0.12.4(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2):
+    resolution: {integrity: sha512-TDhUZUFoAFc5SAs//TMyrzf2eEJDo/fdp/VsgLClGkDFgs9JEK72eyN+1mThOinZxvHeGJU6HK5uCqeGRhTiaQ==}
     engines: {node: '=18'}
     hasBin: true
     dependencies:

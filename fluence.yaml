@@ -29,7 +29,7 @@
 # appTSPath: ./path/to/app-ts/dir # Optional. If you want to generate ts files including app.ts to be able to access deployed app data in aqua when using FluenceJS,
 # appJSPath: ./path/to/app-js/dir # Optional. If you want to generate js files including app.js to be able to access deployed app data in aqua when using FluenceJS
 
-version: 3
+version: 5
 
 services:
   spell:
