@@ -28,8 +28,8 @@ importers:
         specifier: 0.8.0
         version: 0.8.0
       '@fluencelabs/cli':
-        specifier: 0.12.0
-        version: 0.12.0(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2)
+        specifier: 0.12.4
+        version: 0.12.4(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2)
       npm-run-all2:
         specifier: 6.0.4
         version: 6.0.4
@@ -543,8 +543,8 @@ packages:
     resolution: {integrity: sha512-5GgROVly/vC7gasltr6/3TIY8vfV6b+SPfWUAGWnyXdbWt4jJANLO2YtXdaUsdNk9PiwOep7TMjLnypljdyMjQ==}
     dev: true
 
-  /@fluencelabs/cli@0.12.0(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2):
-    resolution: {integrity: sha512-tMwt5zbZS+XG4q4SPW4tkA7aSrpTzzZtuKsQtJ8kMu0EXEiixzH4HR2Hn4TYJhjCnX3vKmemk8crVGLBOqK/vw==}
+  /@fluencelabs/cli@0.12.4(@nomicfoundation/hardhat-chai-matchers@2.0.2)(@nomicfoundation/hardhat-ethers@3.0.4)(@nomicfoundation/hardhat-network-helpers@1.0.9)(@nomicfoundation/hardhat-verify@1.1.1)(@typechain/ethers-v6@0.4.3)(@typechain/hardhat@8.0.3)(@types/chai@4.3.10)(@types/mocha@10.0.4)(@types/node@20.9.0)(chai@4.3.10)(hardhat-gas-reporter@1.0.9)(hardhat@2.19.0)(solidity-coverage@0.8.5)(ts-node@10.9.1)(typechain@8.3.2)(typescript@5.2.2):
+    resolution: {integrity: sha512-TDhUZUFoAFc5SAs//TMyrzf2eEJDo/fdp/VsgLClGkDFgs9JEK72eyN+1mThOinZxvHeGJU6HK5uCqeGRhTiaQ==}
     engines: {node: '=18'}
     hasBin: true
     dependencies:
