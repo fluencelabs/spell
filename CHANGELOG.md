@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.29](https://github.com/fluencelabs/spell/compare/spell-v0.5.28...spell-v0.5.29) (2023-11-14)
+
+
+### Features
+
+* bump aqua-lib to 0.8.0 ([#212](https://github.com/fluencelabs/spell/issues/212)) ([23bbe52](https://github.com/fluencelabs/spell/commit/23bbe5221b4071103222079a26e2cba7727ef3a0))
+
 ## [0.5.28](https://github.com/fluencelabs/spell/compare/spell-v0.5.27...spell-v0.5.28) (2023-11-10)
 
 
