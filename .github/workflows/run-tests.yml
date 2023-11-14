@@ -47,6 +47,11 @@ jobs:
       - run: pnpm install
         working-directory: src/aqua/installation-spell
 
+      - name: Setup fcli
+        uses: fluencelabs/setup-fluence@v1
+        with:
+          version: unstable
+
       - run: pnpm run check
         working-directory: src/aqua/installation-spell
 

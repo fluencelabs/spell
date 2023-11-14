@@ -6,7 +6,7 @@ import PeerSpell from "@fluencelabs/spell/api.aqua"
 import TriggerConfig, Spell from "@fluencelabs/spell/spell_service.aqua"
 import SpellID from "@fluencelabs/spell/types.aqua"
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
-import DealWorker as Worker from "@fluencelabs/aqua-lib/workers.aqua"
+import Worker from "@fluencelabs/aqua-lib/workers.aqua"
 import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
 
 import IpfsClient, upload_script from "./files.aqua"
@@ -31,10 +31,11 @@ func deploy_single_worker(
     spell_id: *SpellID
 
     -- create Worker or retrieve an existing one via dummy DEAL_ID
-    try:
-        worker_id <- Worker.create(?[dummy_deal_id])
-    otherwise:
-        worker_id <- Worker.get_peer_id(?[dummy_deal_id])
+    existing_worker <- Worker.get_worker_id(dummy_deal_id)
+    if existing_worker == nil:
+        worker_id <- Worker.create(dummy_deal_id)
+    else:
+        worker_id <<- existing_worker!
 
     on worker_id!:
         -- Take existing worker-spell or create a new one
