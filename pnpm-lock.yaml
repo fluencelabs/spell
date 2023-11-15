@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -12,8 +12,8 @@ importers:
         specifier: 0.5.21
         version: 0.5.21
       '@fluencelabs/aqua-lib':
-        specifier: 0.8.0
-        version: 0.8.0
+        specifier: 0.8.1
+        version: 0.8.1
       '@fluencelabs/spell':
         specifier: workspace:*
         version: link:../spell
@@ -21,8 +21,8 @@ importers:
   src/aqua/spell:
     devDependencies:
       '@fluencelabs/aqua-lib':
-        specifier: 0.8.0
-        version: 0.8.0
+        specifier: 0.8.1
+        version: 0.8.1
       npm-run-all2:
         specifier: 6.0.4
         version: 6.0.4
@@ -61,8 +61,8 @@ packages:
     resolution: {integrity: sha512-/RvIwaLGmNuzkoFTRXOp66BTiVVkmljiY1Do3f/wRnYWZO8jdjQ/bmO+v1rhGZ7+DYzTL1YT54Vxt5/ralnPvA==}
     dev: false
 
-  /@fluencelabs/aqua-lib@0.8.0:
-    resolution: {integrity: sha512-rnOpmXKLtzs9VhkA869iuXynB7ibtpz/I37QXzHJbp8RWPeWhcJjKRU4za1i62OqTX/sbnRgip8DcO7XRX+XsQ==}
+  /@fluencelabs/aqua-lib@0.8.1:
+    resolution: {integrity: sha512-VLslkhi3hsNLWkgsoCyceCediqkicWphMVHZ+9eEkgMumepvo7TcqiYC14bl2LpZjn7YZ6y/OzK+Ffy8ADfKdA==}
 
   /@types/normalize-package-data@2.4.4:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}

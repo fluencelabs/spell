@@ -24,7 +24,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@fluencelabs/aqua-ipfs": "0.5.21",
-    "@fluencelabs/aqua-lib": "0.8.0",
+    "@fluencelabs/aqua-lib": "0.8.1",
     "@fluencelabs/spell": "workspace:*"
   }
 }
