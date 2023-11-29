@@ -11,13 +11,13 @@ pub fn list_push_string(key: &str, value: String) -> UnitValue {
     let result: eyre::Result<()> = try {
         let mut statement = conn.prepare(
             r#"
-                INSERT INTO kv (key, string, list_index)
+                INSERT INTO kv (key, string, list_order)
                     VALUES (
                         ?,
                         ?,
                         COALESCE(
                             (
-                                SELECT MAX(list_index) + 1
+                                SELECT MAX(list_order) + 1
                                 FROM kv
                                 WHERE key = ?
                             ),
@@ -42,7 +42,7 @@ pub fn list_pop_string(key: &str) -> StringValue {
     let result: eyre::Result<Option<String>> = try {
         let mut get = db.prepare(
             r#"
-            SELECT string, max(list_index) FROM kv
+            SELECT string, max(list_order) FROM kv
                 WHERE key = ?
         "#,
         )?;
@@ -52,11 +52,11 @@ pub fn list_pop_string(key: &str) -> StringValue {
 
         if let State::Row = get.next()? {
             result = Some(get.read::<String>(0)?);
-            let list_index = get.read::<i64>(1)?;
+            let list_order = get.read::<i64>(1)?;
 
-            let mut delete = db.prepare(r#"DELETE FROM kv WHERE key = ? AND list_index = ?"#)?;
+            let mut delete = db.prepare(r#"DELETE FROM kv WHERE key = ? AND list_order = ?"#)?;
             delete.bind(1, key)?;
-            delete.bind(2, list_index)?;
+            delete.bind(2, list_order)?;
             delete.next()?;
         }
 
@@ -78,7 +78,7 @@ pub fn list_get_strings(key: &str) -> StringListValue {
             FROM
                 kv WHERE key = ?
             ORDER BY
-                list_index ASC
+                list_order ASC
         "#,
         )?;
         statement.bind(1, key)?;
@@ -94,9 +94,7 @@ pub fn list_get_strings(key: &str) -> StringListValue {
 
 #[marine]
 /// Remove a value from a list of strings. If the value is in several places, remove all of them.
-/// `list_index` is used to preserve order of elements in a list, not the actual index.
-/// TODO: change `list_index` to `list_order` in the future when we'll change Spell Service API
-///
+/// `list_order` is used to preserve order of elements in a list, not the actual index.
 pub fn list_remove_value(key: &str, value: &str) -> UnitValue {
     let conn = db();
     let result: eyre::Result<()> = try {
@@ -105,8 +103,8 @@ pub fn list_remove_value(key: &str, value: &str) -> UnitValue {
             DELETE FROM kv
                 WHERE key = ?
                   AND string = ?
-                  AND list_index != -1
-            RETURNING list_index
+                  AND list_order != -1
+            RETURNING list_order
         "#,
         )?;
         statement.bind(1, key)?;
