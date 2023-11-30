@@ -98,6 +98,7 @@ pub fn list_get_strings(key: &str) -> StringListValue {
 pub fn list_remove_value(key: &str, value: &str) -> UnitValue {
     let conn = db();
     let result: eyre::Result<()> = try {
+        // list_order == -1 when the key isn't a part of a list
         let mut statement = conn.prepare(
             r#"
             DELETE FROM kv
