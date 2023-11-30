@@ -94,7 +94,7 @@ pub fn list_get_strings(key: &str) -> StringListValue {
 
 #[marine]
 /// Remove a value from a list of strings. If the value is in several places, remove all of them.
-/// `list_order` is used to preserve order of elements in a list, not the actual index.
+/// Returns an error on exceptions. Doesn't report if the value was actually removed.
 pub fn list_remove_value(key: &str, value: &str) -> UnitValue {
     let conn = db();
     let result: eyre::Result<()> = try {
@@ -104,17 +104,11 @@ pub fn list_remove_value(key: &str, value: &str) -> UnitValue {
                 WHERE key = ?
                   AND string = ?
                   AND list_order != -1
-            RETURNING list_order
         "#,
         )?;
         statement.bind(1, key)?;
         statement.bind(2, value)?;
-        let list: Vec<i64> = fetch_rows(statement, |statement| {
-            Ok(Some(statement.read::<i64>(0)?))
-        });
-        if list.len() == 0 {
-            return Err(eyre::eyre!("value not found"))?;
-        }
+        statement.next()?;
     };
 
     result.into()
@@ -216,12 +210,18 @@ mod tests {
         assert_eq!(get.strings, vec!["b", "в", "p", "a"]);
 
         let remove = spell.list_remove_value(key.into(), "not-in-list".into());
-        assert!(!remove.success, "remove must fail since the value isn't in the list");
+        assert!(remove.success, "remove of non-existent values from the list must return ok");
 
+        let get = spell.list_get_strings(key.into());
+        assert!(get.success, "list_get_strings failed {}", get.error);
+        assert_eq!(get.strings, vec!["b", "в", "p", "a"], "must be the same after removing of absent value");
 
         let _ = spell.set_string("str".into(), "val".into());
         let remove = spell.list_remove_value("str".into(), "val".into());
-        assert!(!remove.success, "remove must fail since the key isn't a list");
+        assert!(remove.success, "remove of non-existent key-values from a list must return ok");
+
+        let get = spell.get_string("str".into());
+        assert!(!get.absent, "non-list value must not be removed");
     }
 
     #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
