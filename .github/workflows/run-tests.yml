@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: fluencelabs/spell
           ref: ${{ github.ref }}
@@ -38,7 +38,7 @@ jobs:
           version: 8
 
       - name: Setup node with self-hosted npm registry
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
           registry-url: "https://npm.fluence.dev"
@@ -61,7 +61,7 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: fluencelabs/spell
           ref: ${{ github.ref }}
