@@ -5,6 +5,11 @@ use fluence_spell_dtos::value::{BoolValue, StringValue, U32Value, UnitValue};
 
 use crate::schema::db;
 
+//
+// Note that it's possible to call this function on an empty string value, but it will be stored as a NULL value
+// in the database since SQLite connector we use don't save an empty string as an empty string which IS possible
+// if you manually try to do so. I didn't found WHY it's happening, but it's not a really big deal, just annoying.
+//
 pub fn store_string(key: &str, value: String) -> eyre::Result<()> {
     let conn = db();
     let mut statement = conn.prepare("INSERT OR REPLACE INTO kv (key, string) VALUES (?, ?)")?;
@@ -22,7 +27,8 @@ pub fn set_string(key: &str, value: String) -> UnitValue {
 
 pub fn read_string(statement: &mut Statement, idx: usize) -> eyre::Result<Option<String>> {
     if let State::Row = statement.next()? {
-        Ok(Some(statement.read::<String>(idx)?))
+        let read_value = statement.read::<String>(idx)?;
+        Ok(Some(read_value))
     } else {
         Ok(None)
     }
@@ -32,9 +38,22 @@ pub fn read_string(statement: &mut Statement, idx: usize) -> eyre::Result<Option
 pub fn get_string(key: &str) -> StringValue {
     let result: eyre::Result<Option<String>> = try {
         let conn = db();
-        let mut statement = conn.prepare("SELECT string FROM kv WHERE key = ?")?;
+        let mut statement = conn.prepare(
+            r#"
+            SELECT string
+              FROM kv
+             WHERE key = ?
+               AND u32 IS NULL
+            "#
+        )?;
         statement.bind(1, key)?;
-        read_string(&mut statement, 0)?
+        if let State::Row = statement.next()? {
+            let read_value = statement.read::<String>(0)?;
+            println!("{}", read_value);
+            Some(read_value)
+        } else {
+            None
+        }
     };
 
     result.into()
@@ -57,10 +76,45 @@ pub fn set_u32(key: &str, value: u32) -> UnitValue {
 pub fn get_u32(key: &str) -> U32Value {
     let result: eyre::Result<Option<u32>> = try {
         let conn = db();
-        let mut statement = conn.prepare("SELECT u32 FROM kv WHERE key = ?")?;
+        let mut statement = conn.prepare(
+            r#"
+            SELECT u32
+              FROM kv
+             WHERE key = ?
+               AND u32 IS NOT NULL
+            "#
+        )?;
         statement.bind(1, key)?;
         if let State::Row = statement.next()? {
-            Some(statement.read::<i64>(0)? as u32)
+            let read_value = statement.read::<i64>(0)?;
+            Some(read_value as u32)
+        } else {
+            None
+        }
+    };
+
+    result.into()
+}
+
+#[marine]
+pub fn inc_u32(key: &str) -> U32Value {
+    let result: eyre::Result<Option<u32>> = try {
+        let conn = db();
+        let mut statement = conn.prepare(
+        r#"
+            UPDATE kv
+                SET u32 = u32 + 1
+            WHERE
+                key = ? AND
+                u32 IS NOT NULL AND
+                list
+            RETURNING u32 - 1
+        "#
+        )?;
+        statement.bind(1, key)?;
+        if let State::Row = statement.next()? {
+            let read_value = statement.read::<i64>(0)?;
+            Some(read_value as u32)
         } else {
             None
         }

@@ -3,22 +3,14 @@ use std::io::Write;
 
 use marine_rs_sdk::marine;
 
-use fluence_spell_dtos::value::{CIDValue, ScriptValue, UnitValue};
+use fluence_spell_dtos::value::{CIDv1Value, ScriptValue, UnitValue};
 
 use crate::auth::is_by_creator;
 
-const SCRIPT_ENV: &str = "script";
 const SCRIPT_FILE: &str = "/tmp/script.air";
 
-#[allow(unused)]
-fn check_env() {
-    if let Err(e) = std::env::var(SCRIPT_ENV) {
-        panic!("Script was not found in env '{}': {}", SCRIPT_ENV, e)
-    }
-}
-
 #[marine]
-pub fn set_script_source_to_file(script: String) -> UnitValue {
+pub fn set_script(script: String) -> UnitValue {
     if !is_by_creator() {
         return UnitValue::error("Only owner of the service can set the script");
     }
@@ -41,31 +33,15 @@ pub fn set_script_source_to_file(script: String) -> UnitValue {
 }
 
 #[marine]
-pub fn get_script_source_from_file() -> ScriptValue {
+pub fn get_script() -> ScriptValue {
     match std::fs::read_to_string(SCRIPT_FILE) {
-        Ok(source_code) => ScriptValue {
-            source_code,
+        Ok(value) => ScriptValue {
+            value,
             success: true,
             error: <_>::default(),
         },
         Err(e) => ScriptValue {
-            source_code: <_>::default(),
-            success: false,
-            error: e.to_string(),
-        },
-    }
-}
-
-#[marine]
-pub fn get_script_source_from_env() -> ScriptValue {
-    match std::env::var(SCRIPT_ENV) {
-        Ok(source_code) => ScriptValue {
-            source_code,
-            success: true,
-            error: <_>::default(),
-        },
-        Err(e) => ScriptValue {
-            source_code: <_>::default(),
+            value: <_>::default(),
             success: false,
             error: e.to_string(),
         },
@@ -75,23 +51,23 @@ pub fn get_script_source_from_env() -> ScriptValue {
 const RAW: u64 = 0x55;
 
 #[marine]
-pub fn script_cid() -> CIDValue {
+pub fn script_cid() -> CIDv1Value {
     use cid::multihash::{Code, MultihashDigest};
     use cid::Cid;
 
-    let script = get_script_source_from_file();
+    let script = get_script();
     if script.success {
-        let digest = Code::Sha2_256.digest(script.source_code.as_bytes());
+        let digest = Code::Sha2_256.digest(script.value.as_bytes());
         let cid = Cid::new_v1(RAW, digest);
 
-        CIDValue {
-            v1_str: cid.to_string(),
+        CIDv1Value {
+            value: cid.to_string(),
             success: true,
             error: <_>::default(),
         }
     } else {
-        CIDValue {
-            v1_str: <_>::default(),
+        CIDv1Value {
+            value: <_>::default(),
             success: false,
             error: format!("error loading script: {}", script.error),
         }

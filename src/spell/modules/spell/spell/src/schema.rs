@@ -30,8 +30,6 @@ pub fn create() {
                 start_block INTEGER, end_block INTEGER
             );
 
-            CREATE TABLE IF NOT EXISTS relay (relay TEXT);
-
             -- CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER, list_index INTEGER);
             CREATE TABLE IF NOT EXISTS kv (
                 key TEXT NOT NULL,
