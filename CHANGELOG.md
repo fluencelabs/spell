@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.32](https://github.com/fluencelabs/spell/compare/spell-v0.5.31...spell-v0.5.32) (2023-11-30)
+
+
+### Features
+
+* **service,API:** add list_remove_value [fixes NET-648] ([#220](https://github.com/fluencelabs/spell/issues/220)) ([0289815](https://github.com/fluencelabs/spell/commit/02898156e040b1fcbe40f395fef718ab8808315e))
+
 ## [0.5.31](https://github.com/fluencelabs/spell/compare/spell-v0.5.30...spell-v0.5.31) (2023-11-15)
 
 

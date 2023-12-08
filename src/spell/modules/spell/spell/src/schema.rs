@@ -30,14 +30,17 @@ pub fn create() {
                 start_block INTEGER, end_block INTEGER
             );
 
-            -- CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER, list_index INTEGER);
+
+            CREATE TABLE IF NOT EXISTS relay (relay TEXT);
+
+            -- CREATE TABLE IF NOT EXISTS kv (key TEXT, string TEXT, u32 INTEGER, list_order INTEGER);
             CREATE TABLE IF NOT EXISTS kv (
                 key TEXT NOT NULL,
                 string TEXT,
                 u32 INTEGER,
-                list_index INTEGER DEFAULT -1,
+                list_order INTEGER DEFAULT -1,
 
-                PRIMARY KEY(key, list_index)
+                PRIMARY KEY(key, list_order)
             );
 
             -- particles stored in the database, LRU-like
