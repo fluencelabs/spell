@@ -180,14 +180,14 @@ class TestRemoveWithAux:
         result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, "value"])
         assert result["success"]
         assert not result["absent"]
-        value = result["str"]
+        value = result["value"]
 
         trigger_connect()
 
         result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, "value"])
         assert result["success"]
         assert not result["absent"]
-        value2 = result["str"]
+        value2 = result["value"]
 
         assert value == value2, "the worker spell must be stopped"
 

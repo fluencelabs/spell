@@ -15,7 +15,7 @@ func inc_other_spell(fellow_spell_id: string):
     Spell fellow_spell_id
     result <- Spell.get_string("value")
     if result.success:
-        value_num <- JsonNum.parse(result.str)
+        value_num <- JsonNum.parse(result.value)
         value_new <- Math.add(value_num, 1)
         value_str <- JsonNum.stringify(value_new)
         Spell.set_string("value", value_str)

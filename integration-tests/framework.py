@@ -167,7 +167,7 @@ def get_trigger_event_ok(key_pair_name, spell_id):
 def get_counter_ok(key_pair_name, spell_id):
     counter_result = run_aqua(key_pair_name, "get_counter", [spell_id])
     assert counter_result["success"], "get_counter failed"
-    return counter_result['num']
+    return counter_result["value"]
 
 
 def create_spell(script, config, dat):
