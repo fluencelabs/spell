@@ -27,7 +27,7 @@ pub fn set_string(key: &str, value: String) -> UnitValue {
 
 pub fn read_string(statement: &mut Statement, idx: usize) -> eyre::Result<Option<String>> {
     if let State::Row = statement.next()? {
-        let read_value = statement.read::<String>(0)?;
+        let read_value = statement.read::<String>(idx)?;
         // Need to clone because otherwise `Some(read_value)` morphs into `None` O.o
         Ok(Some(read_value.to_string()))
     } else {
@@ -53,7 +53,7 @@ pub fn get_string(key: &str) -> StringValue {
             "#
         )?;
         statement.bind(1, key)?;
-
+        read_string(&mut statement, 0)?
     };
     result.into()
 }
