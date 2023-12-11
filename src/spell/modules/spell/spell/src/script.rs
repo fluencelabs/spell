@@ -97,28 +97,28 @@ mod tests {
     fn test_set_script_source_to_file(spell: marine_test_env::spell::ModuleInterface) {
         assert!(
             spell
-                .set_script_source_to_file("(null)".to_string())
+                .set_script("(null)".to_string())
                 .success,
             "set_script_source_to_file returned false"
         );
-        assert_eq!(spell.get_script_source_from_file().source_code, "(null)");
+        assert_eq!(spell.get_script().value, "(null)");
     }
 
   #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_set_script_source_to_file_twice(spell: marine_test_env::spell::ModuleInterface) {
         assert!(
             spell
-                .set_script_source_to_file("(null)".to_string())
+                .set_script("(null)".to_string())
                 .success,
             "set_script_source_to_file returned false"
         );
-        let second_set = spell.set_script_source_to_file("(seq (null) (null))".to_string());
+        let second_set = spell.set_script("(seq (null) (null))".to_string());
         assert!(
             second_set.success,
             "set_script_source_to_file returned false (fail), expected true (success)"
         );
         assert_eq!(
-            spell.get_script_source_from_file().source_code,
+            spell.get_script().value,
             "(seq (null) (null))"
         );
     }
@@ -137,7 +137,7 @@ mod tests {
             tetraplets: vec![],
         };
 
-        let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
+        let set = spell.set_script_cp("(null)".to_string(), cp);
 
         assert!(set.success, "set script failed: {}", set.error);
     }
@@ -153,7 +153,7 @@ mod tests {
             tetraplets: vec![],
         };
 
-        let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
+        let set = spell.set_script_cp("(null)".to_string(), cp);
 
         assert!(!set.success, "set script succeeded while shouldn't");
         assert_eq!(set.error, "Only owner of the service can set the script");
@@ -170,7 +170,7 @@ mod tests {
             tetraplets: vec![],
         };
 
-        let set = spell.set_script_source_to_file_cp("(null)".to_string(), cp);
+        let set = spell.set_script_cp("(null)".to_string(), cp);
 
         assert!(!set.success, "set script succeeded while shouldn't");
         assert_eq!(set.error, "Only owner of the service can set the script");
@@ -180,12 +180,12 @@ mod tests {
     fn test_cid(spell: marine_test_env::spell::ModuleInterface) {
         assert!(
             spell
-                .set_script_source_to_file("(null)".to_string())
+                .set_script("(null)".to_string())
                 .success,
             "set_script_source_to_file returned false"
         );
         assert_eq!(
-            spell.script_cid().v1_str,
+            spell.script_cid().value,
             "bafkreibiotlyad7mvyqiit3ie2ljecziknctzuzmi7qtmktxmib5aiu3cq"
         );
     }
