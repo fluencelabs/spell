@@ -32,7 +32,7 @@ func is_deployed(service_name: string, blueprint_id: string) -> bool:
     if deployed.success && deployed.absent:
         result <<- false
     else:
-        srv_id = deployed.str
+        srv_id = deployed.value
         info <- Srv.info(srv_id)
         if info.blueprint_id == blueprint_id:
             result <<- true
@@ -60,14 +60,14 @@ func is_spell_deployed(spell: SpellDefinition) -> bool:
             result <<- false
         else:
             -- TODO: update script without redeployment
-            spell_id = deployed.str
+            spell_id = deployed.value
             -- to check spell exists
             Srv.info(spell_id)
 
             Spell spell_id
             stored_script <- Spell.script_cid()
             log([spell_id, "script cid was:", stored_script.v1_str, "new:", spell.script])
-            if stored_script.v1_str == spell.script:
+            if stored_script.value == spell.script:
                 result <<- true
             else:
                 log([spell.name, "script changed, need to redeploy"])
@@ -89,7 +89,7 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
             log([spell.name, "spell is already deployed, checking config and init_args"])
 
             stored_config <- Spell.get_string(config_key(spell.name))
-            if stored_config.str != spell.config:
+            if stored_config.value != spell.config:
                 log([spell.name, "config mismath, updating config"])
                 config_json <- Ipfs.cat_from(spell.config, ipfs)
                 if config_json.success:
