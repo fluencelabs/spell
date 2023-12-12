@@ -66,7 +66,7 @@ func is_spell_deployed(spell: SpellDefinition) -> bool:
 
             Spell spell_id
             stored_script <- Spell.script_cid()
-            log([spell_id, "script cid was:", stored_script.v1_str, "new:", spell.script])
+            log([spell_id, "script cid was:", stored_script.value, "new:", spell.script])
             if stored_script.value == spell.script:
                 result <<- true
             else:
@@ -104,7 +104,7 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
                     log([spell.name, "error retrieving config", spell.config, config_json.error])
 
             stored_init_args <- Spell.get_string(init_args_key(spell.name))
-            if stored_init_args.str != spell.init_args:
+            if stored_init_args.value != spell.init_args:
                 log([spell.name, "init_args changed, updating"])
                 new_init_args <- Ipfs.cat_from(spell.init_args, ipfs)
                 if new_init_args.success:
