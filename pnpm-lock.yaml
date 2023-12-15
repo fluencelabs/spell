@@ -19,10 +19,11 @@ importers:
         version: link:../spell
 
   src/aqua/spell:
-    devDependencies:
+    dependencies:
       '@fluencelabs/aqua-lib':
         specifier: 0.8.1
         version: 0.8.1
+    devDependencies:
       npm-run-all2:
         specifier: 6.0.4
         version: 6.0.4
@@ -59,6 +60,7 @@ packages:
 
   /@fluencelabs/aqua-lib@0.8.1:
     resolution: {integrity: sha512-VLslkhi3hsNLWkgsoCyceCediqkicWphMVHZ+9eEkgMumepvo7TcqiYC14bl2LpZjn7YZ6y/OzK+Ffy8ADfKdA==}
+    dev: false
 
   /@types/normalize-package-data@2.4.4:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
