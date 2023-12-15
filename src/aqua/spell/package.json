@@ -40,6 +40,6 @@
     "@fluencelabs/aqua-lib": "0.8.1"
   },
   "devDependencies": {
-    "npm-run-all2": "6.0.4"
+    "npm-run-all2": "6.1.1"
   }
 }
