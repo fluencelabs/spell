@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.33](https://github.com/fluencelabs/spell/compare/spell-v0.5.32...spell-v0.5.33) (2023-12-15)
+
+
+### Bug Fixes
+
+* @fluencelabs/aqua-lib devDependencies -&gt; dependencies ([#223](https://github.com/fluencelabs/spell/issues/223)) ([8f73d2a](https://github.com/fluencelabs/spell/commit/8f73d2a927bf8403685ccf8dfeb74ab073e9fe4e))
+
 ## [0.5.32](https://github.com/fluencelabs/spell/compare/spell-v0.5.31...spell-v0.5.32) (2023-11-30)
 
 
