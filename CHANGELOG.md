@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.6.0](https://github.com/fluencelabs/spell/compare/spell-v0.5.33...spell-v0.6.0) (2023-12-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* **spell-service,spell-dtos:** Refactor Spell Service API + Update Installation Spell to the new API [fixes NET-643] ([#222](https://github.com/fluencelabs/spell/issues/222))
+
+### Features
+
+* **spell-service,spell-dtos:** Refactor Spell Service API + Update Installation Spell to the new API [fixes NET-643] ([#222](https://github.com/fluencelabs/spell/issues/222)) ([c7f2f59](https://github.com/fluencelabs/spell/commit/c7f2f59a1e2745fcea2c8991832c8115c37f7587))
+* update marine sdk's and configs ([#225](https://github.com/fluencelabs/spell/issues/225)) ([592833d](https://github.com/fluencelabs/spell/commit/592833d8d608cca9ad7a65bce977f4b1d526b004))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fluencelabs/aqua-lib to v0.8.2 ([#227](https://github.com/fluencelabs/spell/issues/227)) ([f882166](https://github.com/fluencelabs/spell/commit/f88216620e12bb9786e71c130861dbafeffd2b59))
+
 ## [0.5.33](https://github.com/fluencelabs/spell/compare/spell-v0.5.32...spell-v0.5.33) (2023-12-15)
 
 
