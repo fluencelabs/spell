@@ -1,16 +1,16 @@
-(xor
+(seq
  (seq
   (seq
-   (seq
-    (call %init_peer_id% ("getDataSrv" "value") [] value)
-    (call %init_peer_id% ("math" "add") [value 1] add)
-   )
-   (call %init_peer_id% ("json" "obj") ["value" add] IncState_obj)
+   (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+   (call %init_peer_id% ("getDataSrv" "value") [] -value-arg-)
   )
   (xor
-   (call %init_peer_id% ("callbackSrv" "response") [IncState_obj])
-   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+   (seq
+    (call %init_peer_id% ("math" "add") [-value-arg- 1] add)
+    (call %init_peer_id% ("json" "obj") ["value" add] IncState_obj)
+   )
+   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 0])
   )
  )
- (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+ (call %init_peer_id% ("callbackSrv" "response") [IncState_obj])
 )

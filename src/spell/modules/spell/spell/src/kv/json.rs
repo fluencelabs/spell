@@ -61,7 +61,7 @@ mod tests {
         for (k, v) in values {
             let get = spell.get_string(k.to_string());
             assert!(get.success, "get_string {} failed: {}", k, get.error);
-            assert_eq!(get.str, v.to_string());
+            assert_eq!(get.value, v.to_string());
         }
     }
 }

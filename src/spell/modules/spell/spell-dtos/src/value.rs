@@ -1,5 +1,5 @@
 use eyre::WrapErr;
-use marine_rs_sdk::{marine, CallParameters};
+use marine_rs_sdk::marine;
 use marine_sqlite_connector::Statement;
 use serde::Deserialize;
 
@@ -68,9 +68,9 @@ impl From<SpellError> for UnitValue {
 }
 
 #[marine]
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct StringValue {
-    pub str: String,
+    pub value: String,
     pub success: bool,
     pub error: String,
     pub absent: bool,
@@ -79,20 +79,20 @@ pub struct StringValue {
 impl From<eyre::Result<Option<String>>> for StringValue {
     fn from(value: eyre::Result<Option<String>>) -> Self {
         match value {
-            Ok(Some(str)) => StringValue {
-                str,
+            Ok(Some(value)) => StringValue {
+                value,
                 success: true,
                 error: String::new(),
                 absent: false,
             },
             Ok(None) => StringValue {
-                str: String::new(),
+                value: String::new(),
                 success: true,
                 error: String::new(),
                 absent: true,
             },
             Err(e) => StringValue {
-                str: String::new(),
+                value: String::new(),
                 success: false,
                 error: format_error(e),
                 absent: false,
@@ -112,9 +112,9 @@ impl SpellValueT for StringValue {
 }
 
 #[marine]
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct StringListValue {
-    pub strings: Vec<String>,
+    pub value: Vec<String>,
     pub success: bool,
     pub error: String,
 }
@@ -122,13 +122,13 @@ pub struct StringListValue {
 impl From<eyre::Result<Vec<String>>> for StringListValue {
     fn from(value: eyre::Result<Vec<String>>) -> Self {
         match value {
-            Ok(strings) => StringListValue {
-                strings,
+            Ok(value) => StringListValue {
+                value,
                 success: true,
                 error: String::new(),
             },
             Err(e) => StringListValue {
-                strings: vec![],
+                value: vec![],
                 success: false,
                 error: format_error(e),
             },
@@ -147,9 +147,9 @@ impl SpellValueT for StringListValue {
 }
 
 #[marine]
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct U32Value {
-    pub num: u32,
+    pub value: u32,
     pub success: bool,
     pub error: String,
     pub absent: bool,
@@ -158,20 +158,20 @@ pub struct U32Value {
 impl From<eyre::Result<Option<u32>>> for U32Value {
     fn from(value: eyre::Result<Option<u32>>) -> Self {
         match value {
-            Ok(Some(num)) => U32Value {
-                num,
+            Ok(Some(value)) => U32Value {
+                value,
                 success: true,
                 error: String::new(),
                 absent: false,
             },
             Ok(None) => U32Value {
-                num: u32::default(),
+                value: u32::default(),
                 success: true,
                 error: String::new(),
                 absent: true,
             },
             Err(e) => U32Value {
-                num: u32::default(),
+                value: u32::default(),
                 success: false,
                 error: format_error(e),
                 absent: false,
@@ -191,52 +191,9 @@ impl SpellValueT for U32Value {
 }
 
 #[marine]
-#[derive(Deserialize)]
-pub struct LocationValue {
-    pub relay: String,
-    pub host: String,
-    pub service_id: String,
-
-    pub success: bool,
-    pub error: String,
-}
-
-impl LocationValue {
-    pub fn error(error: eyre::Report) -> Self {
-        Self {
-            relay: String::new(),
-            host: String::new(),
-            service_id: String::new(),
-            success: false,
-            error: format_error(error),
-        }
-    }
-
-    pub fn success(relay: String, params: CallParameters) -> Self {
-        Self {
-            relay,
-            host: params.host_id,
-            service_id: params.service_id,
-            success: true,
-            error: String::new(),
-        }
-    }
-}
-
-impl SpellValueT for LocationValue {
-    fn is_success(&self) -> bool {
-        self.success
-    }
-
-    fn take_error(self) -> String {
-        self.error
-    }
-}
-
-#[marine]
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct ScriptValue {
-    pub source_code: String,
+    pub value: String,
     pub success: bool,
     pub error: String,
 }
@@ -252,14 +209,14 @@ impl SpellValueT for ScriptValue {
 }
 
 #[marine]
-#[derive(Deserialize)]
-pub struct CIDValue {
-    pub v1_str: String,
+#[derive(Debug, Deserialize)]
+pub struct CIDv1Value {
+    pub value: String,
     pub success: bool,
     pub error: String,
 }
 
-impl SpellValueT for CIDValue {
+impl SpellValueT for CIDv1Value {
     fn is_success(&self) -> bool {
         self.success
     }
@@ -270,9 +227,9 @@ impl SpellValueT for CIDValue {
 }
 
 #[marine]
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct BoolValue {
-    pub flag: bool,
+    pub value: bool,
     pub success: bool,
     pub error: String,
 }
@@ -290,13 +247,13 @@ impl SpellValueT for BoolValue {
 impl From<eyre::Result<bool>> for BoolValue {
     fn from(value: eyre::Result<bool>) -> Self {
         match value {
-            Ok(flag) => BoolValue {
-                flag,
+            Ok(value) => BoolValue {
+                value,
                 success: true,
                 error: String::new(),
             },
             Err(e) => BoolValue {
-                flag: false,
+                value: false,
                 success: false,
                 error: format_error(e),
             },
@@ -305,6 +262,7 @@ impl From<eyre::Result<bool>> for BoolValue {
 }
 
 #[marine]
+#[derive(Debug)]
 pub struct MailboxMessage {
     pub init_peer_id: String,
     pub timestamp: u64,
@@ -328,6 +286,7 @@ impl MailboxMessage {
 }
 
 #[marine]
+#[derive(Debug)]
 /// `messages` contains up to `DEFAULT_MAX_MAILBOX` latest messages,
 /// sorted in the order they were pushed
 pub struct GetMailboxResult {
@@ -354,6 +313,7 @@ impl From<eyre::Result<Vec<MailboxMessage>>> for GetMailboxResult {
 }
 
 #[marine]
+#[derive(Debug)]
 // If there is no message, `message` is empty and `absent` is `true`.
 pub struct PopMailboxResult {
     pub message: Vec<MailboxMessage>,
@@ -388,12 +348,14 @@ impl From<eyre::Result<Option<MailboxMessage>>> for PopMailboxResult {
 }
 
 #[marine]
+#[derive(Debug)]
 pub struct Log {
     pub timestamp: u64,
     pub message: String,
 }
 
 #[marine]
+#[derive(Debug)]
 /// `logs` contains up to `DEFAULT_MAX_LOGS` latest logs with timestamps,
 /// sorted in the order they were appeared
 pub struct GetLogsResult {

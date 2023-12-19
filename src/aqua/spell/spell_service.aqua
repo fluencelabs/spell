@@ -24,12 +24,12 @@ data BlockChainConfig:
   end_block: u32
 
 data BoolValue:
-  flag: bool
+  value: bool
   success: bool
   error: string
 
-data CIDValue:
-  v1_str: string
+data CIDv1Value:
+  value: string
   success: bool
   error: string
 
@@ -61,13 +61,6 @@ data GetMailboxResult:
   success: bool
   error: string
 
-data LocationValue:
-  relay: string
-  host: string
-  service_id: string
-  success: bool
-  error: string
-
 data PopMailboxResult:
   message: []MailboxMessage
   success: bool
@@ -75,17 +68,17 @@ data PopMailboxResult:
   error: string
 
 data ScriptValue:
-  source_code: string
+  value: string
   success: bool
   error: string
 
 data StringListValue:
-  strings: []string
+  value: []string
   success: bool
   error: string
 
 data StringValue:
-  str: string
+  value: string
   success: bool
   error: string
   absent: bool
@@ -101,7 +94,7 @@ data TriggerConfigValue:
   error: string
 
 data U32Value:
-  num: u32
+  value: u32
   success: bool
   error: string
   absent: bool
@@ -114,25 +107,22 @@ service Spell:
   exists(key: string) -> BoolValue
   get_all_errors() -> AllErrorsResult
   get_errors(particle_id: string) -> []LastErrorEntry
-  get_location() -> LocationValue
   get_logs() -> GetLogsResult
   get_mailbox() -> GetMailboxResult
-  get_script_source_from_env() -> ScriptValue
-  get_script_source_from_file() -> ScriptValue
+  get_script() -> ScriptValue
   get_string(key: string) -> StringValue
   get_trigger_config() -> TriggerConfigValue
   get_u32(key: string) -> U32Value
   list_get_strings(key: string) -> StringListValue
   list_pop_string(key: string) -> StringValue
   list_push_string(key: string, value: string) -> UnitValue
-  list_remove_value(key: string, value: string) -> UnitValue
+  list_remove_string(key: string, value: string) -> UnitValue
   pop_mailbox() -> PopMailboxResult
   push_mailbox(message: string) -> UnitValue
   remove_key(key: string) -> UnitValue
-  script_cid() -> CIDValue
+  script_cid() -> CIDv1Value
   set_json_fields(json: string) -> UnitValue
-  set_relay_peer_id(relay_peer_id: string) -> UnitValue
-  set_script_source_to_file(script: string) -> UnitValue
+  set_script(script: string) -> UnitValue
   set_string(key: string, value: string) -> UnitValue
   set_trigger_config(config: TriggerConfig) -> UnitValue
   set_u32(key: string, value: u32) -> UnitValue

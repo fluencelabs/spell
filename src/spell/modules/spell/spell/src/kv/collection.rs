@@ -44,21 +44,23 @@ pub fn list_pop_string(key: &str) -> StringValue {
             r#"
             SELECT string, max(list_order) FROM kv
                 WHERE key = ?
+                  AND list_order >= 0
         "#,
         )?;
         get.bind(1, key)?;
 
         let mut result = None;
-
         if let State::Row = get.next()? {
-            result = Some(get.read::<String>(0)?);
-            let list_order = get.read::<i64>(1)?;
+            let val = get.read::<String>(0)?;
+            if let Some(list_order) = get.read::<Option<i64>>(1)? {
+                let mut delete = db.prepare(r#"DELETE FROM kv WHERE key = ? AND list_order = ?"#)?;
+                delete.bind(1, key)?;
+                delete.bind(2, list_order)?;
+                delete.next()?;
 
-            let mut delete = db.prepare(r#"DELETE FROM kv WHERE key = ? AND list_order = ?"#)?;
-            delete.bind(1, key)?;
-            delete.bind(2, list_order)?;
-            delete.next()?;
-        }
+                result = Some(val.to_string());
+            }
+        };
 
         result
     };
@@ -76,14 +78,17 @@ pub fn list_get_strings(key: &str) -> StringListValue {
             SELECT
                 string
             FROM
-                kv WHERE key = ?
-            ORDER BY
+                kv
+           WHERE key = ?
+             AND list_order >= 0
+        ORDER BY
                 list_order ASC
         "#,
         )?;
         statement.bind(1, key)?;
         let list: Vec<String> = fetch_rows(statement, |statement| {
-            Ok(Some(statement.read::<String>(0)?))
+            let val = statement.read::<String>(0)?;
+            Ok(Some(val.to_string()))
         });
 
         list
@@ -95,7 +100,7 @@ pub fn list_get_strings(key: &str) -> StringListValue {
 #[marine]
 /// Remove a value from a list of strings. If the value is in several places, remove all of them.
 /// Returns an error on exceptions. Doesn't report if the value was actually removed.
-pub fn list_remove_value(key: &str, value: &str) -> UnitValue {
+pub fn list_remove_string(key: &str, value: &str) -> UnitValue {
     let conn = db();
     let result: eyre::Result<()> = try {
         // list_order == -1 when the key isn't a part of a list
@@ -103,12 +108,13 @@ pub fn list_remove_value(key: &str, value: &str) -> UnitValue {
             r#"
             DELETE FROM kv
                 WHERE key = ?
-                  AND string = ?
+                  AND (string = ? OR (string IS NULL AND ? IS NULL))
                   AND list_order != -1
         "#,
         )?;
         statement.bind(1, key)?;
         statement.bind(2, value)?;
+        statement.bind(3, value)?;
         statement.next()?;
     };
 
@@ -146,7 +152,7 @@ mod tests {
 
         let get = spell.list_get_strings(key.into());
         assert!(get.success, "list_get_strings failed {}", get.error);
-        assert_eq!(get.strings, vec!["b", "f", "в"]);
+        assert_eq!(get.value, vec!["b", "f", "в"]);
     }
 
     #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
@@ -158,18 +164,18 @@ mod tests {
             let get = spell.list_get_strings(key.into());
             assert!(get.success, "list_get_strings failed {}", get.error);
             assert_eq!(
-                get.strings.len(),
+                get.value.len(),
                 len,
                 "expected {}, got {}",
                 len,
-                get.strings.len()
+                get.value.len()
             );
         };
 
         let pop = |spell: &mut SPELL, expectation| {
             let pop = spell.list_pop_string(key.into());
             assert!(pop.success, "pop failed {}", pop.error);
-            assert_eq!(pop.str, expectation);
+            assert_eq!(pop.value, expectation);
         };
 
         let push = |spell: &mut SPELL, value: &str| {
@@ -188,7 +194,7 @@ mod tests {
         check_len(&mut spell, 3);
 
         let get = spell.list_get_strings(key.into());
-        assert_eq!(get.strings, &["хаха", "хаха", "haha"]);
+        assert_eq!(get.value, &["хаха", "хаха", "haha"]);
     }
 
     #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
@@ -203,22 +209,22 @@ mod tests {
         let _ = spell.list_push_string(key.into(), value.into());
         let _ = spell.list_push_string(key.into(), "a".into());
 
-        let remove = spell.list_remove_value(key.into(), value.into());
+        let remove = spell.list_remove_string(key.into(), value.into());
         assert!(remove.success, "remove failed {}", remove.error);
 
         let get = spell.list_get_strings(key.into());
         assert!(get.success, "list_get_strings failed {}", get.error);
-        assert_eq!(get.strings, vec!["b", "в", "p", "a"]);
+        assert_eq!(get.value, vec!["b", "в", "p", "a"]);
 
-        let remove = spell.list_remove_value(key.into(), "not-in-list".into());
+        let remove = spell.list_remove_string(key.into(), "not-in-list".into());
         assert!(remove.success, "remove of non-existent values from the list must return ok");
 
         let get = spell.list_get_strings(key.into());
         assert!(get.success, "list_get_strings failed {}", get.error);
-        assert_eq!(get.strings, vec!["b", "в", "p", "a"], "must be the same after removing of absent value");
+        assert_eq!(get.value, vec!["b", "в", "p", "a"], "must be the same after removing of absent value");
 
         let _ = spell.set_string("str".into(), "val".into());
-        let remove = spell.list_remove_value("str".into(), "val".into());
+        let remove = spell.list_remove_string("str".into(), "val".into());
         assert!(remove.success, "remove of non-existent key-values from a list must return ok");
 
         let get = spell.get_string("str".into());
@@ -238,20 +244,77 @@ mod tests {
         let _ = spell.list_push_string(key.into(), value.into());
         let _ = spell.list_push_string(key.into(), "a".into());
 
-        let _ = spell.list_remove_value(key.into(), value.into());
+        let _ = spell.list_remove_string(key.into(), value.into());
 
         let _ = spell.list_push_string(key.into(), "n1".into());
         let _ = spell.list_push_string(key.into(), "n2".into());
 
         let get = spell.list_get_strings(key.into());
         assert!(get.success, "list_get_strings failed {}", get.error);
-        assert_eq!(get.strings, vec![value_first, "в", "p", "a", "n1", "n2"]);
+        assert_eq!(get.value, vec![value_first, "в", "p", "a", "n1", "n2"]);
 
-        let _ = spell.list_remove_value(key.into(), value_first.into());
+        let _ = spell.list_remove_string(key.into(), value_first.into());
         let get = spell.list_get_strings(key.into());
         assert!(get.success, "list_get_strings failed {}", get.error);
-        assert_eq!(get.strings, vec!["в", "p", "a", "n1", "n2"]);
+        assert_eq!(get.value, vec!["в", "p", "a", "n1", "n2"]);
 
     }
 
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
+    fn test_push_pop_same_keys(spell: marine_test_env::spell::ModuleInterface) {
+        let key = "a";
+        let val1 = "a";
+        let val2 = "b";
+
+        let _ = spell.set_string(key.into(), val1.into());
+        let _ = spell.list_push_string(key.into(), val2.into());
+        let list = spell.list_get_strings(key.into());
+        assert!(list.success, "list_get_strings failed {}", list.error);
+        assert_eq!(list.value, vec![val2], "list must contain only the elements we put in it");
+
+        let key = "b";
+        let val1 = "a";
+
+        let _ = spell.set_string(key.into(), val1.into());
+        let pop = spell.list_pop_string(key.into());
+        assert!(pop.success, "pop failed {}", pop.error);
+        assert!(pop.absent, "pop mustn't return string value");
+
+    }
+
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
+    fn test_push_pop_empty_string(spell: marine_test_env::spell::ModuleInterface) {
+        let key = "a";
+        let empty = "";
+        let val1 = "a";
+        let val2 = "b";
+
+        let _ = spell.list_push_string(key.into(), val1.into());
+        let _ = spell.list_push_string(key.into(), empty.into());
+        let _ = spell.list_push_string(key.into(), val2.into());
+
+        let list = spell.list_get_strings(key.into());
+        assert!(list.success, "list_get_strings failed {}", list.error);
+        assert_eq!(list.value, vec![val1, empty, val2]);
+    }
+
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
+    fn test_remove_empty_string(spell: marine_test_env::spell::ModuleInterface) {
+        let key = "a";
+        let empty = "";
+        let val1 = "a";
+        let val2 = "b";
+
+        let _ = spell.list_push_string(key.into(), val1.into());
+        let _ = spell.list_push_string(key.into(), empty.into());
+        let _ = spell.list_push_string(key.into(), empty.into());
+        let _ = spell.list_push_string(key.into(), empty.into());
+        let _ = spell.list_push_string(key.into(), empty.into());
+        let _ = spell.list_push_string(key.into(), val2.into());
+
+        let _ = spell.list_remove_string(key.into(), empty.into());
+        let list = spell.list_get_strings(key.into());
+        assert!(list.success, "list_get_strings failed {}", list.error);
+        assert_eq!(list.value, vec![val1, val2]);
+    }
 }
