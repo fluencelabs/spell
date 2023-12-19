@@ -9,8 +9,8 @@
     "types.aqua"
   ],
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=8"
+    "node": "21.4.0",
+    "pnpm": "8.12.1"
   },
   "config": {
     "SERVICE_DIR": "../../spell/modules/spell/spell",
