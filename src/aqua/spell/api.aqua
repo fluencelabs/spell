@@ -1,4 +1,4 @@
-module API declares *
+aqua API declares *
 
 import "@fluencelabs/aqua-lib/builtin.aqua"
 

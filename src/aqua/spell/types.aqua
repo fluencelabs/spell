@@ -1,4 +1,4 @@
-module Types declares *
+aqua Types declares *
 
 alias Error: string
 alias SpellID: string

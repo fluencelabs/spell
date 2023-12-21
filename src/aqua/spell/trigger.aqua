@@ -1,4 +1,4 @@
-module Trigger declares *
+aqua Trigger declares *
 
 import "@fluencelabs/aqua-lib/builtin.aqua"
 import Spell, TriggerConfig from "spell_service.aqua"
