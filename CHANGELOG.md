@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.1](https://github.com/fluencelabs/spell/compare/spell-v0.6.0...spell-v0.6.1) (2023-12-21)
+
+
+### Features
+
+* **spell:** Use `aqua` keyword instead of `module` ([#228](https://github.com/fluencelabs/spell/issues/228)) ([f94a50b](https://github.com/fluencelabs/spell/commit/f94a50b2bbfeda4cb56ce927e193b3b936fa7669))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fluencelabs/aqua-lib to v0.9.0 ([#229](https://github.com/fluencelabs/spell/issues/229)) ([25d3bb9](https://github.com/fluencelabs/spell/commit/25d3bb9fdc39eeb442c7015fea449f7fe650d8a8))
+* **integration-tests:** fix field rename ([#230](https://github.com/fluencelabs/spell/issues/230)) ([2208142](https://github.com/fluencelabs/spell/commit/22081428ddd28af112428f30fe4f52d6688eab2c))
+
 ## [0.6.0](https://github.com/fluencelabs/spell/compare/spell-v0.5.33...spell-v0.6.0) (2023-12-19)
 
 
