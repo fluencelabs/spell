@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Spells Integration Tests",
   "dependencies": {
-    "@fluencelabs/aqua-lib": "0.8.2"
+    "@fluencelabs/aqua-lib": "0.9.0"
   },
   "scripts": {
     "compile-aqua": "fluence aqua -i . -o ./target/typescript",
