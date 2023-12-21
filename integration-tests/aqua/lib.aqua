@@ -147,7 +147,7 @@ func get_all_trigger_events(spell_id: string) -> []TriggerEvent, ?string:
         Spell spell_id
         result <- Spell.list_get_strings("triggers")
         if result.success:
-            for trigger <- result.strings:
+            for trigger <- result.value:
                 triggers <- TriggerEventJson.parse(trigger)
         else:
             error <<- result.error
