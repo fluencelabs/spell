@@ -13,7 +13,7 @@ marine-rs-sdk = "0.10.2"
 marine-sqlite-connector = { workspace = true }
 eyre = "0.6.8"
 cid = "0.10.0"
-thiserror = "1.0.37"
+thiserror = "1.0.51"
 fstrings = "0.2.3"
 fluence-spell-dtos = { path = "../spell-dtos", version = "0.6.0" }
 serde = "1.0.149"
