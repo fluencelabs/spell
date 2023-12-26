@@ -7,4 +7,4 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
-marine-sqlite-connector = "0.9.3"
+marine-sqlite-connector = "=0.9.3"
