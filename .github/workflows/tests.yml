@@ -10,7 +10,7 @@ on:
       nox-image:
         description: "nox image tag"
         type: string
-        default: "fluencelabs/nox:unstable_minimal"
+        default: "fluencelabs/nox:unstable"
       fcli-version:
         description: "@fluencelabs/fcli version"
         type: string
@@ -64,9 +64,6 @@ jobs:
           registry-url: "https://npm.fluence.dev"
           cache: "npm"
           cache-dependency-path: "integration-tests/package-lock.json"
-
-      - run: npm install
-        working-directory: integration-tests
 
       - name: Setup fcli
         uses: fluencelabs/setup-fluence@v1
