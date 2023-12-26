@@ -25,6 +25,6 @@
   "dependencies": {
     "@fluencelabs/aqua-ipfs": "0.5.24",
     "@fluencelabs/aqua-lib": "0.9.0",
-    "@fluencelabs/spell": "../.."
+    "@fluencelabs/spell": "workspace:*"
   }
 }
