@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.3](https://github.com/fluencelabs/spell/compare/spell-v0.6.2...spell-v0.6.3) (2023-12-26)
+
+
+### Bug Fixes
+
+* **deps:** update sqlite3 wasm file to 0.18.2 ([#242](https://github.com/fluencelabs/spell/issues/242)) ([efb0fed](https://github.com/fluencelabs/spell/commit/efb0fed00f7eb2fb43aec372cbaba8c1fe0574c5))
+
 ## [0.6.2](https://github.com/fluencelabs/spell/compare/spell-v0.6.1...spell-v0.6.2) (2023-12-26)
 
 
