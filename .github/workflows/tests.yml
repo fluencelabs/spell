@@ -57,13 +57,11 @@ jobs:
           repository: fluencelabs/spell
           ref: ${{ inputs.ref }}
 
-      # - name: Setup node with self-hosted registry
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: "18"
-      #     registry-url: "https://npm.fluence.dev"
-      #     cache: "npm"
-      #     cache-dependency-path: "integration-tests/package-lock.json"
+      - name: Setup node with self-hosted registry
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          registry-url: "https://npm.fluence.dev"
 
       - name: Setup fcli
         uses: fluencelabs/setup-fluence@v1
@@ -117,7 +115,7 @@ jobs:
           cat <<SNAPSHOT >> $GITHUB_STEP_SUMMARY
           ## Used versions
           \`\`\`
-          $(npx fluence dep v)
+          $(fluence dep v)
           \`\`\`
           SNAPSHOT
 
