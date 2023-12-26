@@ -104,7 +104,7 @@ jobs:
       - name: Install fluence deps
         env:
           FLUENCE_USER_DIR: "${{ github.workspace }}/tmp/.fluence"
-        run: fluence dependency npm install
+        run: fluence dep i
         working-directory: integration-tests
 
       - name: Run aqua tests
