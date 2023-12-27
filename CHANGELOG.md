@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.3](https://github.com/fluencelabs/spell/compare/spell-v0.6.2...spell-v0.6.3) (2023-12-26)
+
+
+### Bug Fixes
+
+* **deps:** update sqlite3 wasm file to 0.18.2 ([#242](https://github.com/fluencelabs/spell/issues/242)) ([efb0fed](https://github.com/fluencelabs/spell/commit/efb0fed00f7eb2fb43aec372cbaba8c1fe0574c5))
+
+## [0.6.2](https://github.com/fluencelabs/spell/compare/spell-v0.6.1...spell-v0.6.2) (2023-12-26)
+
+
+### Bug Fixes
+
+* **deps:** marine-sqlite-connector = 0.9.3 ([#240](https://github.com/fluencelabs/spell/issues/240)) ([3cc9192](https://github.com/fluencelabs/spell/commit/3cc919275fe13f514e92dfacb2741d5b657a0507))
+
 ## [0.6.1](https://github.com/fluencelabs/spell/compare/spell-v0.6.0...spell-v0.6.1) (2023-12-21)
 
 
