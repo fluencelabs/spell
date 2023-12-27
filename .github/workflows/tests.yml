@@ -14,7 +14,7 @@ on:
       fcli-version:
         description: "@fluencelabs/fcli version"
         type: string
-        default: "stage"
+        default: "main"
       ref:
         description: "GitHub ref to checkout to"
         type: string
