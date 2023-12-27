@@ -63,6 +63,9 @@ jobs:
           node-version: "18"
           registry-url: "https://npm.fluence.dev"
 
+      - name: Setup Rust toolchain
+        uses: dsherret/rust-toolchain-file@v1
+
       - name: Setup fcli
         uses: fluencelabs/setup-fluence@v1
         with:
