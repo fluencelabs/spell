@@ -11,6 +11,14 @@ marine build --release
 mkdir -p artifacts
 cp ../target/wasm32-wasi/release/spell.wasm artifacts/
 
+# generate Aqua bindings
+PROJECT_DIR="$(pwd)/../../../../.."
+SPELL_AQUA_API="$PROJECT_DIR/src/aqua/spell"
+SPELL_SERVICE_API="$SPELL_AQUA_API/spell_service.aqua"
+
+marine aqua artifacts/spell.wasm > "$SPELL_SERVICE_API"
+echo "generated spell_service.aqua"
+
 if [[ ! -f "artifacts/sqlite3.wasm" ]]; then
   # download SQLite 3
   curl -L https://github.com/fluencelabs/sqlite/releases/download/sqlite-wasm-v0.18.2/sqlite3.wasm -o artifacts/sqlite3.wasm

@@ -44,16 +44,15 @@ jobs:
           registry-url: "https://npm.fluence.dev"
           cache: "pnpm"
 
-      - run: pnpm install
-        working-directory: src/aqua/installation-spell
+      - run: pnpm install -r
 
       - name: Setup fcli
         uses: fluencelabs/setup-fluence@v1
         with:
           version: unstable
 
-      - run: pnpm run check
-        working-directory: src/aqua/installation-spell
+      - name: Check if aqua compiles
+        run: fluence aqua --dry
 
   cargo:
     name: "Run cargo tests"

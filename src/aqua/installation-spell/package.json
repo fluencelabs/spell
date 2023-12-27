@@ -7,9 +7,6 @@
     "node": ">=18",
     "pnpm": ">=8"
   },
-  "scripts": {
-    "check": "fluence aqua -i . --dry --import ./node_modules"
-  },
   "files": [
     "src/aqua/*"
   ],

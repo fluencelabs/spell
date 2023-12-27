@@ -96,6 +96,15 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: integration-tests
 
+      - name: Check spell Aqua compiles
+        run: fluence aqua --dry -i src/aqua/spell
+
+      - name: Check installation-spell Aqua compiles
+        run: fluence aqua --dry -i src/aqua/installation-spell
+
+      - name: Check integration-tests Aqua compiles
+        run: fluence aqua --dry -i integration-tests/aqua
+
       - name: Run aqua tests
         env:
           FLUENCE_USER_DIR: "${{ github.workspace }}/tmp/.fluence"
