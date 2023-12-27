@@ -96,6 +96,8 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: integration-tests
 
+      - run: fluence dep i
+
       - name: Check spell Aqua compiles
         run: fluence aqua --dry -i src/aqua/spell
 

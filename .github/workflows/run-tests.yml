@@ -51,6 +51,8 @@ jobs:
         with:
           version: main
 
+      - run: fluence dep i
+
       - name: Check if aqua compiles
         run: fluence aqua --dry
 
