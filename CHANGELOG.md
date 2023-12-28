@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.4](https://github.com/fluencelabs/spell/compare/spell-v0.6.3...spell-v0.6.4) (2023-12-28)
+
+
+### Bug Fixes
+
+* **deps:** update aqua-lib, clean up integration tests ([#245](https://github.com/fluencelabs/spell/issues/245)) ([93ac3ee](https://github.com/fluencelabs/spell/commit/93ac3eeb7f4ffd63a8d3e386ab86aebe108ef894))
+
 ## [0.6.3](https://github.com/fluencelabs/spell/compare/spell-v0.6.2...spell-v0.6.3) (2023-12-26)
 
 
