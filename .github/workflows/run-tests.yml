@@ -1,28 +1,28 @@
-name: "test"
+name: 'test'
 
 on:
   pull_request:
     paths-ignore:
-      - "**.md"
-      - ".github/**"
-      - "!.github/workflows/tests.yml"
-      - "!.github/workflows/run-tests.yml"
+      - '**.md'
+      - '.github/**'
+      - '!.github/workflows/tests.yml'
+      - '!.github/workflows/run-tests.yml'
   push:
     branches:
-      - "main"
+      - 'main'
     paths-ignore:
-      - "**.md"
-      - ".github/**"
-      - "!.github/workflows/tests.yml"
-      - "!.github/workflows/run-tests.yml"
+      - '**.md'
+      - '.github/**'
+      - '!.github/workflows/tests.yml'
+      - '!.github/workflows/run-tests.yml'
 
 concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}"
+  group: '${{ github.workflow }}-${{ github.ref }}'
   cancel-in-progress: true
 
 jobs:
   installation-spell:
-    name: "Check installation spell compiles"
+    name: 'Check installation spell compiles'
     runs-on: ubuntu-latest
 
     steps:
@@ -40,11 +40,14 @@ jobs:
       - name: Setup node with self-hosted npm registry
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
-          registry-url: "https://npm.fluence.dev"
-          cache: "pnpm"
+          node-version: '18'
+          registry-url: 'https://npm.fluence.dev'
+          cache: 'pnpm'
 
       - run: pnpm install -r
+
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
 
       - name: Setup fcli
         uses: fluencelabs/setup-fluence@v1
@@ -57,7 +60,7 @@ jobs:
         run: fluence aqua --dry
 
   cargo:
-    name: "Run cargo tests"
+    name: 'Run cargo tests'
     runs-on: builder
     timeout-minutes: 60
 
