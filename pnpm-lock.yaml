@@ -9,8 +9,8 @@ importers:
   src/aqua/installation-spell:
     dependencies:
       '@fluencelabs/aqua-ipfs':
-        specifier: 0.5.24
-        version: 0.5.24
+        specifier: 0.5.28
+        version: 0.5.28
       '@fluencelabs/aqua-lib':
         specifier: 0.9.0
         version: 0.9.0
@@ -52,14 +52,10 @@ packages:
       js-tokens: 4.0.0
     dev: true
 
-  /@fluencelabs/aqua-ipfs@0.5.24:
-    resolution: {integrity: sha512-VBJN3JycQk20vb/Gjz7r4b9EMJDp+BB7YwvdfZYK88CwpHaSmu+pKOA1Zj7tBBDa6vZyKsqxhZp7Em9Ad+TTdg==}
+  /@fluencelabs/aqua-ipfs@0.5.28:
+    resolution: {integrity: sha512-2OUnSc+si9ljqWIZeQB7mydMmiGDnk/82/bEwmT1Y50zZ8NFDYQctHR1qBMn0JPCnixKiGXAiez2w60NUGUZwA==}
     dependencies:
-      '@fluencelabs/aqua-lib': 0.8.1
-    dev: false
-
-  /@fluencelabs/aqua-lib@0.8.1:
-    resolution: {integrity: sha512-VLslkhi3hsNLWkgsoCyceCediqkicWphMVHZ+9eEkgMumepvo7TcqiYC14bl2LpZjn7YZ6y/OzK+Ffy8ADfKdA==}
+      '@fluencelabs/aqua-lib': 0.9.0
     dev: false
 
   /@fluencelabs/aqua-lib@0.9.0:

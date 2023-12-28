@@ -1,10 +1,10 @@
 [workspace]
+resolver = "2"
 members = [
   "spell",
   "spell-dtos",
   "spell-distro"
 ]
-resolver = "2"
 
 [workspace.dependencies]
 marine-sqlite-connector = "0.9.3"

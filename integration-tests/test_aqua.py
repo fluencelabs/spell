@@ -71,7 +71,7 @@ class TestSmoke:
 
         result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, "value"])
         assert result["success"]
-        value = int(result['str'])
+        value = int(result['value'])
 
         assert counter == value, "values should be equal since 'value' incremented each time the spell is called"
         assert counter != 0, "the spell must be executed at least once at this point"
@@ -104,12 +104,12 @@ class TestInstall:
     def test_install_get_script(self):
         script_result = run_aqua(self.key_pair_name, "get_script", [self.spell_id])
         assert script_result["success"]
-        assert script_result["source_code"] == self.air_script, "spell's script should be equal the one that was set during installtion"
+        assert script_result["value"] == self.air_script, "spell's script should be equal the one that was set during installtion"
 
     def test_install_get_count(self):
         counter_result = run_aqua(self.key_pair_name, "get_counter", [self.spell_id])
         assert counter_result["success"]
-        assert counter_result['num'] == 1, "the spell should be run exactly once at this point"
+        assert counter_result['value'] == 1, "the spell should be run exactly once at this point"
         counter = get_counter_ok(self.key_pair_name, self.spell_id)
 
     # TODO: what is it and how is it working?
