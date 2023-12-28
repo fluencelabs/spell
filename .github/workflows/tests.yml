@@ -4,32 +4,32 @@ on:
   workflow_call:
     inputs:
       fluence-env:
-        description: "Fluence enviroment to run tests agains"
+        description: 'Fluence enviroment to run tests agains'
         type: string
-        default: "local"
+        default: 'local'
       nox-image:
-        description: "nox image tag"
+        description: 'nox image tag'
         type: string
-        default: "fluencelabs/nox:unstable"
+        default: 'fluencelabs/nox:unstable'
       fcli-version:
-        description: "@fluencelabs/fcli version"
+        description: '@fluencelabs/fcli version'
         type: string
-        default: "main"
+        default: 'main'
       ref:
-        description: "GitHub ref to checkout to"
+        description: 'GitHub ref to checkout to'
         type: string
-        default: "main"
+        default: 'main'
 
 env:
   CI: true
   FORCE_COLOR: true
-  NOX_IMAGE: "${{ inputs.nox-image }}"
-  FLUENCE_ENV: "${{ inputs.fluence-env }}"
+  NOX_IMAGE: '${{ inputs.nox-image }}'
+  FLUENCE_ENV: '${{ inputs.fluence-env }}'
   CARGO_UNSTABLE_SPARSE_REGISTRY: true
 
 jobs:
   aqua:
-    name: "Run aqua tests"
+    name: 'Run aqua tests'
     runs-on: builder
 
     permissions:
@@ -44,7 +44,7 @@ jobs:
           path: jwt/github
           role: ci
           method: jwt
-          jwtGithubAudience: "https://github.com/fluencelabs"
+          jwtGithubAudience: 'https://github.com/fluencelabs'
           jwtTtl: 300
           secrets: |
             kv/docker-registry/basicauth/ci username | DOCKER_USERNAME ;
@@ -60,11 +60,11 @@ jobs:
       - name: Setup node with self-hosted registry
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
-          registry-url: "https://npm.fluence.dev"
+          node-version: '18'
+          registry-url: 'https://npm.fluence.dev'
 
       - name: Setup Rust toolchain
-        uses: dsherret/rust-toolchain-file@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v1
 
       - name: Setup fcli
         uses: fluencelabs/setup-fluence@v1
@@ -85,14 +85,14 @@ jobs:
       - name: Run nox network
         uses: isbang/compose-action@v1.4.1
         with:
-          compose-file: ".github/e2e/docker-compose.yml"
-          down-flags: "--volumes"
+          compose-file: '.github/e2e/docker-compose.yml'
+          down-flags: '--volumes'
 
       - name: Setup python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
-          cache: "pip"
+          python-version: '3.9'
+          cache: 'pip'
           cache-dependency-path: integration-tests/requirements.txt
 
       - name: Install python requirements
@@ -112,7 +112,7 @@ jobs:
 
       - name: Run aqua tests
         env:
-          FLUENCE_USER_DIR: "${{ github.workspace }}/tmp/.fluence"
+          FLUENCE_USER_DIR: '${{ github.workspace }}/tmp/.fluence'
         run: pytest -n auto test_aqua.py
         working-directory: integration-tests
 
