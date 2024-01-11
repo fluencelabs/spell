@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.6](https://github.com/fluencelabs/spell/compare/spell-v0.6.5...spell-v0.6.6) (2024-01-11)
+
+
+### Bug Fixes
+
+* **deps:** Bump aqua-ipfs to 0.5.30 ([d30c74c](https://github.com/fluencelabs/spell/commit/d30c74cea7a68070e7ce7c8e1755f7d420daa2f5))
+
 ## [0.6.5](https://github.com/fluencelabs/spell/compare/spell-v0.6.4...spell-v0.6.5) (2024-01-04)
 
 
