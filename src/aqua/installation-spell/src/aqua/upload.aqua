@@ -31,7 +31,7 @@ func upload_worker_config(ipfs: Multiaddr, config: LocalWorkerConfig) -> CID:
         init_args <- IpfsClient.upload_string(ipfs, init_args_str)
         spells <<- SpellDefinition(name = sp.name, script = script, config = cfg, init_args = init_args)
 
-    rac = WorkerDefinition(services = services, spells = spells)
+    rac = WorkerDefinition(services = services, spells = spells, total_memory_limit = config.total_memory_limit)
     json <- WDJson.stringify(rac)
     cid <- IpfsClient.upload_string(ipfs, json)
     <- cid

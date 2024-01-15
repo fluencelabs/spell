@@ -26,6 +26,7 @@ data LocalService:
 data LocalWorkerConfig:
     services: []LocalService
     spells: []LocalSpell
+    total_memory_limit: u64
 
 data LocalWorkerDeployConfig:
     name: string
@@ -56,6 +57,7 @@ data SpellDefinition:
 data WorkerDefinition:
     services: []Service
     spells: []SpellDefinition
+    total_memory_limit: u64
 
 service WDJson("json"):
     stringify(wd: WorkerDefinition) -> JsonString
