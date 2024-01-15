@@ -22,6 +22,7 @@ data LocalModule:
 data LocalService:
     name: string
     modules: []LocalModule
+    total_memory_limit: u64
 
 data LocalWorkerConfig:
     services: []LocalService
@@ -46,6 +47,7 @@ data Module:
 data Service:
     name: string
     modules: []Module
+    total_memory_limit: u64
 
 data SpellDefinition:
     name: string
