@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.8](https://github.com/fluencelabs/spell/compare/spell-v0.6.7...spell-v0.6.8) (2024-01-15)
+
+
+### Features
+
+* **installation-spell:** add total_memory_limit [fixes DXJ-579] ([#259](https://github.com/fluencelabs/spell/issues/259)) ([49fffde](https://github.com/fluencelabs/spell/commit/49fffde8b8fc61a7039a5d251798d391335262c2))
+
 ## [0.6.7](https://github.com/fluencelabs/spell/compare/spell-v0.6.6...spell-v0.6.7) (2024-01-15)
 
 
