@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/fluencelabs/spell#readme",
   "dependencies": {
-    "@fluencelabs/aqua-lib": "0.9.0"
+    "@fluencelabs/aqua-lib": "0.9.1"
   },
   "devDependencies": {
     "npm-run-all2": "6.0.4"
