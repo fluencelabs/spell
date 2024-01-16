@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.9](https://github.com/fluencelabs/spell/compare/spell-v0.6.8...spell-v0.6.9) (2024-01-16)
+
+
+### Features
+
+* add spell name to deal logs ([#261](https://github.com/fluencelabs/spell/issues/261)) ([7d386f1](https://github.com/fluencelabs/spell/commit/7d386f1c9f473b54d4a8183881f54aa3201855e6))
+
 ## [0.6.8](https://github.com/fluencelabs/spell/compare/spell-v0.6.7...spell-v0.6.8) (2024-01-15)
 
 
