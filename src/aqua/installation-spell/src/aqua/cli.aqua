@@ -51,11 +51,17 @@ data LogsDealResult:
     deal_id: string
     logs: []LogsDeal
 
-func get_logs_deal(deals: []string) -> []LogsDealResult:
+data DealIdAndSpellName:
+    deal_id: string
+    spell_name: string
+
+func get_logs_deal(deal_ids_and_spell_names: []DealIdAndSpellName) -> []LogsDealResult:
     result: *LogsDealResult
 
     on HOST_PEER_ID:
-        for deal_id <- deals:
+        for deal_id_and_spell_name <- deal_ids_and_spell_names:
+            deal_id = deal_id_and_spell_name.deal_id
+            spell_name = deal_id_and_spell_name.spell_name
             subnet_res <- Subnet.resolve(deal_id)
             if !subnet_res.success:
                 error <- Op.concat_strings("Failed to resolve subnet: ", subnet_res.error!)
@@ -70,7 +76,7 @@ func get_logs_deal(deals: []string) -> []LogsDealResult:
                         logs <<- LogsDeal(error = ?["Worker is not installed yet"], spell_id = nil, worker_id = nil, host_id = host_id, logs = nil)
                     else:
                         on worker_id! via host_id:
-                            spell_id <- Srv.resolve_alias("worker-spell")
+                            spell_id <- Srv.resolve_alias(spell_name)
                             Spell spell_id
                             get_res <- Spell.get_logs()
                             error: *string
