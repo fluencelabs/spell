@@ -8,3 +8,4 @@ members = [
 
 [workspace.dependencies]
 marine-sqlite-connector = "0.9.3"
+#marine-sqlite-connector =  { path = "/home/maar/Fluence/sqlite-wasm-connector" }

@@ -2,6 +2,7 @@ use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
 use fluence_spell_dtos::value::{BoolValue, StringValue, U32Value, UnitValue};
+use crate::auth::guard_kv_write;
 
 use crate::schema::db;
 
@@ -22,7 +23,11 @@ pub fn store_string(key: &str, value: String) -> eyre::Result<()> {
 
 #[marine]
 pub fn set_string(key: &str, value: String) -> UnitValue {
-    store_string(key, value).into()
+    let result: eyre::Result<()> = try {
+        guard_kv_write(key)?;
+        store_string(key, value)?
+    };
+    result.into()
 }
 
 pub fn read_string(statement: &mut Statement, idx: usize) -> eyre::Result<Option<String>> {
