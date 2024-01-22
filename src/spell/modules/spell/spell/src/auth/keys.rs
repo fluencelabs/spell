@@ -33,7 +33,7 @@ pub fn parse_permission(key: &str) -> HashSet<Role> {
 mod tests {
     use std::collections::HashSet;
     use crate::auth::keys::parse_permission;
-    use crate::auth::Role;
+    use crate::auth::roles::Role;
 
     #[test]
     fn test_key_parse() {

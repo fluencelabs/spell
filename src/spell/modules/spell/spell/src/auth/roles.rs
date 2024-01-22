@@ -111,7 +111,8 @@ fn is_spell_particle(call_parameters: &CallParameters) -> bool {
 mod tests {
     use std::collections::HashSet;
     use marine_rs_sdk::CallParameters;
-    use crate::auth::{authenticate, Role, Auth};
+    use crate::auth::{authenticate, Auth, roles::Role,};
+
 
     #[test]
     fn test_request_from_host_spell_to_self() {
