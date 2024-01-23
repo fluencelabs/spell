@@ -156,10 +156,10 @@ mod tests {
             tetraplets: vec![],
         };
 
-        assert!(!is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be accessible", HOST_KEY);
+        assert!(!is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be NOT accessible", HOST_KEY);
         assert!(is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be accessible", HOST_WORKER_KEY);
         assert!(is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must be accessible", WORKER_KEY);
-        assert!(!is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must be accessible", PRIVATE_KEY);
+        assert!(!is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must be NOT accessible", PRIVATE_KEY);
     }
 
     #[test]
@@ -176,10 +176,10 @@ mod tests {
             tetraplets: vec![],
         };
 
-        assert!(!is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be accessible", HOST_KEY);
-        assert!(!is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be accessible", HOST_WORKER_KEY);
-        assert!(!is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must be accessible", WORKER_KEY);
-        assert!(!is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must be accessible", PRIVATE_KEY);
+        assert!(!is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be NOT accessible", HOST_KEY);
+        assert!(!is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be NOT accessible", HOST_WORKER_KEY);
+        assert!(!is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must be NOT accessible", WORKER_KEY);
+        assert!(!is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must be NOT accessible", PRIVATE_KEY);
 
     }
 }
