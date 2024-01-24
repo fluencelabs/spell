@@ -93,7 +93,7 @@ func get_script(spell_id: string) -> ScriptValue:
 func get_counter(spell_id: string) -> U32Value:
     on HOST_PEER_ID:
         Spell spell_id
-        count <- Spell.get_u32("counter")
+        count <- Spell.get_u32("hw_counter")
     <- count
 
 -- For a test we want to retrive these values at the same time
@@ -129,7 +129,7 @@ func get_trigger_event(spell_id: string) -> ?TriggerEvent, ?string:
     trigger: *TriggerEvent
     on HOST_PEER_ID:
         Spell spell_id
-        result <- Spell.get_string("trigger")
+        result <- Spell.get_string("hw_trigger")
         if result.success:
             if result.absent == false:
                 trigger <- TriggerEventJson.parse(result.value)
