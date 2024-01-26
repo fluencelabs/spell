@@ -504,7 +504,7 @@ mod tests {
         let worker_key = "w_key";
         let value = "value";
 
-        let mut spell = &mut spell;
+        let spell = &mut spell;
         type SPELL = marine_test_env::spell::ModuleInterface;
         let cp = || other_call_params();
         let push_failed = |spell: &mut SPELL, key: &str, value: &str| {

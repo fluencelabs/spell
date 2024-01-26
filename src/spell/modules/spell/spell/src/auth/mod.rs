@@ -5,36 +5,36 @@ pub use self::roles::{is_by_spell, is_by_creator};
 
 use marine_rs_sdk::CallParameters;
 use crate::auth::keys::parse_permission;
-use crate::auth::roles::{Auth, authenticate};
+use crate::auth::roles::{authenticate, Role};
 
 pub fn guard_kv_write(key: &str)  -> eyre::Result<()> {
     let cp = marine_rs_sdk::get_call_parameters();
-    match authenticate(&cp) {
-        Auth::Spell => Ok(()),
-        Auth::Other(roles) => {
+    check_kv_write(key, &cp)
+}
+
+pub fn is_kv_write_permitted(key: &str, call_parameters: &CallParameters) -> bool {
+    check_kv_write(key, call_parameters).is_ok()
+}
+
+
+fn check_kv_write(key: &str, call_parameters: &CallParameters) -> eyre::Result<()> {
+    match authenticate(&call_parameters) {
+        Some(Role::Spell) => Ok(()),
+        Some(role) => {
             let allowed_roles = parse_permission(key);
-            if !allowed_roles.is_disjoint(&roles) {
+            if allowed_roles.contains(&role) {
                 Ok(())
             } else {
-                Err(eyre::eyre!("writing to the `{key}` is forbidden for the callers with the roles: {:?}", roles))
+                Err(eyre::eyre!("writing to the `{key}` is forbidden for the callers with the role {:?}", role))
             }
+        },
+        None => {
+            Err(eyre::eyre!("writing to the `{key}` is forbidden for any outside caller"))
         }
     }
 }
 
 
-/// Check permission on writing to Spell's KV
-/// *key* defines which roles can update the key
-/// *call_parameters* defines which roles the caller has
-pub fn is_kv_write_permitted(key: &str, call_parameters: &CallParameters) -> bool {
-    match authenticate(call_parameters) {
-        Auth::Spell => true,
-        Auth::Other(roles) => {
-            let allowed_roles = parse_permission(key);
-            !allowed_roles.is_disjoint(&roles)
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -71,7 +71,8 @@ mod tests {
 
         assert!(is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be accessible", HOST_KEY);
         assert!(is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be accessible", HOST_WORKER_KEY);
-        assert!(is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must be accessible", WORKER_KEY);
+        // it's our choice that a host spell tryng to access other host spells will be considered a host not a worker
+        assert!(!is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must NOT be accessible", WORKER_KEY);
         assert!(!is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must NOT be accessible", PRIVATE_KEY);
     }
 

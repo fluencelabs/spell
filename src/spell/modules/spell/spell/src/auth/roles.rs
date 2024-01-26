@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-use std::fmt::Display;
 use marine_rs_sdk::{get_call_parameters, CallParameters};
 
 /// In our Spell KV Security model we have several roles:
@@ -7,50 +5,30 @@ use marine_rs_sdk::{get_call_parameters, CallParameters};
 /// - Worker -- the call is performed from the name of the worker on which the target spell is running
 /// - Spell -- the call is performed by the spell itself from the name of the worker the spell is installed on
 ///
-///
 
 
-/// A role that a non-owner can have
+/// A role that a caller can have
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub enum Role {
+    // The call is performed from the name of the spell itself
+    Spell,
     // The call is performed from the name of the peer that hosts the spell
     Host,
     // The call is performed from the name of the worker that owns the spell
     Worker,
 }
 
-impl Display for Role {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let role = match self {
-            Role::Host => "host",
-            Role::Worker => "worker",
-        };
-        write!(f, "{}", role)
-    }
-}
-
-/// A set of rights the caller has
-#[derive(Debug, Eq, PartialEq)]
-pub enum Auth {
-    // The caller is the spell itself that has all the rights to do anything
-    Spell,
-    // The caller is some other entity and can have several or none roles assigned to it
-    // and requires detailed permission checking
-    Other(HashSet<Role>)
-}
-
-pub fn authenticate(call_parameters: &CallParameters) -> Auth {
+pub fn authenticate(call_parameters: &CallParameters) -> Option<Role> {
     if is_spell(&call_parameters) {
-        return Auth::Spell;
+        return Some(Role::Spell);
     }
-    let mut entity = HashSet::new();
-    if is_worker(call_parameters) {
-        entity.insert(Role::Worker);
+    if is_by_host(call_parameters) {
+        return Some(Role::Host);
     }
-    if is_host(call_parameters) {
-        entity.insert(Role::Host);
+    if is_by_worker(call_parameters) {
+        return Some(Role::Worker);
     }
-    Auth::Other(entity)
+    return None
 }
 
 
@@ -75,7 +53,7 @@ pub fn is_by_spell(call_parameters: &CallParameters) -> bool {
     return false;
 }
 /// Check if the call is performed by the host
-fn is_host(call_parameters: &CallParameters) -> bool {
+fn is_by_host(call_parameters: &CallParameters) -> bool {
     call_parameters.init_peer_id == call_parameters.host_id
 }
 
@@ -83,7 +61,7 @@ fn is_host(call_parameters: &CallParameters) -> bool {
 /// A service creator of the spell must be it's worker, so
 /// if the call was initiated by a peer the same as the spell service creator
 /// we may safely conclude, it's a spell from the same worker
-fn is_worker(call_parameters: &CallParameters) -> bool {
+fn is_by_worker(call_parameters: &CallParameters) -> bool {
    call_parameters.init_peer_id == call_parameters.worker_id
 }
 
@@ -94,7 +72,7 @@ fn is_worker(call_parameters: &CallParameters) -> bool {
 /// Here we rely on the convention that particle_id of a spell contains its spell_id.
 /// We also rely on the fact that particle_id can't forged since it's backed up by particle signatures
 fn is_spell(call_parameters: &CallParameters) -> bool {
-    is_spell_particle(call_parameters) && is_worker(call_parameters)
+    is_spell_particle(call_parameters) && is_by_worker(call_parameters)
 }
 
 fn is_spell_particle(call_parameters: &CallParameters) -> bool {
@@ -109,9 +87,8 @@ fn is_spell_particle(call_parameters: &CallParameters) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
     use marine_rs_sdk::CallParameters;
-    use crate::auth::{authenticate, Auth, roles::Role,};
+    use crate::auth::{authenticate, roles::Role,};
 
 
     #[test]
@@ -125,7 +102,7 @@ mod tests {
             particle_id: "spell_spell-id_0".to_string(),
             tetraplets: vec![],
         };
-        assert_eq!(Auth::Spell, authenticate(&cp_from_host));
+        assert_eq!(Some(Role::Spell), authenticate(&cp_from_host));
     }
 
 
@@ -140,7 +117,7 @@ mod tests {
             particle_id: "spell_spell-2-id_0".to_string(),
             tetraplets: vec![],
         };
-        assert_eq!(Auth::Other(HashSet::from([Role::Host, Role::Worker])), authenticate(&cp_from_host));
+        assert_eq!(Some(Role::Host), authenticate(&cp_from_host));
     }
 
     #[test]
@@ -154,7 +131,7 @@ mod tests {
             particle_id: "spell_spell-2-id_0".to_string(),
             tetraplets: vec![],
         };
-        assert_eq!(Auth::Other(HashSet::from([Role::Host])), authenticate(&cp_from_host));
+        assert_eq!(Some(Role::Host), authenticate(&cp_from_host));
     }
 
     #[test]
@@ -168,7 +145,7 @@ mod tests {
             particle_id: "spell_spell-1-id_0".to_string(),
             tetraplets: vec![],
         };
-        assert_eq!(Auth::Spell, authenticate(&cp_from_host));
+        assert_eq!(Some(Role::Spell), authenticate(&cp_from_host));
     }
 
     #[test]
@@ -182,7 +159,7 @@ mod tests {
             particle_id: "spell_spell-2-id_0".to_string(),
             tetraplets: vec![],
         };
-        assert_eq!(Auth::Other(HashSet::from([Role::Worker])), authenticate(&cp_from_host));
+        assert_eq!(Some(Role::Worker), authenticate(&cp_from_host));
     }
 
     #[test]
@@ -196,6 +173,6 @@ mod tests {
             particle_id: "spell_spell-2-id_0".to_string(),
             tetraplets: vec![],
         };
-        assert_eq!(Auth::Other(HashSet::new()), authenticate(&cp_from_host));
+        assert_eq!(None, authenticate(&cp_from_host));
     }
 }
