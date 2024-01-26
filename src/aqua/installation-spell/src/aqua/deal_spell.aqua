@@ -9,8 +9,8 @@ import get_status from "./status.aqua"
 
 
 -- this is executed inside Deal Installation Spell
-func deal_install(ipfs: Multiaddr, worker_def_cid: CID, deal_id: Address):
+func deal_install(ipfs: Multiaddr, h_worker_def_cid: CID, deal_id: Address):
     log(["Installing worker for deal", deal_id])
-    install(ipfs, worker_def_cid)
+    install(ipfs, h_worker_def_cid)
     status <- get_status()
     log(["Worker installation finished with status", status])
