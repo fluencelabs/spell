@@ -477,3 +477,104 @@ class TestSpellStatus:
         statuses = run_aqua(self.key_pair_name, "get_worker_spell_statuses_from", [last_status["timestamp"]])
         assert len(statuses) == 1
         assert statuses[0] == last_status
+
+class TestSpellKvPermissions:
+    """
+    1. Create two spells on one worker (should be able to change w_ and hw_ keys and can't change any other keys on each other)
+    2. Create a spell on another worker (shouldn't be able to change anything on the original spells)
+    3. We can't create a root spells, so we can't check `h_` key, but we can check that only a spell itself can write to the key
+
+
+    A spell on the first worker is:
+    - trying to increment w_test_counter and hw_test_counter value on the fellow worker (and succeed)
+    - trying to increment test_counter and h_test_counter on the fellow worker (and fail)
+
+    A spell on another worker is:
+    - trying to modify test_counter_2, w_test_counter_2, hw_test_counter_2 on the spell on worker 1 and fails 
+    """
+
+    VALUE = "test_counter"
+    W_VALUE = "w_test_counter"
+    H_VALUE = "h_test_counter"
+    HW_VALUE = "hw_test_counter"
+
+    VALUE_2 = "test_counter_2"
+    W_VALUE_2 = "w_test_counter_2"
+    H_VALUE_2 = "h_test_counter_2"
+    HW_VALUE_2 = "hw_test_counter_2"
+
+    @classmethod
+    def setup_worker_1(self):
+        dat = {
+            self.VALUE: 0,
+            self.W_VALUE: 0,
+            self.H_VALUE: 0,
+            self.HW_VALUE: 0,
+
+            self.VALUE_2: 0,
+            self.W_VALUE_2: 0,
+            self.H_VALUE_2: 0,
+            self.HW_VALUE_2: 0
+        }
+        script = open("air/test_spells.actor_spell.air").read()
+
+        worker_1_key = make_key()
+
+        # Important to create subject first so the actor can access it
+        spell_id2 = create_spell(worker_1_key, simple_script(), empty_config(), dat, "subject")
+        spell_id1 = create_spell(worker_1_key, script, oneshot_config(), dat, "actor")
+
+        worker_id = run_aqua(worker_1_key, "get_worker_id_on_host", [])
+
+        self.worker_1_key = worker_1_key
+        self.worker_1_id = worker_id.strip()
+
+    @classmethod
+    def setup_worker_2(self):
+        script = open("air/test_spells.stranger_spell.air").read()
+        dat = {"target_worker_id": self.worker_1_id}
+        worker_2_key = make_key()
+        spell_id_2 = create_spell(worker_2_key, script, oneshot_config(), dat, "stranger")
+        self.worker_2_key = worker_2_key
+
+    def setup_class(self):
+        # important to create worker_1 first, since worker_2 uses it
+        self.setup_worker_1()
+        self.setup_worker_2()
+
+    def teardown_class(self):
+        run_aqua(self.worker_1_key, "remove_worker", [])
+        run_aqua(self.worker_2_key, "remove_worker", [])
+
+    def test_kv_permissions(self):
+        # at this point all the spells should already end
+
+        read_reports, write_reports = run_aqua(self.worker_1_key, "get_reports", ["actor"])
+        assert all(map(lambda x: x["result"], read_reports)), "actor should be able to read every key"
+        # Actor should be able to write only w_ and hw_
+        ok_writes = list(map(lambda x: x["key"], filter(lambda x: x["result"], write_reports)))
+        assert all(map(lambda x: x.startswith("w_") or x.startswith("hw_"), ok_writes)), "actor should be able to change only w_ and hw_ keys"
+
+        failed_writes = list(map(lambda x: x["key"], filter(lambda x: not x["result"], write_reports)))
+        assert all(map(lambda x: not (x.startswith("w_") or x.startswith("hw_")), failed_writes)), "actor should NOT be able to change any other keys"
+
+
+        # Stranger should be able to read everything and write nothing
+        read_reports, write_reports = run_aqua(self.worker_2_key, "get_reports", ["stranger"])
+        assert all(map(lambda x: x["result"], read_reports)), "stranger should be able to read every key"
+        assert all(map(lambda x: not x["result"], write_reports)), "stranger should NOT be able to write any key"
+
+        result = run_aqua(self.worker_1_key, "get_target_values", ["subject"])
+        # Subject's worker key should be changed
+        assert result[self.W_VALUE] != 0
+        assert result[self.HW_VALUE] != 0
+        # Subject's private and host keys must not be changed
+        assert result[self.VALUE] == 0
+        assert result[self.H_VALUE] == 0
+        # Subject's _2 keys must not be changed
+        assert result[self.VALUE_2] == 0
+        assert result[self.W_VALUE_2] == 0
+        assert result[self.H_VALUE_2] == 0
+        assert result[self.HW_VALUE_2] == 0
+
+        print(result)

@@ -23,6 +23,7 @@ func inc_other_spell(fellow_spell_id: string):
         value_str <- JsonNum.stringify(value_new)
         Spell.set_string("w_value", value_str)
         
+-----
 
 data IncState:
     value: i64
@@ -31,6 +32,8 @@ func inc_value(value: i64) -> IncState:
     result = value + 1
     obj = IncState(value = result)
     <- obj
+
+------
 
 data StatusMsg:
    status: string
@@ -47,3 +50,60 @@ func status_spell(spell_id: string):
     if result.success && !result.absent:
         st <- JsonStatusMsg.parse(result.message!.message)
         set_status_msg(st.status, st.msg)
+
+---------
+
+func get_on_subject(worker_id: string, key: string) -> U32Value:
+    on worker_id: 
+        Spell "subject"
+
+        result <- Spell.get_u32(key)
+    <- result
+
+func set_on_subject(worker_id: string, key: string, value: u32) -> UnitValue:
+    on worker_id:
+        Spell "subject"
+        result <- Spell.set_u32(key, value)
+    <- result
+
+data Report:
+    key: string
+    result: bool
+
+func report_get(worker_id: string, key: string) -> U32Value:
+    result <- get_on_subject(worker_id, key)
+    
+    Spell "spell"
+    report_str <- Json.stringify(Report(key = key, result = result.success))
+    Spell.list_push_string("report_get", report_str)
+    <- result
+
+func report_set(worker_id: string, key: string, value: u32):
+    result <- set_on_subject(worker_id, key, value)
+    Spell "spell"
+    report_str <- Json.stringify(Report(key = key, result = result.success))
+    Spell.list_push_string("report_set", report_str)
+
+func report_on(worker_id: string, key: string):
+    result <- report_get(worker_id, key)
+    if result.success:
+        report_set(worker_id, key, result.value + 1)
+
+func actor_spell():
+    report = (key: string):
+        report_on(INIT_PEER_ID, key)
+
+    report("test_counter")
+    report("w_test_counter")
+    report("hw_test_counter")
+    report("h_test_counter")
+
+
+func stranger_spell(target_worker_id: string):
+    report = (key: string):
+        report_on(target_worker_id, key)
+
+    report("test_counter_2")
+    report("w_test_counter_2")
+    report("hw_test_counter_2")
+    report("h_test_counter_2")

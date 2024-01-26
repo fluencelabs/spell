@@ -3,6 +3,7 @@ aqua Lib declares *
 export list_spells, install, remove, update, get_config, get_script, get_counter, get_string
 export is_spell_absent, get_trigger_event, get_all_trigger_events, remove_service, get_spell_errors, noop
 export get_worker_spell_status, send_worker_spell_status, get_worker_spell_statuses_from, set_spell_alias
+export remove_worker, get_worker_id_on_host, get_reports, get_target_values
 
 import "../../src/aqua/spell/api.aqua"
 import "../../src/aqua/spell/trigger.aqua"
@@ -16,15 +17,23 @@ import "../../src/aqua/installation-spell/src/aqua/json.aqua"
 
 const DUMMY_DEAL_ID = "dummy-deal-id"
 
+func get_deal_id() -> string: 
+    <- Op.concat_strings(DUMMY_DEAL_ID, INIT_PEER_ID)
+
 func get_worker_id() -> string:
     worker_id: *string
-    deal_id <- Op.concat_strings(DUMMY_DEAL_ID, INIT_PEER_ID)
+    deal_id <- get_deal_id()
     existing_worker <- Worker.get_worker_id(deal_id)
     if existing_worker == nil:
         worker_id <- Worker.create(deal_id)
     else:
         worker_id <<- existing_worker!
     <- worker_id!
+
+func get_worker_id_on_host() -> string:
+    on HOST_PEER_ID:
+        x <- get_worker_id()
+    <- x
 
 func list_spells() -> []string:
     on HOST_PEER_ID:
@@ -65,6 +74,12 @@ func remove(spell_id: string) -> Result:
             catch err:
                 result <<- Result(success = false, error = err.message)
     <- result[0]
+
+func remove_worker() -> string:
+    on HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        Worker.remove(worker_id)
+    <- "OK"
 
 func update(spell_id: string, config: TriggerConfig) -> Result:
    result: *Result
@@ -211,3 +226,59 @@ func get_worker_spell_statuses_from(timestamp: u64) -> []Status:
         on worker_id via HOST_PEER_ID:
             statuses <- get_statuses_from(timestamp)
     <- statuses
+
+
+data Report:
+    key: string
+    result: bool
+
+service ReportJson("json"):
+    parse(s: string) -> Report
+
+func get_reports(spell_id: string) -> []Report, []Report:
+    get_reports: *Report
+    set_reports: *Report
+
+    on HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            result1 <- Spell.list_get_strings("report_get")
+            if result1.success:
+                for val <- result1.value:
+                    get_reports <<- ReportJson.parse(val)
+
+            result2 <- Spell.list_get_strings("report_set")
+            if result2.success:
+                for val <- result2.value:
+                    set_reports <<- ReportJson.parse(val)
+
+    <- get_reports, set_reports
+
+
+data TargetValues:
+    test_counter: u32
+    w_test_counter: u32
+    h_test_counter: u32
+    hw_test_counter: u32
+    test_counter_2: u32
+    w_test_counter_2: u32
+    h_test_counter_2: u32
+    hw_test_counter_2: u32
+    
+
+func get_target_values(spell_id: string) -> TargetValues:
+    on HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            tc <- Spell.get_u32("test_counter")
+            wtc <- Spell.get_u32("w_test_counter")
+            htc <- Spell.get_u32("h_test_counter")
+            hwtc <- Spell.get_u32("hw_test_counter")
+
+            tc2 <- Spell.get_u32("test_counter_2")
+            wtc2 <- Spell.get_u32("w_test_counter_2")
+            htc2 <- Spell.get_u32("h_test_counter_2")
+            hwtc2 <- Spell.get_u32("hw_test_counter_2")
+    <- TargetValues(test_counter = tc.value, w_test_counter = wtc.value, h_test_counter = htc.value, hw_test_counter = hwtc.value, test_counter_2 = tc2.value, w_test_counter_2 = wtc2.value, h_test_counter_2 = htc2.value, hw_test_counter_2 = hwtc2.value)
