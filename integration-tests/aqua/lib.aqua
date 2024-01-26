@@ -2,7 +2,7 @@ aqua Lib declares *
 
 export list_spells, install, remove, update, get_config, get_script, get_counter, get_string
 export is_spell_absent, get_trigger_event, get_all_trigger_events, remove_service, get_spell_errors, noop
-export get_worker_spell_status, set_worker_spell_status, get_worker_spell_statuses_from, set_spell_alias
+export get_worker_spell_status, send_worker_spell_status, get_worker_spell_statuses_from, set_spell_alias
 
 import "../../src/aqua/spell/api.aqua"
 import "../../src/aqua/spell/trigger.aqua"
@@ -99,8 +99,10 @@ func get_counter(spell_id: string) -> U32Value:
 -- For a test we want to retrive these values at the same time
 func get_string(spell_id: string, key: string) -> StringValue:
     on HOST_PEER_ID:
-        Spell spell_id
-        value <- Spell.get_string("value")
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            value <- Spell.get_string(key)
     <- value
 
 func is_spell_absent(spell_id: string) -> bool:
@@ -176,16 +178,25 @@ func set_spell_alias(alias: string, spell_id: string) -> Result:
                 result <<- Result(success = false, error = err.message)
     <- result!
 
-func set_worker_spell_status(state: State, message: string) -> string:
+data StatusMsg:
+   status: string
+   msg: string 
+
+func send_worker_spell_status(status: string, msg: string) -> string:
     on HOST_PEER_ID:
         worker_id <- get_worker_id()
         on worker_id via HOST_PEER_ID:
-            set_status_msg(state, message)
+            Spell "worker-spell"
+            stmsg = StatusMsg(status = status, msg = msg)
+            str <- Json.stringify(stmsg)
+            Spell.push_mailbox(str)
             -- HACK: we need to return smth, because otherwise particle won't be processed at all
             -- and we receive an error:
             -- `particle_protocol::libp2p_protocol::upgrade: Error processing inbound ProtocolMessage: unexpected end of file
             -- Location: /opt/actions-runner/_work/nox/nox/particle-protocol/src/libp2p_protocol/upgrade.rs:119:27`
+
     <- "OK"
+
 
 func get_worker_spell_status() -> Status:
     on HOST_PEER_ID:

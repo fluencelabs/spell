@@ -1,0 +1,70 @@
+(xor
+ (seq
+  (seq
+   (seq
+    (seq
+     (seq
+      (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+      (call %init_peer_id% ("getDataSrv" "spell_id") [] -spell_id-arg-)
+     )
+     (call %init_peer_id% (-spell_id-arg- "pop_mailbox") [] ret)
+    )
+    (xor
+     (match ret.$.success false
+      (ap ret.$.success and)
+     )
+     (seq
+      (xor
+       (match ret.$.absent true
+        (ap false not)
+       )
+       (ap true not)
+      )
+      (ap not and)
+     )
+    )
+   )
+   (new -if-error-
+    (xor
+     (match and true
+      (seq
+       (seq
+        (seq
+         (seq
+          (call %init_peer_id% ("json" "parse") [ret.$.message.[0].message] ret-0)
+          (call %init_peer_id% ("peer" "timestamp_sec") [] ret-1)
+         )
+         (new %Status_obj_map
+          (seq
+           (seq
+            (seq
+             (ap ("message" ret-0.$.msg) %Status_obj_map)
+             (ap ("state" ret-0.$.status) %Status_obj_map)
+            )
+            (ap ("timestamp" ret-1) %Status_obj_map)
+           )
+           (canon %init_peer_id% %Status_obj_map  Status_obj)
+          )
+         )
+        )
+        (call %init_peer_id% ("json" "stringify") [Status_obj] ret-2)
+       )
+       (call %init_peer_id% ("worker-spell" "list_push_string") ["__installation_spell_status__" ret-2] ret-3)
+      )
+     )
+     (seq
+      (ap :error: -if-error-)
+      (xor
+       (match :error:.$.error_code 10001
+        (null)
+       )
+       (fail -if-error-)
+      )
+     )
+    )
+   )
+  )
+  (call %init_peer_id% ("callbackSrv" "response") [])
+ )
+ (call %init_peer_id% ("errorHandlingSrv" "error") [:error: 0])
+)
