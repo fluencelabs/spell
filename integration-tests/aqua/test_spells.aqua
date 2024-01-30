@@ -1,3 +1,5 @@
+aqua Lib declares *
+
 import "@fluencelabs/aqua-lib/math.aqua"
 import "../../src/aqua/spell/spell_service.aqua"
 
