@@ -1,7 +1,7 @@
 aqua Spell declares install
 
 import Op, Hash, Dist, Srv, Debug from "@fluencelabs/aqua-lib/builtin.aqua"
-import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+import get_from, cat_from from "@fluencelabs/aqua-ipfs/ipfs-api.aqua"
 import Spell from "@fluencelabs/spell/spell_service.aqua"
 import PeerSpell from "@fluencelabs/spell/api.aqua"
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
@@ -91,7 +91,7 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
             stored_config <- Spell.get_string(config_key(spell.name))
             if stored_config.value != spell.config:
                 log([spell.name, "config mismath, updating config"])
-                config_json <- Ipfs.cat_from(spell.config, ipfs)
+                config_json <- cat_from(HOST_PEER_ID, spell.config, ipfs)
                 if config_json.success:
                     config <- TriggerConfigJson.parse(config_json.contents)
 
@@ -106,7 +106,7 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
             stored_init_args <- Spell.get_string(init_args_key(spell.name))
             if stored_init_args.value != spell.init_args:
                 log([spell.name, "init_args changed, updating"])
-                new_init_args <- Ipfs.cat_from(spell.init_args, ipfs)
+                new_init_args <- cat_from(HOST_PEER_ID, spell.init_args, ipfs)
                 if new_init_args.success:
                     Spell spell.name
                     Spell.set_json_fields(new_init_args.contents)
@@ -118,9 +118,9 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
                 log([spell.name, "init_args successfully updated"])
         else:
             set_status(INSTALLATION_IN_PROGRESS)
-            script <- Ipfs.cat_from(spell.script, ipfs)
-            cfg_json <- Ipfs.cat_from(spell.config, ipfs)
-            init_args_str <- Ipfs.cat_from(spell.init_args, ipfs)
+            script <- cat_from(HOST_PEER_ID, spell.script, ipfs)
+            cfg_json <- cat_from(HOST_PEER_ID, spell.config, ipfs)
+            init_args_str <- cat_from(HOST_PEER_ID, spell.init_args, ipfs)
 
             if script.success && cfg_json.success && init_args_str.success:
                 cfg <- TriggerConfigJson.parse(cfg_json.contents)
@@ -141,8 +141,8 @@ func deploy_spell(spell: SpellDefinition, ipfs: Multiaddr):
 func download_service(s: Service, ipfs: Multiaddr) -> []Hash:
     hashes: *Hash
     for m <- s.modules:
-        get_wasm <- Ipfs.get_from(m.wasm, ipfs)
-        json_cfg <- Ipfs.cat_from(m.config, ipfs)
+        get_wasm <- get_from(HOST_PEER_ID, m.wasm, ipfs)
+        json_cfg <- cat_from(HOST_PEER_ID, m.config, ipfs)
         if get_wasm.success && json_cfg.success:
             cfg <- ModuleConfigJson.parse(json_cfg.contents)
             hashes <<- Dist.add_module_from_vault(get_wasm.path, cfg)
@@ -155,7 +155,7 @@ func install(ipfs: Multiaddr, worker_def_cid: CID):
 
     try:
         -- download App Config from IPFS
-        json <- Ipfs.cat_from(worker_def_cid, ipfs)
+        json <- cat_from(HOST_PEER_ID, worker_def_cid, ipfs)
         if json.success:
             worker_definition <- WDJson.parse(json.contents)
             log(["parsed worker definition", worker_def_cid, worker_definition])

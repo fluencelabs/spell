@@ -1,3 +1,7 @@
+aqua SpellsTest
+
+export inc_other_spell, inc_value
+
 import "@fluencelabs/aqua-lib/math.aqua"
 import "../../src/aqua/spell/spell_service.aqua"
 

@@ -4,17 +4,17 @@
 
 # Documentation: https://github.com/fluencelabs/cli/tree/main/docs/configs/fluence.md
 
-version: 5
+version: 6
 
 aquaInputPath: integration-tests/aqua
 
-dependencies:
-  npm:
-    "@fluencelabs/spell": "../../src/aqua/spell"
-    "@fluencelabs/installation-spell": "../../src/aqua/installation-spell"
-    "@fluencelabs/aqua-lib": 0.9.0
-    "@fluencelabs/registry": 0.9.2
-    "@fluencelabs/aqua-ipfs": 0.5.28
-  cargo:
-    marine: 0.14.0
-    mrepl: 0.21.3
+aquaDependencies:
+  "@fluencelabs/spell":  file:./src/aqua/spell/fluencelabs-spell-0.6.9.tgz
+  "@fluencelabs/installation-spell": file:./src/aqua/installation-spell/fluencelabs-installation-spell-0.6.9.tgz
+  "@fluencelabs/aqua-lib": 0.9.1
+  "@fluencelabs/registry": 0.9.4
+  "@fluencelabs/aqua-ipfs": 0.5.30
+
+marineVersion: 0.14.0
+
+mreplVersion: 0.21.3
