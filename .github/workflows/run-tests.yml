@@ -54,10 +54,10 @@ jobs:
         with:
           version: main
 
-      - run: npm pack
+      - run: pnpm pack
         working-directory: ./src/aqua/spell
 
-      - run: npm pack
+      - run: pnpm pack
         working-directory: ./src/aqua/installation-spell
 
       - run: fluence dep i
