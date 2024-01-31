@@ -99,6 +99,12 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: integration-tests
 
+      - run: pnpm pack
+        working-directory: ./src/aqua/spell
+
+      - run: pnpm pack
+        working-directory: ./src/aqua/installation-spell
+
       - run: fluence dep i
 
       - name: Check spell Aqua compiles
