@@ -99,6 +99,8 @@ jobs:
         run: pip install -r requirements.txt
         working-directory: integration-tests
 
+      - run: pnpm install -r
+
       - run: pnpm pack
         working-directory: ./src/aqua/spell
 
