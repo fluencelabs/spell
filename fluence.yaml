@@ -9,8 +9,8 @@ version: 6
 aquaInputPath: integration-tests/aqua
 
 aquaDependencies:
-  "@fluencelabs/spell": ../../src/aqua/spell
-  "@fluencelabs/installation-spell": ../../src/aqua/installation-spell
+  "@fluencelabs/spell": ./src/aqua/spell
+  "@fluencelabs/installation-spell": ./src/aqua/installation-spell
   "@fluencelabs/aqua-lib": 0.9.1
   "@fluencelabs/registry": 0.9.4
   "@fluencelabs/aqua-ipfs": 0.5.30
