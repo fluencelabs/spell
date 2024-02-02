@@ -54,6 +54,12 @@ jobs:
         with:
           version: main
 
+      - run: pnpm pack
+        working-directory: ./src/aqua/spell
+
+      - run: pnpm pack
+        working-directory: ./src/aqua/installation-spell
+
       - run: fluence dep i
 
       - name: Check if aqua compiles

@@ -6,7 +6,10 @@
   "packages": {
     ".": {
       "package-name": "spell",
-      "component": "spell"
+      "component": "spell",
+      "extra-files": [
+        "fluence.yaml"
+      ]
     }
   }
 }

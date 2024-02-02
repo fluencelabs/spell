@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.10](https://github.com/fluencelabs/spell/compare/spell-v0.6.9...spell-v0.6.10) (2024-01-31)
+
+
+### Bug Fixes
+
+* **worker:** shift ipfs to the host scope ([#265](https://github.com/fluencelabs/spell/issues/265)) ([dcedc75](https://github.com/fluencelabs/spell/commit/dcedc75f169fcdcf4203447e3745c3e8edfa0612))
+
 ## [0.6.9](https://github.com/fluencelabs/spell/compare/spell-v0.6.8...spell-v0.6.9) (2024-01-16)
 
 
