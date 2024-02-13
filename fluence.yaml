@@ -15,6 +15,6 @@ aquaDependencies:
   "@fluencelabs/registry": 0.9.4
   "@fluencelabs/aqua-ipfs": 0.5.30
 
-marineVersion: 0.14.0
+marineVersion: 0.19.0
 
-mreplVersion: 0.21.3
+mreplVersion: 0.27.0
