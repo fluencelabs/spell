@@ -20,6 +20,8 @@ use crate::auth::roles::Role;
 /// - `wh_count` can be modified by a spell alone despite the `wh` string containing all required symbols
 /// - `worker_settings` can be modified only by a spell
 ///
+/// Note that everyone have READ rights
+///
 pub fn parse_permission(key: &str) -> HashSet<Role> {
      match key.split_once('_') {
         Some(("h", _)) => HashSet::from([Role::Host]),
