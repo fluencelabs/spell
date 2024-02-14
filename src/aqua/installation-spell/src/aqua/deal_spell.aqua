@@ -14,3 +14,4 @@ func deal_install(ipfs: Multiaddr, h_worker_def_cid: CID, deal_id: Address):
     install(ipfs, h_worker_def_cid)
     status <- get_status()
     log(["Worker installation finished with status", status])
+    
