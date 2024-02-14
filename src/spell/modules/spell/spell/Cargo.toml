@@ -23,6 +23,6 @@ serde_json = "1.0.89"
 
 [dev-dependencies]
 marine-rs-sdk-test = "0.13.0"
-uuid = "1.2.1"
+uuid = "1.7.0"
 test-env-helpers = "0.2.2"
 ctor = "0.2.0"
