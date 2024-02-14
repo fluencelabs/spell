@@ -76,6 +76,7 @@ mod tests {
             particle_id,
             service_id,
             host_id: "".to_string(),
+            worker_id: "".to_string(),
             tetraplets: vec![],
         }
     }

@@ -221,6 +221,7 @@ mod tests {
             service_creator_peer_id: "folex".to_string(),
             service_id,
             host_id: "".to_string(),
+            worker_id: "".to_string(),
             particle_id,
             tetraplets: vec![],
         }
