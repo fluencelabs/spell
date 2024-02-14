@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://github.com/fluencelabs/spell/compare/spell-v0.6.10...spell-v0.7.0) (2024-02-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** update marine-rs-sdk
+
+### Bug Fixes
+
+* **deps:** update marine-rs-sdk ([182cbad](https://github.com/fluencelabs/spell/commit/182cbadbf1d708ed4c93cd0e8f63ce4d08bc673c))
+
 ## [0.6.10](https://github.com/fluencelabs/spell/compare/spell-v0.6.9...spell-v0.6.10) (2024-01-31)
 
 
