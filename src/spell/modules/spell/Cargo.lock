@@ -1751,12 +1751,12 @@ dependencies = [
 
 [[package]]
 name = "marine-sqlite-connector"
-version = "0.9.4"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c8824aa9a92d4390696eba5b060cff4a73a1e0177d215e4f1b6f5ab92fa2460"
+checksum = "eb21d5419382307d97677d92c267f714a77549658270ada5d84496bfd74314e9"
 dependencies = [
  "bytesize",
- "marine-rs-sdk 0.10.3",
+ "marine-rs-sdk 0.12.0",
 ]
 
 [[package]]
