@@ -149,7 +149,6 @@ mod tests {
             init_peer_id: "definitely not folex".to_string(),
             service_creator_peer_id: "folex".to_string(),
             service_id: "spell_service_id".to_string(),
-            worker_id: "some_worker_id".to_string(), // TODO: set proper value
             host_id: "".to_string(),
             worker_id: "".to_string(),
             particle_id: "some_particle_id_from_somewhere".to_string(),
@@ -168,7 +167,6 @@ mod tests {
             init_peer_id: "folex".to_string(),
             service_creator_peer_id: "not folex".to_string(),
             service_id: "".to_string(),
-            worker_id: "some_worker_id".to_string(), // TODO: set proper value
             host_id: "".to_string(),
             worker_id: "".to_string(),
             particle_id: "".to_string(),
