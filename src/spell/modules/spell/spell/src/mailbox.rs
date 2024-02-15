@@ -106,6 +106,7 @@ mod tests {
             service_id,
             worker_id: "some_worker_id".to_string(), // TODO: set proper value
             host_id: "".to_string(),
+            worker_id: "".to_string(),
             tetraplets: vec![],
         }
     }

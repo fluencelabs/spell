@@ -9,9 +9,10 @@ name = "spell"
 path = "src/main.rs"
 
 [dependencies]
+fluence-spell-dtos = { path = "../spell-dtos", version = "0.7.0" }
+
 marine-rs-sdk = { workspace = true }
 marine-sqlite-connector = { workspace = true }
-fluence-spell-dtos = { path = "../spell-dtos", version = "0.6.0" }
 
 eyre = "0.6.8"
 cid = "0.10.0"
