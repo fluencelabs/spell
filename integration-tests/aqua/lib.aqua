@@ -85,7 +85,7 @@ func update(spell_id: string, config: TriggerConfig) -> Result:
    result: *Result
    on HOST_PEER_ID:
      worker_id <- get_worker_id()
-     on worker_id via HOST_PEER_ID:
+     on worker_id:
         try:
             PeerSpell.update_trigger_config(spell_id, config)
             result <<- Result(success = true, error = "")
@@ -95,20 +95,26 @@ func update(spell_id: string, config: TriggerConfig) -> Result:
 
 func get_config(spell_id: string) -> TriggerConfigValue:
     on HOST_PEER_ID:
-        Spell spell_id
-        cfg <- Spell.get_trigger_config()
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            cfg <- Spell.get_trigger_config()
     <- cfg
 
 func get_script(spell_id: string) -> ScriptValue:
     on HOST_PEER_ID:
-        Spell spell_id
-        cfg <- Spell.get_script()
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            cfg <- Spell.get_script()
     <- cfg
 
 func get_counter(spell_id: string) -> U32Value:
     on HOST_PEER_ID:
-        Spell spell_id
-        count <- Spell.get_u32("hw_counter")
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            count <- Spell.get_u32("hw_counter")
     <- count
 
 -- For a test we want to retrive these values at the same time
@@ -123,28 +129,34 @@ func get_string(spell_id: string, key: string) -> StringValue:
 func is_spell_absent(spell_id: string) -> bool:
   result: *bool
   on HOST_PEER_ID:
-    try:
-        Spell spell_id
-        Spell.get_trigger_config()
-        result <<- false
-    otherwise:
-        result <<- true
+    worker_id <- get_worker_id()
+    on worker_id:
+        try:
+            Spell spell_id
+            Spell.get_trigger_config()
+            result <<- false
+        otherwise:
+            result <<- true
   <- result[0]
 
 func remove_service(id: string) -> Result:
    result: *Result
    on HOST_PEER_ID:
-      try:
-          Srv.remove(id)
-          result <<- Result(success = true, error = "")
-      catch err:
-          result <<- Result(success = false, error = err.message)
+     worker_id <- get_worker_id()
+     on worker_id:
+       try:
+           Srv.remove(id)
+           result <<- Result(success = true, error = "")
+       catch err:
+           result <<- Result(success = false, error = err.message)
    <- result[0]
 
 func get_trigger_event(spell_id: string) -> ?TriggerEvent, ?string:
     error: *string
     trigger: *TriggerEvent
     on HOST_PEER_ID:
+      worker_id <- get_worker_id()
+      on worker_id:
         Spell spell_id
         result <- Spell.get_string("hw_trigger")
         if result.success:
@@ -161,6 +173,8 @@ func get_all_trigger_events(spell_id: string) -> []TriggerEvent, ?string:
     error: *string
     triggers: *TriggerEvent
     on HOST_PEER_ID:
+      worker_id <- get_worker_id()
+      on worker_id:
         Spell spell_id
         result <- Spell.list_get_strings("triggers")
         if result.success:
@@ -173,6 +187,8 @@ func get_all_trigger_events(spell_id: string) -> []TriggerEvent, ?string:
 
 func get_spell_errors(spell_id: string) -> AllErrorsResult:
     on HOST_PEER_ID:
+      worker_id <- get_worker_id()
+      on worker_id:
         Spell spell_id
         x <- Spell.get_all_errors()
     <- x
