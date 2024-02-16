@@ -291,10 +291,20 @@ class TestTriggerMailbox:
         time.sleep(1)
         update_spell_ok(self.key_pair_name, self.spell_id, empty_config())
 
-        trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
-        assert len(trigger) != 0, "trigger should be retrived"
-        assert trigger["timer"] is not None, "timer trigger must happen"
-        assert trigger["peer"] is None, "peer trigger must NOT happen"
+        [triggers, error] = run_aqua(self.key_pair_name, "get_all_trigger_events", [self.spell_id])
+        if error is not None:
+            raise Exception(f"get_all_trigger_events: error while gettings trigger for spell {spell_id}: {error}")
+        assert len(triggers) != 0, f"the spell {self.spell_id} must be triggered"
+
+        for trigger in triggers:
+            assert trigger['peer'] is None, "peer trigger must NOT happen"
+            assert trigger['timer'] is not None, "timer trigger must happen"
+
+        counter = get_counter_ok(self.key_pair_name, self.spell_id)
+        assert counter > 0, "the spell must be run"
+
+        # TODO: check if it stands
+        assert len(triggers) == counter, "number of trigger must be the same as number of invocation"
 
 
     def test_triggers_connections(self):
@@ -337,11 +347,16 @@ class TestConfig:
     def test_config_periodic(self):
         period_expected = 1
         update_spell_ok(self.key_pair_name, self.spell_id, periodic_config(period_expected))
-        timestamp1 = int(time.time())
-        time.sleep(period_expected)
-        trigger = get_trigger_event_ok(self.key_pair_name, self.spell_id)
-        assert trigger is not None, "trigger should be retrived"
-        timestamp2 = trigger['timer']['timestamp']
+        time.sleep(period_expected * 2)
+
+        [triggers, error] = run_aqua(self.key_pair_name, "get_all_trigger_events", [self.spell_id])
+        if error is not None:
+            raise Exception(f"get_all_trigger_events: error while gettings trigger for spell {spell_id}: {error}")
+        assert len(triggers) != 0, f"the spell {self.spell_id} must be triggered"
+
+        timestamp1 = triggers[0]['timer']['timestamp']
+        timestamp2 = triggers[1]['timer']['timestamp']
+
 
         period_result = abs(timestamp1 - timestamp2)
         assert period_result >= period_expected, "real period is less then configured: real: {period_result}, expected: {period_expected} "
