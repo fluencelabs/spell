@@ -1,5 +1,5 @@
 
 def get_local():
     return [
-        '/ip4/127.0.0.1/tcp/9991/ws/p2p/12D3KooWBM3SdXWqGaawQDGQ6JprtwswEg3FWGvGhmgmMez1vRbR',
+        '/ip4/0.0.0.0/tcp/9999/ws/p2p/12D3KooWN4XNKgu76nwB7iKUXmE4FKCA5Ycak6SbSqLTaWo2nFsQ'
     ]

@@ -343,7 +343,7 @@ class TestConfig:
         assert trigger is not None, "trigger should be retrived"
         timestamp2 = trigger['timer']['timestamp']
 
-        period_result = abs(timestamp1 - timest)
+        period_result = abs(timestamp1 - timestamp2)
         assert period_result >= period_expected, "real period is less then configured: real: {period_result}, expected: {period_expected} "
         assert period_result <= period_expected + 1, "real period is much larger then configures: real: {period_result}, expected: {period_expected} "
 
