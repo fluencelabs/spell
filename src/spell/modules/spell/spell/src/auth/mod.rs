@@ -21,9 +21,7 @@ fn check_kv_write(key: &str, call_parameters: &CallParameters) -> eyre::Result<(
     match authenticate(&call_parameters) {
         Some(Role::Spell) => Ok(()),
         Some(role) => {
-            println!("Role: {:?}", role);
             let allowed_roles = parse_permission(key);
-            println!("Allowed: {:?}", allowed_roles);
             if allowed_roles.contains(&role) {
                 Ok(())
             } else {
