@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/fluencelabs/spell/compare/spell-v0.7.0...spell-v0.7.1) (2024-02-19)
+
+
+### Features
+
+* **spell-service:** Add kv restrictions [NET-654,NET-719] ([#263](https://github.com/fluencelabs/spell/issues/263)) ([b9ec80e](https://github.com/fluencelabs/spell/commit/b9ec80e7c9c0d156ff1a78d4b58f51c30cd66bec))
+
 ## [0.7.0](https://github.com/fluencelabs/spell/compare/spell-v0.6.10...spell-v0.7.0) (2024-02-14)
 
 
