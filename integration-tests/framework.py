@@ -126,15 +126,16 @@ def trigger_connect():
     run_aqua(make_key(), "noop", [])
 
 
-def install_spell(key_pair_name, script, config, dat):
-    return run_aqua(key_pair_name, "install", [script, config, dat, "test-spell-" + str(time.time_ns())])
+def install_spell_as(key_pair_name, script, config, dat, alias):
+    return run_aqua(key_pair_name, "install", [script, config, dat, alias])
 
 
-def install_spell_ok(key_pair_name, script, config, dat={}):
+def install_spell_ok(key_pair_name, alias, script, config, dat={}):
     """
     Install a spell with given configuration and check the resulting spell_id
     """
-    result = install_spell(key_pair_name, script, config, dat)
+
+    result = install_spell_as(key_pair_name, script, config, dat, alias)
     assert result["success"], "can't install spell"
     assert len(result["spell_id"]) != 0, "spell_id must not be empty"
     return result["spell_id"]
@@ -170,11 +171,13 @@ def get_counter_ok(key_pair_name, spell_id):
     return counter_result["value"]
 
 
-def create_spell(script, config, dat):
-    key_pair_name = make_key()
+def create_spell(key_pair_name, script, config, dat, alias=None):
+    if alias is None:
+        alias = "test-spell-" + str(time.time_ns()) 
+
     print("dat is", dat)
-    spell_id = install_spell_ok(key_pair_name, script, config, dat)
-    return spell_id, key_pair_name
+    spell_id = install_spell_ok(key_pair_name, alias, script, config, dat)
+    return spell_id
 
 
 def destroy_spell(key_pair_name, spell_id):
@@ -207,15 +210,26 @@ def with_spell(cls):
             param = param()
         return param
 
+    def init_param_opt(param_name):
+        param = getattr(cls, param_name, None)
+        if param is None:
+            return None
+        if callable(param):
+            param = param()
+        return param
+
+
     air_script = init_param("air_script")
     config = init_param("config")
     dat = init_param("dat")
+    alias = init_param_opt("alias")
 
     # update setup_class to create a spell + calling the original one
     old_setup_class = getattr(cls, "setup_class", None)
 
     def setup_class(cls):
-        spell_id, key_pair_name = create_spell(air_script, config, dat)
+        key_pair_name = make_key()
+        spell_id = create_spell(key_pair_name, air_script, config, dat, alias)
         cls.spell_id = spell_id
         cls.key_pair_name = key_pair_name
 
@@ -260,7 +274,8 @@ def with_spell_each(cls):
     old_setup_method = getattr(cls, "setup_method", None)
 
     def setup_method(cls):
-        spell_id, key_pair_name = create_spell(air_script, config, dat)
+        key_pair_name = make_key()
+        spell_id = create_spell(key_pair_name, air_script, config, dat)
         cls.spell_id = spell_id
         cls.key_pair_name = key_pair_name
 

@@ -1,27 +1,40 @@
-(seq
+(xor
  (seq
-  (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-  (call %init_peer_id% ("getDataSrv" "fellow_spell_id") [] -fellow_spell_id-arg-)
- )
- (xor
   (seq
-   (call %init_peer_id% (-fellow_spell_id-arg- "get_string") ["value"] ret)
-   (xor
-    (match ret.$.success true
-     (seq
+   (seq
+    (seq
+     (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+     (call %init_peer_id% ("getDataSrv" "fellow_spell_id") [] -fellow_spell_id-arg-)
+    )
+    (call %init_peer_id% (-fellow_spell_id-arg- "get_string") ["w_value"] ret)
+   )
+   (new -if-error-
+    (xor
+     (match ret.$.success true
       (seq
        (seq
-        (call %init_peer_id% ("json" "parse") [ret.$.value] ret-0)
-        (call %init_peer_id% ("math" "add") [ret-0 1] ret-1)
+        (seq
+         (call %init_peer_id% ("json" "parse") [ret.$.value] ret-0)
+         (call %init_peer_id% ("math" "add") [ret-0 1] ret-1)
+        )
+        (call %init_peer_id% ("json" "stringify") [ret-1] ret-2)
        )
-       (call %init_peer_id% ("json" "stringify") [ret-1] ret-2)
+       (call %init_peer_id% (-fellow_spell_id-arg- "set_string") ["w_value" ret-2] ret-3)
       )
-      (call %init_peer_id% (-fellow_spell_id-arg- "set_string") ["value" ret-2] ret-3)
+     )
+     (seq
+      (ap :error: -if-error-)
+      (xor
+       (match :error:.$.error_code 10001
+        (null)
+       )
+       (fail -if-error-)
+      )
      )
     )
-    (null)
    )
   )
-  (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 0])
+  (call %init_peer_id% ("callbackSrv" "response") [])
  )
+ (call %init_peer_id% ("errorHandlingSrv" "error") [:error: 0])
 )

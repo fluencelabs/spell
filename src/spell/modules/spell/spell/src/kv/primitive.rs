@@ -2,6 +2,7 @@ use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
 use fluence_spell_dtos::value::{BoolValue, StringValue, U32Value, UnitValue};
+use crate::auth::guard_kv_write;
 
 use crate::schema::db;
 
@@ -22,7 +23,11 @@ pub fn store_string(key: &str, value: String) -> eyre::Result<()> {
 
 #[marine]
 pub fn set_string(key: &str, value: String) -> UnitValue {
-    store_string(key, value).into()
+    let result: eyre::Result<()> = try {
+        guard_kv_write(key)?;
+        store_string(key, value)?
+    };
+    result.into()
 }
 
 pub fn read_string(statement: &mut Statement, idx: usize) -> eyre::Result<Option<String>> {
@@ -61,6 +66,7 @@ pub fn get_string(key: &str) -> StringValue {
 #[marine]
 pub fn set_u32(key: &str, value: u32) -> UnitValue {
     let result: eyre::Result<()> = try {
+        guard_kv_write(key)?;
         let conn = db();
         let mut statement = conn.prepare("INSERT OR REPLACE INTO kv (key, u32) VALUES (?, ?)")?;
         statement.bind(1, key)?;
@@ -107,6 +113,7 @@ pub fn get_u32(key: &str) -> U32Value {
 /// Always succeeds.
 pub fn remove_key(key: &str) -> UnitValue {
     let result: eyre::Result<()> = try {
+        guard_kv_write(key)?;
         let conn = db();
         let mut statement = conn.prepare("DELETE FROM kv WHERE key = ?")?;
         statement.bind(1, key)?;
@@ -136,6 +143,7 @@ pub fn exists(key: &str) -> BoolValue {
 #[cfg(test)]
 mod tests {
     use marine_rs_sdk_test::marine_test;
+    use marine_rs_sdk::CallParameters;
 
     use crate::schema::DB_FILE;
 
@@ -152,9 +160,11 @@ mod tests {
 
     #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_string(spell: marine_test_env::spell::ModuleInterface) {
+        let cp = spell_call_params();
+
         let key = "str".to_string();
         let str = "b".to_string();
-        let set = spell.set_string(key.clone(), str);
+        let set = spell.set_string_cp(key.clone(), str, cp);
         assert!(set.success, "set_string failed: {}", set.error);
         let get = spell.get_string(key);
         assert_eq!(get.value, "b", "get_string failed: {}", get.error);
@@ -164,7 +174,7 @@ mod tests {
     fn test_u32(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num".to_string();
         let num = 123;
-        let set = spell.set_u32(key.clone(), num);
+        let set = spell.set_u32_cp(key.clone(), num, spell_call_params());
         assert!(set.success, "set_u32 failed: {}", set.error);
         let get = spell.get_u32(key);
         assert_eq!(get.value, num, "get_u32 failed: {}", get.error);
@@ -174,6 +184,7 @@ mod tests {
     fn test_remove_key(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num";
         let num = 123;
+        let cp = || spell_call_params();
 
         let get = spell.get_u32(key.into());
         assert!(get.success, "unable to retrieve key {}: {}", key, get.error);
@@ -184,16 +195,16 @@ mod tests {
         );
 
         for _ in 1..10 {
-            let set = spell.set_u32(key.into(), num);
+            let set = spell.set_u32_cp(key.into(), num, cp());
             assert!(set.success, "set_u32 failed: {}", set.error);
 
             let get = spell.get_u32(key.into());
             assert_eq!(get.value, num, "get_u32 failed: {}", get.error);
 
-            let remove = spell.remove_key(key.into());
+            let remove = spell.remove_key_cp(key.into(), cp());
             assert!(remove.success, "first remove failed: {}", remove.error);
 
-            let remove = spell.remove_key(key.into());
+            let remove = spell.remove_key_cp(key.into(), cp());
             assert!(remove.success, "second remove failed: {}", remove.error);
 
             let get = spell.get_u32(key.into());
@@ -210,12 +221,14 @@ mod tests {
     fn test_u32_mutate(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num".to_string();
         let num = 123;
-        let set = spell.set_u32(key.clone(), num);
+        let cp = || spell_call_params();
+
+        let set = spell.set_u32_cp(key.clone(), num, cp());
         assert!(set.success, "set_u32 failed: {}", set.error);
         let get = spell.get_u32(key.clone());
         assert_eq!(get.value, num, "get_u32 failed: {}", get.error);
 
-        let set = spell.set_u32(key.clone(), num * 2);
+        let set = spell.set_u32_cp(key.clone(), num * 2, cp());
         assert!(set.success, "set_u32 failed: {}", set.error);
 
         let get = spell.get_u32(key);
@@ -225,6 +238,7 @@ mod tests {
     #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
     fn test_exists(spell: marine_test_env::spell::ModuleInterface) {
         let key = "num".to_string();
+        let cp = || spell_call_params();
 
         // check if exists before insertion
         let exists = spell.exists(key.clone());
@@ -233,7 +247,7 @@ mod tests {
 
         // insert
         let num = 123;
-        let set = spell.set_u32(key.clone(), num);
+        let set = spell.set_u32_cp(key.clone(), num, cp());
         assert!(set.success, "set_u32 failed: {}", set.error);
 
         // check if exists after insertion
@@ -242,7 +256,7 @@ mod tests {
         assert!(exists.value, "value doesn't exists after set_u32");
 
         // remove
-        let remove = spell.remove_key(key.clone());
+        let remove = spell.remove_key_cp(key.clone(), cp());
         assert!(remove.success, "remove failed: {}", remove.error);
 
         // check if exists after remove
@@ -263,15 +277,16 @@ mod tests {
         let key = "num".to_string();
         let num = 123;
         let str = "value".to_string();
+        let cp = || spell_call_params();
 
-        let set_num = spell.set_u32(key.clone(), num);
+        let set_num = spell.set_u32_cp(key.clone(), num, cp());
         assert!(set_num.success, "set_u32 failed: {}", set_num.error);
 
         let get_str = spell.get_string(key.clone());
         assert!(get_str.success, "get_string shouldn't fail: {}", get_str.error);
         assert!(get_str.absent, "the value of the wrong type must be absent");
 
-        let set_str = spell.set_string(key.clone(), str);
+        let set_str = spell.set_string_cp(key.clone(), str, cp());
         assert!(set_str.success, "set_u32 failed: {}", set_str.error);
 
         let get_num = spell.get_u32(key.clone());
@@ -284,12 +299,250 @@ mod tests {
         let key = "str".to_string();
         let str = String::new();
 
-        let set = spell.set_string(key.clone(), str);
+        let set = spell.set_string_cp(key.clone(), str, spell_call_params());
         assert!(set.success, "set_string failed: {}", set.error);
 
         let get = spell.get_string(key);
         assert!(get.success, "get_string failed: {}", get.error);
         assert!(!get.absent, "get_string must return non-absent empty string");
         assert_eq!(get.value, "", "get_string failed: {}", get.error);
+    }
+
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
+    fn test_set_host(spell: marine_test_env::spell::ModuleInterface) {
+        let host_key = "h_str";
+        let worker_key = "w_str";
+        let host_worker_key = "hw_str";
+        let private_key = "str";
+        let value_str = "b".to_string();
+        let value_num = 3;
+        let cp = || host_call_params();
+
+        type SPELL = marine_test_env::spell::ModuleInterface;
+        let set_str_ok = |spell: &mut SPELL, key: &str, value: &str|  {
+            let set = spell.set_string_cp(key.into(), value.into(), cp());
+            assert!(set.success, "set_string failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(exist.value);
+        };
+        let set_str_failed = |spell: &mut SPELL, key: &str, value: &str|  {
+            let set = spell.set_string_cp(key.into(), value.into(), cp());
+            assert!(!set.success, "set_string failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(!exist.value);
+        };
+        let set_num_ok = |spell: &mut SPELL, key: &str, value: u32|  {
+            let set = spell.set_u32_cp(key.into(), value, cp());
+            assert!(set.success, "set_u32 failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(exist.value);
+        };
+        let set_num_failed = |spell: &mut SPELL, key: &str, value: u32|  {
+            let set = spell.set_u32_cp(key.into(), value, cp());
+            assert!(!set.success, "set_u32 failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(!exist.value);
+        };
+        let remove_ok = |spell: &mut SPELL, key: &str|  {
+            let remove = spell.remove_key_cp(key.into(), cp());
+            assert!(remove.success, "remove failed: {}", remove.error);
+            let exist = spell.exists(key.into());
+            assert!(!exist.value);
+        };
+        let remove_failed = |spell: &mut SPELL, key: &str|  {
+            let remove = spell.remove_key_cp(key.into(), cp());
+            assert!(!remove.success, "remove failed: {}", remove.error);
+            let exist = spell.exists(key.into());
+            assert!(exist.value);
+        };
+
+        set_str_ok(&mut spell, host_key, &value_str);
+        set_str_ok(&mut spell, host_worker_key, &value_str);
+        set_str_failed(&mut spell, worker_key, &value_str);
+        set_str_failed(&mut spell, private_key, &value_str);
+
+        remove_ok(&mut spell, host_key);
+        remove_ok(&mut spell, host_worker_key);
+
+        set_num_ok(&mut spell, host_key, value_num);
+        set_num_ok(&mut spell, host_worker_key, value_num);
+        set_num_failed(&mut spell, worker_key, value_num);
+        set_num_failed(&mut spell, private_key, value_num);
+
+        spell.set_u32_cp(worker_key.into(), value_num, spell_call_params());
+        spell.set_u32_cp(private_key.into(), value_num, spell_call_params());
+
+        remove_ok(&mut spell, host_key);
+        remove_ok(&mut spell, host_worker_key);
+        remove_failed(&mut spell, worker_key);
+        remove_failed(&mut spell, private_key);
+    }
+
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
+    fn test_set_worker(spell: marine_test_env::spell::ModuleInterface) {
+        let host_key = "h_str";
+        let worker_key = "w_str";
+        let host_worker_key = "hw_str";
+        let private_key = "str";
+        let value_str = "b".to_string();
+        let value_num = 3;
+        let cp = || worker_call_params();
+
+        type SPELL = marine_test_env::spell::ModuleInterface;
+        let set_str_ok = |spell: &mut SPELL, key: &str, value: &str|  {
+            let set = spell.set_string_cp(key.into(), value.into(), cp());
+            assert!(set.success, "set_string failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(exist.value);
+        };
+        let set_str_failed = |spell: &mut SPELL, key: &str, value: &str|  {
+            let set = spell.set_string_cp(key.into(), value.into(), cp());
+            assert!(!set.success, "set_string failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(!exist.value);
+        };
+        let set_num_ok = |spell: &mut SPELL, key: &str, value: u32|  {
+            let set = spell.set_u32_cp(key.into(), value, cp());
+            assert!(set.success, "set_u32 failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(exist.value);
+        };
+        let set_num_failed = |spell: &mut SPELL, key: &str, value: u32|  {
+            let set = spell.set_u32_cp(key.into(), value, cp());
+            assert!(!set.success, "set_u32 failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(!exist.value);
+        };
+        let remove_ok = |spell: &mut SPELL, key: &str|  {
+            let remove = spell.remove_key_cp(key.into(), cp());
+            assert!(remove.success, "remove failed: {}", remove.error);
+            let exist = spell.exists(key.into());
+            assert!(!exist.value);
+        };
+        let remove_failed = |spell: &mut SPELL, key: &str|  {
+            let remove = spell.remove_key_cp(key.into(), cp());
+            assert!(!remove.success, "remove failed: {}", remove.error);
+            let exist = spell.exists(key.into());
+            assert!(exist.value);
+        };
+
+        set_str_failed(&mut spell, host_key, &value_str);
+        set_str_ok(&mut spell, host_worker_key, &value_str);
+        set_str_ok(&mut spell, worker_key, &value_str);
+        set_str_failed(&mut spell, private_key, &value_str);
+
+        remove_ok(&mut spell, worker_key);
+        remove_ok(&mut spell, host_worker_key);
+
+        set_num_failed(&mut spell, host_key, value_num);
+        set_num_ok(&mut spell, host_worker_key, value_num);
+        set_num_ok(&mut spell, worker_key, value_num);
+        set_num_failed(&mut spell, private_key, value_num);
+
+        spell.set_u32_cp(host_key.into(), value_num, spell_call_params());
+        spell.set_u32_cp(private_key.into(), value_num, spell_call_params());
+
+        remove_failed(&mut spell, host_key);
+        remove_ok(&mut spell, host_worker_key);
+        remove_ok(&mut spell, worker_key);
+        remove_failed(&mut spell, private_key);
+    }
+
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
+    fn test_primitives_other(spell: marine_test_env::spell::ModuleInterface) {
+        let host_key = "h_str";
+        let worker_key = "w_str";
+        let host_worker_key = "hw_str";
+        let private_key = "str";
+        let value_str = "b".to_string();
+        let value_num = 3;
+        let cp = || other_call_params();
+
+        type SPELL = marine_test_env::spell::ModuleInterface;
+        let set_str_failed = |spell: &mut SPELL, key: &str, value: &str|  {
+            let set = spell.set_string_cp(key.into(), value.into(), cp());
+            assert!(!set.success, "set_string failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(!exist.value);
+        };
+        let set_num_failed = |spell: &mut SPELL, key: &str, value: u32|  {
+            let set = spell.set_u32_cp(key.into(), value, cp());
+            assert!(!set.success, "set_u32 failed: {}", set.error);
+            let exist = spell.exists(key.into());
+            assert!(!exist.value);
+        };
+        let remove_failed = |spell: &mut SPELL, key: &str|  {
+            let remove = spell.remove_key_cp(key.into(), cp());
+            assert!(!remove.success, "remove failed: {}", remove.error);
+            let exist = spell.exists(key.into());
+            assert!(exist.value);
+        };
+
+        set_str_failed(&mut spell, host_key, &value_str);
+        set_str_failed(&mut spell, host_worker_key, &value_str);
+        set_str_failed(&mut spell, worker_key, &value_str);
+        set_str_failed(&mut spell, private_key, &value_str);
+
+        set_num_failed(&mut spell, host_key, value_num);
+        set_num_failed(&mut spell, host_worker_key, value_num);
+        set_num_failed(&mut spell, worker_key, value_num);
+        set_num_failed(&mut spell, private_key, value_num);
+
+        spell.set_u32_cp(host_key.into(), value_num, spell_call_params());
+        spell.set_u32_cp(private_key.into(), value_num, spell_call_params());
+        spell.set_u32_cp(worker_key.into(), value_num, spell_call_params());
+        spell.set_u32_cp(host_worker_key.into(), value_num, spell_call_params());
+
+        remove_failed(&mut spell, host_key);
+        remove_failed(&mut spell, host_worker_key);
+        remove_failed(&mut spell, worker_key);
+        remove_failed(&mut spell, private_key);
+    }
+    fn spell_call_params() -> CallParameters {
+        CallParameters {
+            init_peer_id: "worker-id".to_string(),
+            service_creator_peer_id: "worker-id".to_string(),
+            particle_id: "spell_spell-id_0".to_string(),
+            service_id: "spell-id".to_string(),
+            worker_id: "worker-id".to_string(),
+            host_id: "host-id".to_string(),
+            tetraplets: vec![],
+        }
+    }
+
+    fn host_call_params() -> CallParameters {
+        CallParameters {
+            init_peer_id: "host-id".to_string(),
+            service_creator_peer_id: "worker-id".to_string(),
+            particle_id: "some-particle".to_string(),
+            service_id: "spell-id".to_string(),
+            worker_id: "worker-id".to_string(),
+            host_id: "host-id".to_string(),
+            tetraplets: vec![],
+        }
+    }
+
+    fn worker_call_params() -> CallParameters {
+        CallParameters {
+            init_peer_id: "worker-id".to_string(),
+            service_creator_peer_id: "worker-id".to_string(),
+            particle_id: "some-particle".to_string(),
+            service_id: "spell-id".to_string(),
+            worker_id: "worker-id".to_string(),
+            host_id: "host-id".to_string(),
+            tetraplets: vec![],
+        }
+    }
+
+    fn other_call_params() -> CallParameters {
+        CallParameters {
+            init_peer_id: "other-worker-id".to_string(),
+            service_creator_peer_id: "worker-id".to_string(),
+            particle_id: "some-particle".to_string(),
+            service_id: "spell-id".to_string(),
+            worker_id: "worker-id".to_string(),
+            host_id: "host-id".to_string(),
+            tetraplets: vec![],
+        }
     }
 }

@@ -1,8 +1,9 @@
 aqua Lib declares *
 
-export list_spells, install, remove, update, get_config, get_script, get_counter, get_string
-export is_spell_absent, get_trigger_event, get_all_trigger_events, remove_service, get_spell_errors, noop
-export get_worker_spell_status, set_worker_spell_status, get_worker_spell_statuses_from, set_spell_alias
+export list_spells, install, remove, update, get_config, get_script, get_counter, get_string, get_all_trigger_events
+export is_spell_absent, get_trigger_event, remove_service, get_spell_errors, noop
+export get_worker_spell_status, send_worker_spell_status, get_worker_spell_statuses_from, set_spell_alias
+export remove_worker, get_worker_id_on_host, get_reports, get_target_values
 
 import "../../src/aqua/spell/api.aqua"
 import "../../src/aqua/spell/trigger.aqua"
@@ -16,15 +17,23 @@ import "../../src/aqua/installation-spell/src/aqua/json.aqua"
 
 const DUMMY_DEAL_ID = "dummy-deal-id"
 
+func get_deal_id() -> string: 
+    <- Op.concat_strings(DUMMY_DEAL_ID, INIT_PEER_ID)
+
 func get_worker_id() -> string:
     worker_id: *string
-    deal_id <- Op.concat_strings(DUMMY_DEAL_ID, INIT_PEER_ID)
+    deal_id <- get_deal_id()
     existing_worker <- Worker.get_worker_id(deal_id)
     if existing_worker == nil:
         worker_id <- Worker.create(deal_id)
     else:
         worker_id <<- existing_worker!
     <- worker_id!
+
+func get_worker_id_on_host() -> string:
+    on HOST_PEER_ID:
+        x <- get_worker_id()
+    <- x
 
 func list_spells() -> []string:
     on HOST_PEER_ID:
@@ -66,11 +75,17 @@ func remove(spell_id: string) -> Result:
                 result <<- Result(success = false, error = err.message)
     <- result[0]
 
+func remove_worker() -> string:
+    on HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        Worker.remove(worker_id)
+    <- "OK"
+
 func update(spell_id: string, config: TriggerConfig) -> Result:
    result: *Result
    on HOST_PEER_ID:
      worker_id <- get_worker_id()
-     on worker_id via HOST_PEER_ID:
+     on worker_id:
         try:
             PeerSpell.update_trigger_config(spell_id, config)
             result <<- Result(success = true, error = "")
@@ -80,56 +95,70 @@ func update(spell_id: string, config: TriggerConfig) -> Result:
 
 func get_config(spell_id: string) -> TriggerConfigValue:
     on HOST_PEER_ID:
-        Spell spell_id
-        cfg <- Spell.get_trigger_config()
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            cfg <- Spell.get_trigger_config()
     <- cfg
 
 func get_script(spell_id: string) -> ScriptValue:
     on HOST_PEER_ID:
-        Spell spell_id
-        cfg <- Spell.get_script()
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            cfg <- Spell.get_script()
     <- cfg
 
 func get_counter(spell_id: string) -> U32Value:
     on HOST_PEER_ID:
-        Spell spell_id
-        count <- Spell.get_u32("counter")
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            count <- Spell.get_u32("hw_counter")
     <- count
 
 -- For a test we want to retrive these values at the same time
 func get_string(spell_id: string, key: string) -> StringValue:
     on HOST_PEER_ID:
-        Spell spell_id
-        value <- Spell.get_string("value")
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            value <- Spell.get_string(key)
     <- value
 
 func is_spell_absent(spell_id: string) -> bool:
   result: *bool
   on HOST_PEER_ID:
-    try:
-        Spell spell_id
-        Spell.get_trigger_config()
-        result <<- false
-    otherwise:
-        result <<- true
+    worker_id <- get_worker_id()
+    on worker_id:
+        try:
+            Spell spell_id
+            Spell.get_trigger_config()
+            result <<- false
+        otherwise:
+            result <<- true
   <- result[0]
 
 func remove_service(id: string) -> Result:
    result: *Result
    on HOST_PEER_ID:
-      try:
-          Srv.remove(id)
-          result <<- Result(success = true, error = "")
-      catch err:
-          result <<- Result(success = false, error = err.message)
+     worker_id <- get_worker_id()
+     on worker_id:
+       try:
+           Srv.remove(id)
+           result <<- Result(success = true, error = "")
+       catch err:
+           result <<- Result(success = false, error = err.message)
    <- result[0]
 
 func get_trigger_event(spell_id: string) -> ?TriggerEvent, ?string:
     error: *string
     trigger: *TriggerEvent
     on HOST_PEER_ID:
+      worker_id <- get_worker_id()
+      on worker_id:
         Spell spell_id
-        result <- Spell.get_string("trigger")
+        result <- Spell.get_string("hw_trigger")
         if result.success:
             if result.absent == false:
                 trigger <- TriggerEventJson.parse(result.value)
@@ -138,24 +167,10 @@ func get_trigger_event(spell_id: string) -> ?TriggerEvent, ?string:
 
     <- trigger, error
 
--- you should store triggers in KV;
--- to achieve this you can use store_triggers_script from test_aqua.py
-func get_all_trigger_events(spell_id: string) -> []TriggerEvent, ?string:
-    error: *string
-    triggers: *TriggerEvent
-    on HOST_PEER_ID:
-        Spell spell_id
-        result <- Spell.list_get_strings("triggers")
-        if result.success:
-            for trigger <- result.value:
-                triggers <- TriggerEventJson.parse(trigger)
-        else:
-            error <<- result.error
-
-    <- triggers, error
-
 func get_spell_errors(spell_id: string) -> AllErrorsResult:
     on HOST_PEER_ID:
+      worker_id <- get_worker_id()
+      on worker_id:
         Spell spell_id
         x <- Spell.get_all_errors()
     <- x
@@ -176,16 +191,25 @@ func set_spell_alias(alias: string, spell_id: string) -> Result:
                 result <<- Result(success = false, error = err.message)
     <- result!
 
-func set_worker_spell_status(state: State, message: string) -> string:
+data StatusMsg:
+   status: string
+   msg: string 
+
+func send_worker_spell_status(status: string, msg: string) -> string:
     on HOST_PEER_ID:
         worker_id <- get_worker_id()
         on worker_id via HOST_PEER_ID:
-            set_status_msg(state, message)
+            Spell "worker-spell"
+            stmsg = StatusMsg(status = status, msg = msg)
+            str <- Json.stringify(stmsg)
+            Spell.push_mailbox(str)
             -- HACK: we need to return smth, because otherwise particle won't be processed at all
             -- and we receive an error:
             -- `particle_protocol::libp2p_protocol::upgrade: Error processing inbound ProtocolMessage: unexpected end of file
             -- Location: /opt/actions-runner/_work/nox/nox/particle-protocol/src/libp2p_protocol/upgrade.rs:119:27`
+
     <- "OK"
+
 
 func get_worker_spell_status() -> Status:
     on HOST_PEER_ID:
@@ -200,3 +224,77 @@ func get_worker_spell_statuses_from(timestamp: u64) -> []Status:
         on worker_id via HOST_PEER_ID:
             statuses <- get_statuses_from(timestamp)
     <- statuses
+
+
+data Report:
+    key: string
+    result: bool
+
+service ReportJson("json"):
+    parse(s: string) -> Report
+
+func get_reports(spell_id: string) -> []Report, []Report:
+    get_reports: *Report
+    set_reports: *Report
+
+    on HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            result1 <- Spell.list_get_strings("report_get")
+            if result1.success:
+                for val <- result1.value:
+                    get_reports <<- ReportJson.parse(val)
+
+            result2 <- Spell.list_get_strings("report_set")
+            if result2.success:
+                for val <- result2.value:
+                    set_reports <<- ReportJson.parse(val)
+
+    <- get_reports, set_reports
+
+
+data TargetValues:
+    test_counter: u32
+    w_test_counter: u32
+    h_test_counter: u32
+    hw_test_counter: u32
+    test_counter_2: u32
+    w_test_counter_2: u32
+    h_test_counter_2: u32
+    hw_test_counter_2: u32
+    
+
+func get_target_values(spell_id: string) -> TargetValues:
+    on HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            tc <- Spell.get_u32("test_counter")
+            wtc <- Spell.get_u32("w_test_counter")
+            htc <- Spell.get_u32("h_test_counter")
+            hwtc <- Spell.get_u32("hw_test_counter")
+
+            tc2 <- Spell.get_u32("test_counter_2")
+            wtc2 <- Spell.get_u32("w_test_counter_2")
+            htc2 <- Spell.get_u32("h_test_counter_2")
+            hwtc2 <- Spell.get_u32("hw_test_counter_2")
+    <- TargetValues(test_counter = tc.value, w_test_counter = wtc.value, h_test_counter = htc.value, hw_test_counter = hwtc.value, test_counter_2 = tc2.value, w_test_counter_2 = wtc2.value, h_test_counter_2 = htc2.value, hw_test_counter_2 = hwtc2.value)
+
+-- you should store triggers in KV;
+-- to achieve this you can use store_triggers_script from test_aqua.py
+func get_all_trigger_events(spell_id: string) -> []TriggerEvent, ?string:
+    error: *string
+    triggers: *TriggerEvent
+    on HOST_PEER_ID:
+        worker_id <- get_worker_id()
+        on worker_id:
+            Spell spell_id
+            result <- Spell.list_get_strings("triggers")
+            if result.success:
+                for trigger <- result.value:
+                    triggers <- TriggerEventJson.parse(trigger)
+            else:
+                error <<- result.error
+
+    <- triggers, error

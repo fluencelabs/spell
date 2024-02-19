@@ -1,0 +1,553 @@
+(xor
+ (seq
+  (seq
+   (seq
+    (seq
+     (seq
+      (seq
+       (seq
+        (seq
+         (seq
+          (seq
+           (seq
+            (seq
+             (seq
+              (seq
+               (seq
+                (seq
+                 (seq
+                  (seq
+                   (seq
+                    (seq
+                     (seq
+                      (seq
+                       (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+                       (call %init_peer_id% ("getDataSrv" "target_worker_id") [] -target_worker_id-arg-)
+                      )
+                      (xor
+                       (seq
+                        (seq
+                         (new $-ephemeral-stream-
+                          (new #-ephemeral-canon-
+                           (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                          )
+                         )
+                         (call -target_worker_id-arg- ("subject" "get_u32") ["test_counter"] ret)
+                        )
+                        (new $-ephemeral-stream-
+                         (new #-ephemeral-canon-
+                          (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                         )
+                        )
+                       )
+                       (seq
+                        (seq
+                         (new $-ephemeral-stream-
+                          (new #-ephemeral-canon-
+                           (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                          )
+                         )
+                         (new $-ephemeral-stream-
+                          (new #-ephemeral-canon-
+                           (canon %init_peer_id% $-ephemeral-stream-  #-ephemeral-canon-)
+                          )
+                         )
+                        )
+                        (fail :error:)
+                       )
+                      )
+                     )
+                     (new %Report_obj_map
+                      (seq
+                       (seq
+                        (ap ("key" "test_counter") %Report_obj_map)
+                        (ap ("result" ret.$.success) %Report_obj_map)
+                       )
+                       (canon %init_peer_id% %Report_obj_map  Report_obj)
+                      )
+                     )
+                    )
+                    (call %init_peer_id% ("json" "stringify") [Report_obj] ret-0)
+                   )
+                   (call %init_peer_id% ("spell" "list_push_string") ["report_get" ret-0] ret-1)
+                  )
+                  (new -if-error-
+                   (xor
+                    (seq
+                     (match ret.$.success true
+                      (seq
+                       (seq
+                        (seq
+                         (seq
+                          (call %init_peer_id% ("math" "add") [ret.$.value 1] add)
+                          (xor
+                           (seq
+                            (seq
+                             (new $-ephemeral-stream-
+                              (new #-ephemeral-canon-
+                               (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                              )
+                             )
+                             (call -target_worker_id-arg- ("subject" "set_u32") ["test_counter" add] ret-2)
+                            )
+                            (new $-ephemeral-stream-
+                             (new #-ephemeral-canon-
+                              (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                             )
+                            )
+                           )
+                           (seq
+                            (seq
+                             (new $-ephemeral-stream-
+                              (new #-ephemeral-canon-
+                               (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                              )
+                             )
+                             (new $-ephemeral-stream-
+                              (new #-ephemeral-canon-
+                               (canon %init_peer_id% $-ephemeral-stream-  #-ephemeral-canon-)
+                              )
+                             )
+                            )
+                            (fail :error:)
+                           )
+                          )
+                         )
+                         (new %Report_obj-0_map
+                          (seq
+                           (seq
+                            (ap ("key" "test_counter") %Report_obj-0_map)
+                            (ap ("result" ret-2.$.success) %Report_obj-0_map)
+                           )
+                           (canon %init_peer_id% %Report_obj-0_map  Report_obj-0)
+                          )
+                         )
+                        )
+                        (call %init_peer_id% ("json" "stringify") [Report_obj-0] ret-3)
+                       )
+                       (call %init_peer_id% ("spell" "list_push_string") ["report_set" ret-3] ret-4)
+                      )
+                     )
+                     (new $-ephemeral-stream-
+                      (new #-ephemeral-canon-
+                       (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                      )
+                     )
+                    )
+                    (seq
+                     (seq
+                      (ap :error: -if-error-)
+                      (xor
+                       (seq
+                        (match :error:.$.error_code 10001
+                         (null)
+                        )
+                        (new $-ephemeral-stream-
+                         (new #-ephemeral-canon-
+                          (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                         )
+                        )
+                       )
+                       (fail -if-error-)
+                      )
+                     )
+                     (new $-ephemeral-stream-
+                      (new #-ephemeral-canon-
+                       (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                      )
+                     )
+                    )
+                   )
+                  )
+                 )
+                 (xor
+                  (seq
+                   (seq
+                    (new $-ephemeral-stream-
+                     (new #-ephemeral-canon-
+                      (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                     )
+                    )
+                    (call -target_worker_id-arg- ("subject" "get_u32") ["w_test_counter"] ret-5)
+                   )
+                   (new $-ephemeral-stream-
+                    (new #-ephemeral-canon-
+                     (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                    )
+                   )
+                  )
+                  (seq
+                   (seq
+                    (new $-ephemeral-stream-
+                     (new #-ephemeral-canon-
+                      (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                     )
+                    )
+                    (new $-ephemeral-stream-
+                     (new #-ephemeral-canon-
+                      (canon %init_peer_id% $-ephemeral-stream-  #-ephemeral-canon-)
+                     )
+                    )
+                   )
+                   (fail :error:)
+                  )
+                 )
+                )
+                (new %Report_obj-1_map
+                 (seq
+                  (seq
+                   (ap ("key" "w_test_counter") %Report_obj-1_map)
+                   (ap ("result" ret-5.$.success) %Report_obj-1_map)
+                  )
+                  (canon %init_peer_id% %Report_obj-1_map  Report_obj-1)
+                 )
+                )
+               )
+               (call %init_peer_id% ("json" "stringify") [Report_obj-1] ret-6)
+              )
+              (call %init_peer_id% ("spell" "list_push_string") ["report_get" ret-6] ret-7)
+             )
+             (new -if-error-
+              (xor
+               (seq
+                (match ret-5.$.success true
+                 (seq
+                  (seq
+                   (seq
+                    (seq
+                     (call %init_peer_id% ("math" "add") [ret-5.$.value 1] add-0)
+                     (xor
+                      (seq
+                       (seq
+                        (new $-ephemeral-stream-
+                         (new #-ephemeral-canon-
+                          (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                         )
+                        )
+                        (call -target_worker_id-arg- ("subject" "set_u32") ["w_test_counter" add-0] ret-8)
+                       )
+                       (new $-ephemeral-stream-
+                        (new #-ephemeral-canon-
+                         (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                        )
+                       )
+                      )
+                      (seq
+                       (seq
+                        (new $-ephemeral-stream-
+                         (new #-ephemeral-canon-
+                          (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                         )
+                        )
+                        (new $-ephemeral-stream-
+                         (new #-ephemeral-canon-
+                          (canon %init_peer_id% $-ephemeral-stream-  #-ephemeral-canon-)
+                         )
+                        )
+                       )
+                       (fail :error:)
+                      )
+                     )
+                    )
+                    (new %Report_obj-2_map
+                     (seq
+                      (seq
+                       (ap ("key" "w_test_counter") %Report_obj-2_map)
+                       (ap ("result" ret-8.$.success) %Report_obj-2_map)
+                      )
+                      (canon %init_peer_id% %Report_obj-2_map  Report_obj-2)
+                     )
+                    )
+                   )
+                   (call %init_peer_id% ("json" "stringify") [Report_obj-2] ret-9)
+                  )
+                  (call %init_peer_id% ("spell" "list_push_string") ["report_set" ret-9] ret-10)
+                 )
+                )
+                (new $-ephemeral-stream-
+                 (new #-ephemeral-canon-
+                  (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                 )
+                )
+               )
+               (seq
+                (seq
+                 (ap :error: -if-error-)
+                 (xor
+                  (seq
+                   (match :error:.$.error_code 10001
+                    (null)
+                   )
+                   (new $-ephemeral-stream-
+                    (new #-ephemeral-canon-
+                     (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                    )
+                   )
+                  )
+                  (fail -if-error-)
+                 )
+                )
+                (new $-ephemeral-stream-
+                 (new #-ephemeral-canon-
+                  (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                 )
+                )
+               )
+              )
+             )
+            )
+            (xor
+             (seq
+              (seq
+               (new $-ephemeral-stream-
+                (new #-ephemeral-canon-
+                 (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                )
+               )
+               (call -target_worker_id-arg- ("subject" "get_u32") ["hw_test_counter"] ret-11)
+              )
+              (new $-ephemeral-stream-
+               (new #-ephemeral-canon-
+                (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+               )
+              )
+             )
+             (seq
+              (seq
+               (new $-ephemeral-stream-
+                (new #-ephemeral-canon-
+                 (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                )
+               )
+               (new $-ephemeral-stream-
+                (new #-ephemeral-canon-
+                 (canon %init_peer_id% $-ephemeral-stream-  #-ephemeral-canon-)
+                )
+               )
+              )
+              (fail :error:)
+             )
+            )
+           )
+           (new %Report_obj-3_map
+            (seq
+             (seq
+              (ap ("key" "hw_test_counter") %Report_obj-3_map)
+              (ap ("result" ret-11.$.success) %Report_obj-3_map)
+             )
+             (canon %init_peer_id% %Report_obj-3_map  Report_obj-3)
+            )
+           )
+          )
+          (call %init_peer_id% ("json" "stringify") [Report_obj-3] ret-12)
+         )
+         (call %init_peer_id% ("spell" "list_push_string") ["report_get" ret-12] ret-13)
+        )
+        (new -if-error-
+         (xor
+          (seq
+           (match ret-11.$.success true
+            (seq
+             (seq
+              (seq
+               (seq
+                (call %init_peer_id% ("math" "add") [ret-11.$.value 1] add-1)
+                (xor
+                 (seq
+                  (seq
+                   (new $-ephemeral-stream-
+                    (new #-ephemeral-canon-
+                     (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                    )
+                   )
+                   (call -target_worker_id-arg- ("subject" "set_u32") ["hw_test_counter" add-1] ret-14)
+                  )
+                  (new $-ephemeral-stream-
+                   (new #-ephemeral-canon-
+                    (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                   )
+                  )
+                 )
+                 (seq
+                  (seq
+                   (new $-ephemeral-stream-
+                    (new #-ephemeral-canon-
+                     (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+                    )
+                   )
+                   (new $-ephemeral-stream-
+                    (new #-ephemeral-canon-
+                     (canon %init_peer_id% $-ephemeral-stream-  #-ephemeral-canon-)
+                    )
+                   )
+                  )
+                  (fail :error:)
+                 )
+                )
+               )
+               (new %Report_obj-4_map
+                (seq
+                 (seq
+                  (ap ("key" "hw_test_counter") %Report_obj-4_map)
+                  (ap ("result" ret-14.$.success) %Report_obj-4_map)
+                 )
+                 (canon %init_peer_id% %Report_obj-4_map  Report_obj-4)
+                )
+               )
+              )
+              (call %init_peer_id% ("json" "stringify") [Report_obj-4] ret-15)
+             )
+             (call %init_peer_id% ("spell" "list_push_string") ["report_set" ret-15] ret-16)
+            )
+           )
+           (new $-ephemeral-stream-
+            (new #-ephemeral-canon-
+             (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+            )
+           )
+          )
+          (seq
+           (seq
+            (ap :error: -if-error-)
+            (xor
+             (seq
+              (match :error:.$.error_code 10001
+               (null)
+              )
+              (new $-ephemeral-stream-
+               (new #-ephemeral-canon-
+                (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+               )
+              )
+             )
+             (fail -if-error-)
+            )
+           )
+           (new $-ephemeral-stream-
+            (new #-ephemeral-canon-
+             (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+            )
+           )
+          )
+         )
+        )
+       )
+       (xor
+        (seq
+         (seq
+          (new $-ephemeral-stream-
+           (new #-ephemeral-canon-
+            (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+           )
+          )
+          (call -target_worker_id-arg- ("subject" "get_u32") ["h_test_counter"] ret-17)
+         )
+         (new $-ephemeral-stream-
+          (new #-ephemeral-canon-
+           (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+          )
+         )
+        )
+        (seq
+         (seq
+          (new $-ephemeral-stream-
+           (new #-ephemeral-canon-
+            (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+           )
+          )
+          (new $-ephemeral-stream-
+           (new #-ephemeral-canon-
+            (canon %init_peer_id% $-ephemeral-stream-  #-ephemeral-canon-)
+           )
+          )
+         )
+         (fail :error:)
+        )
+       )
+      )
+      (new %Report_obj-5_map
+       (seq
+        (seq
+         (ap ("key" "h_test_counter") %Report_obj-5_map)
+         (ap ("result" ret-17.$.success) %Report_obj-5_map)
+        )
+        (canon %init_peer_id% %Report_obj-5_map  Report_obj-5)
+       )
+      )
+     )
+     (call %init_peer_id% ("json" "stringify") [Report_obj-5] ret-18)
+    )
+    (call %init_peer_id% ("spell" "list_push_string") ["report_get" ret-18] ret-19)
+   )
+   (new -if-error-
+    (xor
+     (match ret-17.$.success true
+      (seq
+       (seq
+        (seq
+         (seq
+          (call %init_peer_id% ("math" "add") [ret-17.$.value 1] add-2)
+          (xor
+           (seq
+            (seq
+             (new $-ephemeral-stream-
+              (new #-ephemeral-canon-
+               (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+              )
+             )
+             (call -target_worker_id-arg- ("subject" "set_u32") ["h_test_counter" add-2] ret-20)
+            )
+            (new $-ephemeral-stream-
+             (new #-ephemeral-canon-
+              (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+             )
+            )
+           )
+           (seq
+            (seq
+             (new $-ephemeral-stream-
+              (new #-ephemeral-canon-
+               (canon -relay- $-ephemeral-stream-  #-ephemeral-canon-)
+              )
+             )
+             (new $-ephemeral-stream-
+              (new #-ephemeral-canon-
+               (canon %init_peer_id% $-ephemeral-stream-  #-ephemeral-canon-)
+              )
+             )
+            )
+            (fail :error:)
+           )
+          )
+         )
+         (new %Report_obj-6_map
+          (seq
+           (seq
+            (ap ("key" "h_test_counter") %Report_obj-6_map)
+            (ap ("result" ret-20.$.success) %Report_obj-6_map)
+           )
+           (canon %init_peer_id% %Report_obj-6_map  Report_obj-6)
+          )
+         )
+        )
+        (call %init_peer_id% ("json" "stringify") [Report_obj-6] ret-21)
+       )
+       (call %init_peer_id% ("spell" "list_push_string") ["report_set" ret-21] ret-22)
+      )
+     )
+     (seq
+      (ap :error: -if-error-)
+      (xor
+       (match :error:.$.error_code 10001
+        (null)
+       )
+       (fail -if-error-)
+      )
+     )
+    )
+   )
+  )
+  (call %init_peer_id% ("callbackSrv" "response") [])
+ )
+ (call %init_peer_id% ("errorHandlingSrv" "error") [:error: 0])
+)

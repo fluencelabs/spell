@@ -1,5 +1,6 @@
 import pytest
 from framework import *
+import time
 
 def empty_config():
     return {
@@ -30,7 +31,7 @@ def simple_script():
 def store_triggers_script():
     return '''
     (seq
-        (call %init_peer_id% ("getDataSrv" "trigger") [] trigger)
+        (call %init_peer_id% ("getDataSrv" "hw_trigger") [] trigger)
         (seq
             (call %init_peer_id% ("json" "stringify") [trigger] trigger_str)
             (call %init_peer_id% ("spell" "list_push_string") ["triggers" trigger_str])
@@ -143,9 +144,11 @@ class TestRemoveWithAux:
     it will increase the "value" argument of the first spell.
     """
 
+    VALUE_KEY = "w_value"
+
     # the script of the first, supporing spell can be anything
     air_script = simple_script()
-    dat = {"value": 0}
+    dat = {VALUE_KEY: 0}
     config = empty_config()
 
     worker_spell_id = None
@@ -155,36 +158,32 @@ class TestRemoveWithAux:
     def setup_method(self):
         # Aqua: aqua/test_spells.aqua, func: inc_other_spell
         # Air: air/test_spells.inc_other_spell.air
-        #
-        # TODO: I want to be able to put here aqua for clarity, but I don't want to compile it during tests.
-        #       Is there some ways?
         script = open("./air/test_spells.inc_other_spell.air").read()
 
         config = empty_config()
         # pass the storage spell id to the worker spell
         dat = {"fellow_spell_id": self.spell_id}
 
-        spell_id, key_pair_name = create_spell(script, config, dat)
+        spell_id = create_spell(self.key_pair_name, script, config, dat)
         self.worker_spell_id = spell_id
-        self.worker_key_pair_name = key_pair_name
 
     def run_scenario(self):
         # remove spell stopping it
-        destroy_spell(self.worker_key_pair_name, self.worker_spell_id)
+        destroy_spell(self.key_pair_name, self.worker_spell_id)
 
         # check that spell isn't available by its spell id
-        result = run_aqua(self.worker_key_pair_name, "is_spell_absent", [self.worker_spell_id])
+        result = run_aqua(self.key_pair_name, "is_spell_absent", [self.worker_spell_id])
         assert result, "the spell should be unavailable"
 
         # get value from the aux spell
-        result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, "value"])
+        result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, self.VALUE_KEY])
         assert result["success"]
         assert not result["absent"]
         value = result["value"]
 
         trigger_connect()
 
-        result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, "value"])
+        result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, self.VALUE_KEY])
         assert result["success"]
         assert not result["absent"]
         value2 = result["value"]
@@ -198,25 +197,40 @@ class TestRemoveWithAux:
 
     def test_remove_stopped(self):
         # run spell
-        update_spell_ok(self.key_pair_name, self.spell_id, connect_config())
+        update_spell_ok(self.key_pair_name, self.worker_spell_id, connect_config())
         # trigger spell
         trigger_connect()
         # stop spell
-        update_spell_ok(self.key_pair_name, self.spell_id, empty_config())
+        update_spell_ok(self.key_pair_name, self.worker_spell_id, empty_config())
 
         self.run_scenario()
 
     def test_remove_running(self):
         # run the spell
-        update_spell_ok(self.key_pair_name, self.spell_id, connect_config())
+        update_spell_ok(self.key_pair_name, self.worker_spell_id, connect_config())
+
+        result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, self.VALUE_KEY])
+        assert result["success"]
+        assert not result["absent"]
+        value1 = result["value"]
+
         # trigger spell
         trigger_connect()
+
+        result = run_aqua(self.key_pair_name, "get_string", [self.spell_id, self.VALUE_KEY])
+        assert result["success"]
+        assert not result["absent"]
+        value2 = result["value"]
+
+        assert value1 != value2, "spell must be run once"
+
 
         self.run_scenario()
 
 class TestList:
     def test_list(self):
-        spell_id, key_pair_name = create_spell(simple_script(), empty_config(), {})
+        key_pair_name = make_key()
+        spell_id = create_spell(key_pair_name, simple_script(), empty_config(), {})
         spells_after_install = run_aqua(key_pair_name, "list_spells", [])
         destroy_spell(key_pair_name, spell_id)
         spells_after_remove = run_aqua(key_pair_name, "list_spells", [])
@@ -292,6 +306,7 @@ class TestTriggerMailbox:
         # TODO: check if it stands
         assert len(triggers) == counter, "number of trigger must be the same as number of invocation"
 
+
     def test_triggers_connections(self):
         config = empty_config()
         config["connections"]["connect"] = True
@@ -341,6 +356,7 @@ class TestConfig:
 
         timestamp1 = triggers[0]['timer']['timestamp']
         timestamp2 = triggers[1]['timer']['timestamp']
+
 
         period_result = abs(timestamp1 - timestamp2)
         assert period_result >= period_expected, "real period is less then configured: real: {period_result}, expected: {period_expected} "
@@ -411,16 +427,21 @@ class TestSpellError:
 
 @with_spell
 class TestSpellStatus:
-    air_script = '''
-    (seq
-        (call %init_peer_id% ("getDataSrv" "spell_id") [] spell_id)
-        (call %init_peer_id% ("srv" "add_alias") ["worker-spell" spell_id])
-    )
-    '''
+    """
+    Check installation-spell status API
+
+    Since we can't change the status directly, we send message to the spell's mailbox so the spell
+    sets the required status itself.
+    """
+    air_script = open("./air/test_spells.status_spell.air").read()
+
     dat = {}
-    config = oneshot_config()
+    config = connect_config()
+    alias = "worker-spell"
 
     def test_status(self):
+        trigger_connect()
+
         status = run_aqua(self.key_pair_name, "get_worker_spell_status", [])
         assert status["state"] == "NOT_STARTED"
         assert status["message"] == "Installation has not started yet"
@@ -430,7 +451,9 @@ class TestSpellStatus:
         assert statuses[0]["state"] == "NOT_STARTED"
         assert statuses[0]["message"] == "Installation has not started yet"
 
-        run_aqua(self.key_pair_name, "set_worker_spell_status", ["INSTALLATION_IN_PROGRESS", "installation in progress"])
+        run_aqua(self.key_pair_name, "send_worker_spell_status", ["INSTALLATION_IN_PROGRESS", "installation in progress"])
+        trigger_connect()
+
         first_status = run_aqua(self.key_pair_name, "get_worker_spell_status", [])
         assert first_status["state"] == "INSTALLATION_IN_PROGRESS"
         assert first_status["message"] == "installation in progress"
@@ -441,7 +464,9 @@ class TestSpellStatus:
         assert statuses[0] == first_status
 
         time.sleep(2)
-        run_aqua(self.key_pair_name, "set_worker_spell_status", ["INSTALLATION_SUCCESSFUL", "installation finished"])
+        run_aqua(self.key_pair_name, "send_worker_spell_status", ["INSTALLATION_SUCCESSFUL", "installation finished"])
+        trigger_connect()
+
         last_status = run_aqua(self.key_pair_name, "get_worker_spell_status", [])
         assert last_status["state"] == "INSTALLATION_SUCCESSFUL"
         assert last_status["message"] == "installation finished"
@@ -456,39 +481,103 @@ class TestSpellStatus:
         assert len(statuses) == 1
         assert statuses[0] == last_status
 
+class TestSpellKvPermissions:
+    """
+    1. Create two spells on one worker (should be able to change w_ and hw_ keys and can't change any other keys on each other)
+    2. Create a spell on another worker (shouldn't be able to change anything on the original spells)
+    3. We can't create a root spells, so we can't check `h_` key, but we can check that only a spell itself can write to the key
 
-# TODO: decide before merging
-#
-# Do we want to write aqua code in tests?
-# + Clarity
-# - Need to recompile every test, which takes time on every PR it's running.
-#   Event without it these tests are long.
-#
-# class TestAquaCode:
-#     script_aqua = """
-# import "../../src/aqua/spell/spell_service.aqua"
-#
-# service JsonNum("json"):
-#   stringify(obj: i64) -> string
-#   parse(str: string) -> i64
-#
-# service Json("json"):
-#   stringify(obj: ⊤) -> string
-#
-# data IncState:
-#     value: i64
-#
-# func inc_value(value: string) -> string:
-#     value_real <- JsonNum.parse(value)
-#     obj = IncState(value = value_real)
-#     obj_str <- Json.stringify(obj)
-#     <- obj_str
-#     """
-#
-#     config = empty_config()
-#     dat = {}
-#     # Can do it automatically, if this approach is approved
-#     air_script = from_aqua(script_aqua, "inc_value")
-#
-#     def test_aqua_code(self):
-#         pass
+
+    A spell on the first worker is:
+    - trying to increment w_test_counter and hw_test_counter value on the fellow worker (and succeed)
+    - trying to increment test_counter and h_test_counter on the fellow worker (and fail)
+
+    A spell on another worker is:
+    - trying to modify test_counter_2, w_test_counter_2, hw_test_counter_2 on the spell on worker 1 and fails 
+    """
+
+    VALUE = "test_counter"
+    W_VALUE = "w_test_counter"
+    H_VALUE = "h_test_counter"
+    HW_VALUE = "hw_test_counter"
+
+    VALUE_2 = "test_counter_2"
+    W_VALUE_2 = "w_test_counter_2"
+    H_VALUE_2 = "h_test_counter_2"
+    HW_VALUE_2 = "hw_test_counter_2"
+
+    @classmethod
+    def setup_worker_1(self):
+        dat = {
+            self.VALUE: 0,
+            self.W_VALUE: 0,
+            self.H_VALUE: 0,
+            self.HW_VALUE: 0,
+
+            self.VALUE_2: 0,
+            self.W_VALUE_2: 0,
+            self.H_VALUE_2: 0,
+            self.HW_VALUE_2: 0
+        }
+        script = open("air/test_spells.actor_spell.air").read()
+
+        worker_1_key = make_key()
+
+        # Important to create subject first so the actor can access it
+        spell_id2 = create_spell(worker_1_key, simple_script(), empty_config(), dat, "subject")
+        spell_id1 = create_spell(worker_1_key, script, oneshot_config(), dat, "actor")
+
+        worker_id = run_aqua(worker_1_key, "get_worker_id_on_host", [])
+
+        self.worker_1_key = worker_1_key
+        self.worker_1_id = worker_id.strip()
+
+    @classmethod
+    def setup_worker_2(self):
+        script = open("air/test_spells.stranger_spell.air").read()
+        dat = {"target_worker_id": self.worker_1_id}
+        worker_2_key = make_key()
+        spell_id_2 = create_spell(worker_2_key, script, oneshot_config(), dat, "stranger")
+        self.worker_2_key = worker_2_key
+
+    def setup_class(self):
+        # important to create worker_1 first, since worker_2 uses it
+        self.setup_worker_1()
+        self.setup_worker_2()
+
+    def teardown_class(self):
+        run_aqua(self.worker_1_key, "remove_worker", [])
+        run_aqua(self.worker_2_key, "remove_worker", [])
+
+    def test_kv_permissions(self):
+        # at this point all the spells should already end
+
+        read_reports, write_reports = run_aqua(self.worker_1_key, "get_reports", ["actor"])
+        assert all(map(lambda x: x["result"], read_reports)), "actor should be able to read every key"
+        # Actor should be able to write only w_ and hw_
+        ok_writes = list(map(lambda x: x["key"], filter(lambda x: x["result"], write_reports)))
+        assert all(map(lambda x: x.startswith("w_") or x.startswith("hw_"), ok_writes)), "actor should be able to change only w_ and hw_ keys"
+
+        failed_writes = list(map(lambda x: x["key"], filter(lambda x: not x["result"], write_reports)))
+        assert all(map(lambda x: not (x.startswith("w_") or x.startswith("hw_")), failed_writes)), "actor should NOT be able to change any other keys"
+
+
+        # Stranger should be able to read everything and write nothing
+        read_reports, write_reports = run_aqua(self.worker_2_key, "get_reports", ["stranger"])
+        assert all(map(lambda x: x["result"], read_reports)), "stranger should be able to read every key"
+        assert all(map(lambda x: not x["result"], write_reports)), "stranger should NOT be able to write any key"
+
+        result = run_aqua(self.worker_1_key, "get_target_values", ["subject"])
+        # Subject's worker key should be changed
+        assert result[self.W_VALUE] != 0
+        assert result[self.HW_VALUE] != 0
+        # Subject's private and host keys must not be changed
+        assert result[self.VALUE] == 0
+        assert result[self.H_VALUE] == 0
+        # Subject's _2 keys must not be changed
+        assert result[self.VALUE_2] == 0
+        assert result[self.W_VALUE_2] == 0
+        assert result[self.H_VALUE_2] == 0
+        assert result[self.HW_VALUE_2] == 0
+
+        print(result)

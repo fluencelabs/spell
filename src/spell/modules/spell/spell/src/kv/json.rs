@@ -5,6 +5,7 @@ use marine_rs_sdk::marine;
 use serde_json::Value as JValue;
 
 use fluence_spell_dtos::value::UnitValue;
+use crate::auth::guard_kv_write;
 
 use crate::kv::primitive::store_string;
 
@@ -16,9 +17,10 @@ pub fn set_json_fields(json: &str) -> UnitValue {
         let fields: HashMap<String, JValue> =
             serde_json::from_str(json).context("passed string must represent a JSON object")?;
         // TODO: should it be all in a single transaction?
-        for (k, v) in fields {
-            store_string(&k, v.to_string())
-                .context(format!("set string for field '{}' failed", k))?
+        for (key, value) in fields {
+            guard_kv_write(&key)?;
+            store_string(&key, value.to_string())
+                .context(format!("set string for field '{}' failed", key))?
         }
     };
 
@@ -28,6 +30,7 @@ pub fn set_json_fields(json: &str) -> UnitValue {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
+    use marine_rs_sdk::CallParameters;
     use marine_rs_sdk_test::marine_test;
     use serde_json::json;
 
@@ -54,7 +57,7 @@ mod tests {
             "e": ["1", "2", "3"],
             "f": [1, "2", "three", [4], ["five"], [{"six": 7}]]
         });
-        let set = spell.set_json_fields(json.to_string());
+        let set = spell.set_json_fields_cp(json.to_string(), spell_call_params());
         assert!(set.success, "set_json_fields failed: {}", set.error);
 
         let values = json.as_object().unwrap();
@@ -62,6 +65,99 @@ mod tests {
             let get = spell.get_string(k.to_string());
             assert!(get.success, "get_string {} failed: {}", k, get.error);
             assert_eq!(get.value, v.to_string());
+        }
+    }
+
+
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
+    fn test_json_host(spell: marine_test_env::spell::ModuleInterface) {
+        let json = json!({
+            "hw_a": 1,
+            "h_b": {"foo": "bar"},
+        });
+        let set = spell.set_json_fields_cp(json.to_string(), host_call_params());
+        assert!(set.success, "set_json_fields failed: {}", set.error);
+
+        let values = json.as_object().unwrap();
+        for (k, v) in values {
+            let get = spell.get_string(k.to_string());
+            assert!(get.success, "get_string {} failed: {}", k, get.error);
+            assert_eq!(get.value, v.to_string());
+        }
+    }
+
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
+    fn test_json_worker(spell: marine_test_env::spell::ModuleInterface) {
+        let json = json!({
+            "hw_a": 1,
+            "w_b": {"foo": "bar"},
+        });
+        let set = spell.set_json_fields_cp(json.to_string(), worker_call_params());
+        assert!(set.success, "set_json_fields failed: {}", set.error);
+
+        let values = json.as_object().unwrap();
+        for (k, v) in values {
+            let get = spell.get_string(k.to_string());
+            assert!(get.success, "get_string {} failed: {}", k, get.error);
+            assert_eq!(get.value, v.to_string());
+        }
+    }
+
+    #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
+    fn test_json_other(spell: marine_test_env::spell::ModuleInterface) {
+        let json = json!({
+            "hw_a": 1,
+            "w_b": {"foo": "bar"},
+        });
+        let set = spell.set_json_fields_cp(json.to_string(), other_call_params());
+        assert!(!set.success, "set_json_fields must fail");
+    }
+
+    fn spell_call_params() -> CallParameters {
+        CallParameters {
+            init_peer_id: "worker-id".to_string(),
+            service_creator_peer_id: "worker-id".to_string(),
+            particle_id: "spell_spell-id_0".to_string(),
+            service_id: "spell-id".to_string(),
+            worker_id: "worker-id".to_string(),
+            host_id: "host-id".to_string(),
+            tetraplets: vec![],
+        }
+    }
+
+    fn host_call_params() -> CallParameters {
+        CallParameters {
+            init_peer_id: "host-id".to_string(),
+            service_creator_peer_id: "worker-id".to_string(),
+            particle_id: "some-particle".to_string(),
+            service_id: "spell-id".to_string(),
+            worker_id: "worker-id".to_string(),
+            host_id: "host-id".to_string(),
+            tetraplets: vec![],
+        }
+    }
+
+    fn worker_call_params() -> CallParameters {
+        CallParameters {
+            init_peer_id: "worker-id".to_string(),
+            service_creator_peer_id: "worker-id".to_string(),
+            particle_id: "some-particle".to_string(),
+            service_id: "spell-id".to_string(),
+            worker_id: "worker-id".to_string(),
+            host_id: "host-id".to_string(),
+            tetraplets: vec![],
+        }
+    }
+
+    fn other_call_params() -> CallParameters {
+        CallParameters {
+            init_peer_id: "other-worker-id".to_string(),
+            service_creator_peer_id: "worker-id".to_string(),
+            particle_id: "some-particle".to_string(),
+            service_id: "spell-id".to_string(),
+            worker_id: "worker-id".to_string(),
+            host_id: "host-id".to_string(),
+            tetraplets: vec![],
         }
     }
 }
