@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.2](https://github.com/fluencelabs/spell/compare/spell-v0.7.1...spell-v0.7.2) (2024-02-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fluencelabs/aqua-ipfs to v0.5.31 ([#278](https://github.com/fluencelabs/spell/issues/278)) ([817142a](https://github.com/fluencelabs/spell/commit/817142a917eff5eefc3542849ffd76b63239a82b))
+* **deps:** update dependency @fluencelabs/aqua-lib to v0.10.1 ([#275](https://github.com/fluencelabs/spell/issues/275)) ([5162fd2](https://github.com/fluencelabs/spell/commit/5162fd2c7ad77bb761e54da3cf702919c899977d))
+
 ## [0.7.1](https://github.com/fluencelabs/spell/compare/spell-v0.7.0...spell-v0.7.1) (2024-02-19)
 
 
