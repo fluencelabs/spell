@@ -12,8 +12,8 @@ importers:
         specifier: 0.5.31
         version: 0.5.31
       '@fluencelabs/aqua-lib':
-        specifier: 0.9.1
-        version: 0.9.1
+        specifier: 0.10.1
+        version: 0.10.1
       '@fluencelabs/spell':
         specifier: workspace:*
         version: link:../spell
@@ -21,8 +21,8 @@ importers:
   src/aqua/spell:
     dependencies:
       '@fluencelabs/aqua-lib':
-        specifier: 0.9.1
-        version: 0.9.1
+        specifier: 0.10.1
+        version: 0.10.1
     devDependencies:
       npm-run-all2:
         specifier: 6.0.4
@@ -60,10 +60,6 @@ packages:
 
   /@fluencelabs/aqua-lib@0.10.1:
     resolution: {integrity: sha512-zwg7faVsmUmfiV5EScVs0p+BArzJzFRfgjcigKzoxB5DvQRb64+OSs7Pmt8flSfV4iprPf1RQT9vhsDvdOsK0g==}
-    dev: false
-
-  /@fluencelabs/aqua-lib@0.9.1:
-    resolution: {integrity: sha512-W4KBhUkFC/kb3Mvjmhpnz0vvtr1kqpV8IWTWlbitzzS1k5FhODQYP2k7ROkDyjEztg/7Bn5eunstEHr9Sxj6qA==}
     dev: false
 
   /@types/normalize-package-data@2.4.4:
