@@ -1,14 +1,14 @@
-modules_dir = "."
+modules_dir = "./storage"
 total_memory_limit = "Infinity"
 
 [[module]]
-    name = "sqlite3"
-    mem_pages_count = 100
-    logger_enabled = false
+name = "sqlite3"
+mem_pages_count = 100
+logger_enabled = false
 
-    [module.wasi]
-    preopened_files = ["tmp", "storage"]
-    mapped_dirs = { "tmp" = "./tmp", "storage" = "." }
+[module.wasi]
+preopened_files = ["tmp", "storage"]
+mapped_dirs = { "tmp" = "./tmp", "storage" = "./storage" }
 
 [[module]]
-    name = "spell"
+name = "spell"

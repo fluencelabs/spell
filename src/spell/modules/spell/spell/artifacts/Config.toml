@@ -1,4 +1,4 @@
-modules_dir = "."
+modules_dir = "./storage"
 total_memory_limit = "Infinity"
 
 [[module]]
@@ -8,7 +8,7 @@ logger_enabled = false
 
 [module.wasi]
 preopened_files = ["storage", "tmp"]
-mapped_dirs = { "tmp" = "./tmp", "storage" = "." }
+mapped_dirs = { "tmp" = "./tmp", "storage" = "./storage" }
 
 [[module]]
 name = "spell"
