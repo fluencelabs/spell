@@ -10,6 +10,7 @@ marine build --release
 # copy .wasm to artifacts
 mkdir -p artifacts
 cp ../target/wasm32-wasi/release/spell.wasm artifacts/
+mkdir -p artifacts/tmp
 
 # generate Aqua bindings
 PROJECT_DIR="$(pwd)/../../../../.."
