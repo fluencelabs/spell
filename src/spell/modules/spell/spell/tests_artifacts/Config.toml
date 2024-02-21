@@ -7,8 +7,8 @@ total_memory_limit = "Infinity"
     logger_enabled = false
 
     [module.wasi]
-    preopened_files = ["tmp"]
-    mapped_dirs = { "tmp" = "." }
+    preopened_files = ["tmp", "storage"]
+    mapped_dirs = { "tmp" = "./tmp", "storage" = "." }
 
 [[module]]
     name = "spell"

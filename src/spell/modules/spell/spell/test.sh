@@ -11,6 +11,7 @@ rm -f /storage/spell.sqlite
 # build spell.wasm
 marine build --release
 cp ../target/wasm32-wasi/release/spell.wasm tests_artifacts/
+mkdir -p tests_artifacts/tmp
 
 if [[ ! -f "tests_artifacts/sqlite3.wasm" ]]; then
   # download SQLite 3
