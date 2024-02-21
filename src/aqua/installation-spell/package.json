@@ -20,7 +20,7 @@
   "author": "Fluence Labs",
   "license": "Apache-2.0",
   "dependencies": {
-    "@fluencelabs/aqua-ipfs": "0.5.30",
+    "@fluencelabs/aqua-ipfs": "0.5.31",
     "@fluencelabs/aqua-lib": "0.9.1",
     "@fluencelabs/spell": "workspace:*"
   }
