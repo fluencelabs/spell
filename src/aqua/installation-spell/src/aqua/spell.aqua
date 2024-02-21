@@ -145,7 +145,8 @@ func download_service(s: Service, ipfs: Multiaddr) -> []Hash:
         json_cfg <- cat_from(HOST_PEER_ID, m.config, ipfs)
         if get_wasm.success && json_cfg.success:
             cfg <- ModuleConfigJson.parse(json_cfg.contents)
-            hashes <<- Dist.add_module_from_vault(get_wasm.path, cfg)
+            on HOST_PEER_ID:
+                hashes <<- Dist.add_module_from_vault(get_wasm.path, cfg)
         else:
             log([s.name, "error retrieving module", ["wasm", m.wasm, get_wasm], ["config", m.config, json_cfg]])
     <- hashes
