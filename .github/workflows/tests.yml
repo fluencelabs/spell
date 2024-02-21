@@ -120,7 +120,7 @@ jobs:
 
       - name: Run aqua tests
         env:
-          FLUENCE_USER_DIR: '${{ github.workspace }}/tmp/.fluence'
+          FLUENCE_USER_DIR: '${{ github.workspace }}/storage/.fluence'
         run: pytest -n auto test_aqua.py
         working-directory: integration-tests
 

@@ -6,7 +6,7 @@ set -o pipefail
 
 cd "$(dirname "$0")"
 
-rm -f /tmp/spell.sqlite
+rm -f /storage/spell.sqlite
 
 # build spell.wasm
 marine build --release

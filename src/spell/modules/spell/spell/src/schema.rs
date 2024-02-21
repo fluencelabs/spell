@@ -4,13 +4,13 @@ use marine_sqlite_connector::Connection;
 pub const DEFAULT_MAX_ERR_PARTICLES: usize = 50;
 pub const DEFAULT_MAX_MAILBOX: usize = 50;
 pub const DEFAULT_MAX_LOGS: usize = 500;
-pub const DB_FILE: &'static str = "/tmp/spell.sqlite";
+pub const DB_FILE: &'static str = "/storage/spell.sqlite";
 
 pub fn db() -> Connection {
     // use rand::prelude::*;
     //
-    // let db_path = if std::path::Path::new("/tmp/this_is_test").exists() {
-    //     format!("/tmp/{}_spell.sqlite", rand::random::<u32>())
+    // let db_path = if std::path::Path::new("/storage/this_is_test").exists() {
+    //     format!("/storage/{}_spell.sqlite", rand::random::<u32>())
     // } else {
     //     format!(DB_FILE)
     // };

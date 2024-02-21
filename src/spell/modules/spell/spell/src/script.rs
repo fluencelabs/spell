@@ -7,7 +7,7 @@ use fluence_spell_dtos::value::{CIDv1Value, ScriptValue, UnitValue};
 
 use crate::auth::is_by_creator;
 
-const SCRIPT_FILE: &str = "/tmp/script.air";
+const SCRIPT_FILE: &str = "/storage/script.air";
 
 #[marine]
 pub fn set_script(script: String) -> UnitValue {
