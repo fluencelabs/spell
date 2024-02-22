@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.3](https://github.com/fluencelabs/spell/compare/spell-v0.7.2...spell-v0.7.3) (2024-02-22)
+
+
+### Bug Fixes
+
+* **vault:** use vault only on host in IS ([#276](https://github.com/fluencelabs/spell/issues/276)) ([316781b](https://github.com/fluencelabs/spell/commit/316781bf9d90ad334e9459660566154c716aabb2))
+
 ## [0.7.2](https://github.com/fluencelabs/spell/compare/spell-v0.7.1...spell-v0.7.2) (2024-02-21)
 
 
