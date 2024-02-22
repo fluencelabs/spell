@@ -1,13 +1,13 @@
-mod roles;
 mod keys;
+mod roles;
 
-pub use self::roles::{is_by_spell, is_by_creator};
+pub use self::roles::{is_by_creator, is_by_spell};
 
-use marine_rs_sdk::CallParameters;
 use crate::auth::keys::parse_permission;
 use crate::auth::roles::{authenticate, Role};
+use marine_rs_sdk::CallParameters;
 
-pub fn guard_kv_write(key: &str)  -> eyre::Result<()> {
+pub fn guard_kv_write(key: &str) -> eyre::Result<()> {
     let cp = marine_rs_sdk::get_call_parameters();
     check_kv_write(key, &cp)
 }
@@ -15,7 +15,6 @@ pub fn guard_kv_write(key: &str)  -> eyre::Result<()> {
 pub fn is_kv_write_permitted(key: &str, call_parameters: &CallParameters) -> bool {
     check_kv_write(key, call_parameters).is_ok()
 }
-
 
 fn check_kv_write(key: &str, call_parameters: &CallParameters) -> eyre::Result<()> {
     match authenticate(&call_parameters) {
@@ -25,21 +24,23 @@ fn check_kv_write(key: &str, call_parameters: &CallParameters) -> eyre::Result<(
             if allowed_roles.contains(&role) {
                 Ok(())
             } else {
-                Err(eyre::eyre!("writing to the `{key}` is forbidden for the callers with the role {:?}", role))
+                Err(eyre::eyre!(
+                    "writing to the `{key}` is forbidden for the callers with the role {:?}",
+                    role
+                ))
             }
-        },
-        None => {
-            Err(eyre::eyre!("writing to the `{key}` is forbidden for any outside caller"))
         }
+        None => Err(eyre::eyre!(
+            "writing to the `{key}` is forbidden for any outside caller"
+        )),
     }
 }
 
-
-
 #[cfg(test)]
 mod tests {
-    use marine_rs_sdk::CallParameters;
     use crate::auth::is_kv_write_permitted;
+    use marine_rs_sdk::CallParameters;
+    use marine_rs_sdk::ParticleParameters;
 
     const HOST_ID: &str = "host_id";
     const OTHER_HOST_ID: &str = "other_host_id";
@@ -58,8 +59,11 @@ mod tests {
     #[test]
     fn test_permission_host_to_host_spell() {
         let cp = CallParameters {
-            init_peer_id: HOST_ID.to_string(),
-            particle_id: PARTICLE_ID.to_string(),
+            particle: ParticleParameters {
+                init_peer_id: HOST_ID.to_string(),
+                id: PARTICLE_ID.to_string(),
+                ..<_>::default()
+            },
 
             service_id: SPELL_ID.to_string(),
             worker_id: HOST_ID.to_string(),
@@ -69,19 +73,38 @@ mod tests {
             tetraplets: vec![],
         };
 
-        assert!(is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be accessible", HOST_KEY);
-        assert!(is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be accessible", HOST_WORKER_KEY);
+        assert!(
+            is_kv_write_permitted(HOST_KEY, &cp),
+            "`{}` must be accessible",
+            HOST_KEY
+        );
+        assert!(
+            is_kv_write_permitted(HOST_WORKER_KEY, &cp),
+            "`{}` must be accessible",
+            HOST_WORKER_KEY
+        );
         // it's our choice that a host spell tryng to access other host spells will be considered a host not a worker
-        assert!(!is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must NOT be accessible", WORKER_KEY);
-        assert!(!is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must NOT be accessible", PRIVATE_KEY);
+        assert!(
+            !is_kv_write_permitted(WORKER_KEY, &cp),
+            "`{}` must NOT be accessible",
+            WORKER_KEY
+        );
+        assert!(
+            !is_kv_write_permitted(PRIVATE_KEY, &cp),
+            "`{}` must NOT be accessible",
+            PRIVATE_KEY
+        );
     }
 
     // To self, everything must be accessible
     #[test]
     fn test_permission_host_to_self() {
         let cp = CallParameters {
-            init_peer_id: HOST_ID.to_string(),
-            particle_id: format!("spell_{SPELL_ID}_0"),
+            particle: ParticleParameters {
+                init_peer_id: HOST_ID.to_string(),
+                id: format!("spell_{SPELL_ID}_0"),
+                ..<_>::default()
+            },
 
             service_id: SPELL_ID.to_string(),
             worker_id: HOST_ID.to_string(),
@@ -91,18 +114,37 @@ mod tests {
             tetraplets: vec![],
         };
 
-        assert!(is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be accessible", HOST_KEY);
-        assert!(is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be accessible", HOST_WORKER_KEY);
-        assert!(is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must be accessible", WORKER_KEY);
-        assert!(is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must be accessible", PRIVATE_KEY);
+        assert!(
+            is_kv_write_permitted(HOST_KEY, &cp),
+            "`{}` must be accessible",
+            HOST_KEY
+        );
+        assert!(
+            is_kv_write_permitted(HOST_WORKER_KEY, &cp),
+            "`{}` must be accessible",
+            HOST_WORKER_KEY
+        );
+        assert!(
+            is_kv_write_permitted(WORKER_KEY, &cp),
+            "`{}` must be accessible",
+            WORKER_KEY
+        );
+        assert!(
+            is_kv_write_permitted(PRIVATE_KEY, &cp),
+            "`{}` must be accessible",
+            PRIVATE_KEY
+        );
     }
 
     // A host that accesses a spell on a worker acts solely as a HOST and can modify
     #[test]
     fn test_permission_host_to_worker_spell() {
         let cp = CallParameters {
-            init_peer_id: HOST_ID.to_string(),
-            particle_id: "some-particle".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: HOST_ID.to_string(),
+                id: "some-particle".to_string(),
+                ..<_>::default()
+            },
 
             service_id: SPELL_ID.to_string(),
             worker_id: WORKER_ID.to_string(),
@@ -112,19 +154,37 @@ mod tests {
             tetraplets: vec![],
         };
 
-        assert!(is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be accessible", HOST_KEY);
-        assert!(is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be accessible", HOST_WORKER_KEY);
-        assert!(!is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must NOT be accessible", WORKER_KEY);
-        assert!(!is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must NOT be accessible", PRIVATE_KEY);
-
+        assert!(
+            is_kv_write_permitted(HOST_KEY, &cp),
+            "`{}` must be accessible",
+            HOST_KEY
+        );
+        assert!(
+            is_kv_write_permitted(HOST_WORKER_KEY, &cp),
+            "`{}` must be accessible",
+            HOST_WORKER_KEY
+        );
+        assert!(
+            !is_kv_write_permitted(WORKER_KEY, &cp),
+            "`{}` must NOT be accessible",
+            WORKER_KEY
+        );
+        assert!(
+            !is_kv_write_permitted(PRIVATE_KEY, &cp),
+            "`{}` must NOT be accessible",
+            PRIVATE_KEY
+        );
     }
 
     // To self, everything must be accessible
     #[test]
     fn test_permission_worker_to_self() {
         let cp = CallParameters {
-            init_peer_id: WORKER_ID.to_string(),
-            particle_id: format!("spell_{SPELL_ID}_0"),
+            particle: ParticleParameters {
+                init_peer_id: WORKER_ID.to_string(),
+                id: format!("spell_{SPELL_ID}_0"),
+                ..<_>::default()
+            },
 
             service_id: SPELL_ID.to_string(),
             worker_id: WORKER_ID.to_string(),
@@ -134,11 +194,26 @@ mod tests {
             tetraplets: vec![],
         };
 
-        assert!(is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be accessible", HOST_KEY);
-        assert!(is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be accessible", HOST_WORKER_KEY);
-        assert!(is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must be accessible", WORKER_KEY);
-        assert!(is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must be accessible", PRIVATE_KEY);
-
+        assert!(
+            is_kv_write_permitted(HOST_KEY, &cp),
+            "`{}` must be accessible",
+            HOST_KEY
+        );
+        assert!(
+            is_kv_write_permitted(HOST_WORKER_KEY, &cp),
+            "`{}` must be accessible",
+            HOST_WORKER_KEY
+        );
+        assert!(
+            is_kv_write_permitted(WORKER_KEY, &cp),
+            "`{}` must be accessible",
+            WORKER_KEY
+        );
+        assert!(
+            is_kv_write_permitted(PRIVATE_KEY, &cp),
+            "`{}` must be accessible",
+            PRIVATE_KEY
+        );
     }
 
     // A spell on a worker that accesses as other spell on the same worker has a WORKER permission
@@ -146,8 +221,11 @@ mod tests {
     #[test]
     fn test_permission_worker_spell_to_other_spell() {
         let cp = CallParameters {
-            init_peer_id: WORKER_ID.to_string(),
-            particle_id: format!("spell_{OTHER_SPELL_ID}_0"),
+            particle: ParticleParameters {
+                init_peer_id: WORKER_ID.to_string(),
+                id: format!("spell_{OTHER_SPELL_ID}_0"),
+                ..<_>::default()
+            },
 
             service_id: SPELL_ID.to_string(),
             worker_id: WORKER_ID.to_string(),
@@ -157,17 +235,36 @@ mod tests {
             tetraplets: vec![],
         };
 
-        assert!(!is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be NOT accessible", HOST_KEY);
-        assert!(is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be accessible", HOST_WORKER_KEY);
-        assert!(is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must be accessible", WORKER_KEY);
-        assert!(!is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must be NOT accessible", PRIVATE_KEY);
+        assert!(
+            !is_kv_write_permitted(HOST_KEY, &cp),
+            "`{}` must be NOT accessible",
+            HOST_KEY
+        );
+        assert!(
+            is_kv_write_permitted(HOST_WORKER_KEY, &cp),
+            "`{}` must be accessible",
+            HOST_WORKER_KEY
+        );
+        assert!(
+            is_kv_write_permitted(WORKER_KEY, &cp),
+            "`{}` must be accessible",
+            WORKER_KEY
+        );
+        assert!(
+            !is_kv_write_permitted(PRIVATE_KEY, &cp),
+            "`{}` must be NOT accessible",
+            PRIVATE_KEY
+        );
     }
 
     #[test]
     fn test_permission_other() {
         let cp = CallParameters {
-            init_peer_id: OTHER_HOST_ID.to_string(),
-            particle_id: format!("spell_{OTHER_SPELL_ID}_0"),
+            particle: ParticleParameters {
+                init_peer_id: OTHER_HOST_ID.to_string(),
+                id: format!("spell_{OTHER_SPELL_ID}_0"),
+                ..<_>::default()
+            },
 
             service_id: SPELL_ID.to_string(),
             worker_id: WORKER_ID.to_string(),
@@ -177,10 +274,25 @@ mod tests {
             tetraplets: vec![],
         };
 
-        assert!(!is_kv_write_permitted(HOST_KEY, &cp), "`{}` must be NOT accessible", HOST_KEY);
-        assert!(!is_kv_write_permitted(HOST_WORKER_KEY, &cp), "`{}` must be NOT accessible", HOST_WORKER_KEY);
-        assert!(!is_kv_write_permitted(WORKER_KEY, &cp), "`{}` must be NOT accessible", WORKER_KEY);
-        assert!(!is_kv_write_permitted(PRIVATE_KEY, &cp), "`{}` must be NOT accessible", PRIVATE_KEY);
-
+        assert!(
+            !is_kv_write_permitted(HOST_KEY, &cp),
+            "`{}` must be NOT accessible",
+            HOST_KEY
+        );
+        assert!(
+            !is_kv_write_permitted(HOST_WORKER_KEY, &cp),
+            "`{}` must be NOT accessible",
+            HOST_WORKER_KEY
+        );
+        assert!(
+            !is_kv_write_permitted(WORKER_KEY, &cp),
+            "`{}` must be NOT accessible",
+            WORKER_KEY
+        );
+        assert!(
+            !is_kv_write_permitted(PRIVATE_KEY, &cp),
+            "`{}` must be NOT accessible",
+            PRIVATE_KEY
+        );
     }
 }

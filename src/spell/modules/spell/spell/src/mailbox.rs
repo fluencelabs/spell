@@ -10,7 +10,7 @@ use crate::schema::db;
 #[marine]
 /// Push a message to the mailbox. Mailbox keeps `DEFAULT_MAX_MAILBOX` latest messages.
 pub fn push_mailbox(message: String) -> UnitValue {
-    let init_peer_id = marine_rs_sdk::get_call_parameters().init_peer_id;
+    let init_peer_id = marine_rs_sdk::get_call_parameters().particle.init_peer_id;
     let result: eyre::Result<()> = try {
         let conn = db();
         let mut statement =
@@ -82,6 +82,7 @@ pub fn pop_mailbox() -> PopMailboxResult {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
+    use marine_rs_sdk::ParticleParameters;
     use marine_rs_sdk_test::marine_test;
     use uuid::Uuid;
 
@@ -100,9 +101,12 @@ mod tests {
 
     fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
         marine_rs_sdk_test::CallParameters {
-            init_peer_id: "folex".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "folex".to_string(),
+                id: particle_id,
+                ..<_>::default()
+            },
             service_creator_peer_id: "folex".to_string(),
-            particle_id,
             service_id,
             host_id: "".to_string(),
             worker_id: "".to_string(),
@@ -110,7 +114,7 @@ mod tests {
         }
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_push_mailbox(spell: marine_test_env::spell::ModuleInterface) {
         println!("test_push_mailbox started");
 
@@ -131,13 +135,13 @@ mod tests {
         let messages = messages.messages;
         assert_eq!(messages.len(), 2);
         assert_eq!(messages[0].message, message2);
-        assert_eq!(messages[0].init_peer_id, cp.init_peer_id);
+        assert_eq!(messages[0].init_peer_id, cp.particle.init_peer_id);
         assert_eq!(messages[1].message, message1);
-        assert_eq!(messages[1].init_peer_id, cp.init_peer_id);
+        assert_eq!(messages[1].init_peer_id, cp.particle.init_peer_id);
         assert!(messages[0].timestamp >= messages[1].timestamp);
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_pop_mailbox_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
         let service_id = Uuid::new_v4();
@@ -156,7 +160,7 @@ mod tests {
         assert_eq!(messages_before.len(), messages_after.len());
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_mailbox_lru(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
         let service_id = Uuid::new_v4();
@@ -172,7 +176,7 @@ mod tests {
         assert_eq!(messages.len(), DEFAULT_MAX_MAILBOX);
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_pop_mailbox(spell: marine_test_env::spell::ModuleInterface) {
         let message = "message".to_string();
         let service_id = Uuid::new_v4();

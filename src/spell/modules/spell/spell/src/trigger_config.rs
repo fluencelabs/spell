@@ -117,7 +117,7 @@ mod tests {
         std::fs::remove_file(DB_FILE).ok();
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn get_no_trigger_config(spell: marine_test_env::spell::ModuleInterface) {
         let get = spell.get_trigger_config();
         assert_eq!(
@@ -126,7 +126,7 @@ mod tests {
         );
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn set_empty_trigger_config(spell: marine_test_env::spell::ModuleInterface) {
         let empty_config: crate::trigger_config::TriggerConfig = <_>::default();
         let empty_config: marine_test_env::spell::TriggerConfig =
@@ -144,7 +144,7 @@ mod tests {
         assert_eq!(config, empty_config);
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn set_trigger_config(spell: marine_test_env::spell::ModuleInterface) {
         use marine_test_env::spell::{
             BlockChainConfig, ClockConfig, ConnectionPoolConfig, TriggerConfig,

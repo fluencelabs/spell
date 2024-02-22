@@ -1,7 +1,7 @@
+use crate::auth::guard_kv_write;
 use fluence_spell_dtos::value::{StringListValue, StringValue, UnitValue};
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::State;
-use crate::auth::guard_kv_write;
 
 use crate::misc::fetch_rows;
 use crate::schema::db;
@@ -56,7 +56,8 @@ pub fn list_pop_string(key: &str) -> StringValue {
         if let State::Row = get.next()? {
             let val = get.read::<String>(0)?;
             if let Some(list_order) = get.read::<Option<i64>>(1)? {
-                let mut delete = db.prepare(r#"DELETE FROM kv WHERE key = ? AND list_order = ?"#)?;
+                let mut delete =
+                    db.prepare(r#"DELETE FROM kv WHERE key = ? AND list_order = ?"#)?;
                 delete.bind(1, key)?;
                 delete.bind(2, list_order)?;
                 delete.next()?;
@@ -129,6 +130,7 @@ pub fn list_remove_string(key: &str, value: &str) -> UnitValue {
 #[cfg(test)]
 mod tests {
     use marine_rs_sdk::CallParameters;
+    use marine_rs_sdk::ParticleParameters;
     use marine_rs_sdk_test::marine_test;
 
     use crate::schema::DB_FILE;
@@ -231,15 +233,27 @@ mod tests {
         assert_eq!(get.value, vec!["b", "в", "p", "a"]);
 
         let removed = remove(&mut spell, key, "not-in-list");
-        assert!(removed.success, "remove of non-existent values from the list must return ok: {}", removed.error);
+        assert!(
+            removed.success,
+            "remove of non-existent values from the list must return ok: {}",
+            removed.error
+        );
 
         let get = spell.list_get_strings(key.into());
         assert!(get.success, "list_get_strings failed {}", get.error);
-        assert_eq!(get.value, vec!["b", "в", "p", "a"], "must be the same after removing of absent value");
+        assert_eq!(
+            get.value,
+            vec!["b", "в", "p", "a"],
+            "must be the same after removing of absent value"
+        );
 
         let _ = spell.set_string_cp("str".into(), "val".into(), spell_call_params());
         let removed = remove(&mut spell, "str", "val");
-        assert!(removed.success, "remove of non-existent key-values from a list must return ok: {}", removed.error);
+        assert!(
+            removed.success,
+            "remove of non-existent key-values from a list must return ok: {}",
+            removed.error
+        );
 
         let get = spell.get_string("str".into());
         assert!(!get.absent, "non-list value must not be removed");
@@ -278,7 +292,6 @@ mod tests {
         let get = spell.list_get_strings(key.into());
         assert!(get.success, "list_get_strings failed {}", get.error);
         assert_eq!(get.value, vec!["в", "p", "a", "n1", "n2"]);
-
     }
 
     #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
@@ -291,7 +304,11 @@ mod tests {
         let _ = spell.list_push_string_cp(key.into(), val2.into(), spell_call_params());
         let list = spell.list_get_strings(key.into());
         assert!(list.success, "list_get_strings failed {}", list.error);
-        assert_eq!(list.value, vec![val2], "list must contain only the elements we put in it");
+        assert_eq!(
+            list.value,
+            vec![val2],
+            "list must contain only the elements we put in it"
+        );
 
         let key = "b";
         let val1 = "a";
@@ -300,7 +317,6 @@ mod tests {
         let pop = spell.list_pop_string_cp(key.into(), spell_call_params());
         assert!(pop.success, "pop failed {}", pop.error);
         assert!(pop.absent, "pop mustn't return string value");
-
     }
 
     #[marine_test(config_path = "../../tests_artifacts/Config.toml")]
@@ -527,7 +543,6 @@ mod tests {
             assert!(!list.value.is_empty());
         };
 
-
         // check push
         push_failed(spell, private_key, value);
         push_failed(spell, worker_key, value);
@@ -554,9 +569,12 @@ mod tests {
 
     fn spell_call_params() -> CallParameters {
         CallParameters {
-            init_peer_id: "worker-id".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "worker-id".to_string(),
+                id: "spell_spell-id_0".to_string(),
+                ..<_>::default()
+            },
             service_creator_peer_id: "worker-id".to_string(),
-            particle_id: "spell_spell-id_0".to_string(),
             service_id: "spell-id".to_string(),
             worker_id: "worker-id".to_string(),
             host_id: "host-id".to_string(),
@@ -566,9 +584,12 @@ mod tests {
 
     fn host_call_params() -> CallParameters {
         CallParameters {
-            init_peer_id: "host-id".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "host-id".to_string(),
+                id: "some-particle".to_string(),
+                ..<_>::default()
+            },
             service_creator_peer_id: "worker-id".to_string(),
-            particle_id: "some-particle".to_string(),
             service_id: "spell-id".to_string(),
             worker_id: "worker-id".to_string(),
             host_id: "host-id".to_string(),
@@ -578,9 +599,12 @@ mod tests {
 
     fn worker_call_params() -> CallParameters {
         CallParameters {
-            init_peer_id: "worker-id".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "worker-id".to_string(),
+                id: "some-particle".to_string(),
+                ..<_>::default()
+            },
             service_creator_peer_id: "worker-id".to_string(),
-            particle_id: "some-particle".to_string(),
             service_id: "spell-id".to_string(),
             worker_id: "worker-id".to_string(),
             host_id: "host-id".to_string(),
@@ -590,9 +614,12 @@ mod tests {
 
     fn other_call_params() -> CallParameters {
         CallParameters {
-            init_peer_id: "other-worker-id".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "other-worker-id".to_string(),
+                id: "some-particle".to_string(),
+                ..<_>::default()
+            },
             service_creator_peer_id: "worker-id".to_string(),
-            particle_id: "some-particle".to_string(),
             service_id: "spell-id".to_string(),
             worker_id: "worker-id".to_string(),
             host_id: "host-id".to_string(),

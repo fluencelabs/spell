@@ -53,6 +53,7 @@ pub fn get_logs() -> GetLogsResult {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
+    use marine_rs_sdk::ParticleParameters;
     use marine_rs_sdk_test::marine_test;
     use uuid::Uuid;
 
@@ -71,9 +72,12 @@ mod tests {
 
     fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
         marine_rs_sdk_test::CallParameters {
-            init_peer_id: "folex".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "folex".to_string(),
+                id: particle_id,
+                ..<_>::default()
+            },
             service_creator_peer_id: "folex".to_string(),
-            particle_id,
             service_id,
             host_id: "".to_string(),
             worker_id: "".to_string(),
@@ -81,7 +85,7 @@ mod tests {
         }
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_store_log(spell: marine_test_env::spell::ModuleInterface) {
         println!("test_store_log started");
 
@@ -106,7 +110,7 @@ mod tests {
         assert!(logs[0].timestamp <= logs[1].timestamp);
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_store_log_fails_on_non_spell(spell: marine_test_env::spell::ModuleInterface) {
         let log = "logloglog".to_string();
         let service_id = Uuid::new_v4();
@@ -121,7 +125,7 @@ mod tests {
         assert_eq!(logs_before.len(), logs_after.len());
     }
 
-  #[marine_test(config_path = "../tests_artifacts/Config.toml")]
+    #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_log_lru(spell: marine_test_env::spell::ModuleInterface) {
         let log = "logloglog".to_string();
         let service_id = Uuid::new_v4();

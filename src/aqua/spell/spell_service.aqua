@@ -1,4 +1,4 @@
-module Spell declares *
+aqua Spell declares *
 
 data LastError:
   error_code: u32

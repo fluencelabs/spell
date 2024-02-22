@@ -1,8 +1,8 @@
 use marine_rs_sdk::marine;
 use marine_sqlite_connector::{State, Statement};
 
-use fluence_spell_dtos::value::{BoolValue, StringValue, U32Value, UnitValue};
 use crate::auth::guard_kv_write;
+use fluence_spell_dtos::value::{BoolValue, StringValue, U32Value, UnitValue};
 
 use crate::schema::db;
 
@@ -38,7 +38,6 @@ pub fn read_string(statement: &mut Statement, idx: usize) -> eyre::Result<Option
     } else {
         Ok(None)
     }
-
 }
 
 #[marine]
@@ -55,7 +54,7 @@ pub fn get_string(key: &str) -> StringValue {
              WHERE key = ?
                AND u32 IS NULL
                AND list_order == -1
-            "#
+            "#,
         )?;
         statement.bind(1, key)?;
         read_string(&mut statement, 0)?
@@ -99,7 +98,7 @@ pub fn get_u32(key: &str) -> U32Value {
              WHERE key = ?
                AND u32 IS NOT NULL
                AND list_order == -1
-            "#
+            "#,
         )?;
         statement.bind(1, key)?;
         read_u32(&mut statement)?
@@ -142,8 +141,9 @@ pub fn exists(key: &str) -> BoolValue {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
-    use marine_rs_sdk_test::marine_test;
     use marine_rs_sdk::CallParameters;
+    use marine_rs_sdk::ParticleParameters;
+    use marine_rs_sdk_test::marine_test;
 
     use crate::schema::DB_FILE;
 
@@ -283,14 +283,22 @@ mod tests {
         assert!(set_num.success, "set_u32 failed: {}", set_num.error);
 
         let get_str = spell.get_string(key.clone());
-        assert!(get_str.success, "get_string shouldn't fail: {}", get_str.error);
+        assert!(
+            get_str.success,
+            "get_string shouldn't fail: {}",
+            get_str.error
+        );
         assert!(get_str.absent, "the value of the wrong type must be absent");
 
         let set_str = spell.set_string_cp(key.clone(), str, cp());
         assert!(set_str.success, "set_u32 failed: {}", set_str.error);
 
         let get_num = spell.get_u32(key.clone());
-        assert!(get_num.success, "get_string shouldn't fail: {}", get_num.error);
+        assert!(
+            get_num.success,
+            "get_string shouldn't fail: {}",
+            get_num.error
+        );
         assert!(get_num.absent, "the value of the wrong type must be absent");
     }
 
@@ -304,7 +312,10 @@ mod tests {
 
         let get = spell.get_string(key);
         assert!(get.success, "get_string failed: {}", get.error);
-        assert!(!get.absent, "get_string must return non-absent empty string");
+        assert!(
+            !get.absent,
+            "get_string must return non-absent empty string"
+        );
         assert_eq!(get.value, "", "get_string failed: {}", get.error);
     }
 
@@ -319,37 +330,37 @@ mod tests {
         let cp = || host_call_params();
 
         type SPELL = marine_test_env::spell::ModuleInterface;
-        let set_str_ok = |spell: &mut SPELL, key: &str, value: &str|  {
+        let set_str_ok = |spell: &mut SPELL, key: &str, value: &str| {
             let set = spell.set_string_cp(key.into(), value.into(), cp());
             assert!(set.success, "set_string failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(exist.value);
         };
-        let set_str_failed = |spell: &mut SPELL, key: &str, value: &str|  {
+        let set_str_failed = |spell: &mut SPELL, key: &str, value: &str| {
             let set = spell.set_string_cp(key.into(), value.into(), cp());
             assert!(!set.success, "set_string failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(!exist.value);
         };
-        let set_num_ok = |spell: &mut SPELL, key: &str, value: u32|  {
+        let set_num_ok = |spell: &mut SPELL, key: &str, value: u32| {
             let set = spell.set_u32_cp(key.into(), value, cp());
             assert!(set.success, "set_u32 failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(exist.value);
         };
-        let set_num_failed = |spell: &mut SPELL, key: &str, value: u32|  {
+        let set_num_failed = |spell: &mut SPELL, key: &str, value: u32| {
             let set = spell.set_u32_cp(key.into(), value, cp());
             assert!(!set.success, "set_u32 failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(!exist.value);
         };
-        let remove_ok = |spell: &mut SPELL, key: &str|  {
+        let remove_ok = |spell: &mut SPELL, key: &str| {
             let remove = spell.remove_key_cp(key.into(), cp());
             assert!(remove.success, "remove failed: {}", remove.error);
             let exist = spell.exists(key.into());
             assert!(!exist.value);
         };
-        let remove_failed = |spell: &mut SPELL, key: &str|  {
+        let remove_failed = |spell: &mut SPELL, key: &str| {
             let remove = spell.remove_key_cp(key.into(), cp());
             assert!(!remove.success, "remove failed: {}", remove.error);
             let exist = spell.exists(key.into());
@@ -389,37 +400,37 @@ mod tests {
         let cp = || worker_call_params();
 
         type SPELL = marine_test_env::spell::ModuleInterface;
-        let set_str_ok = |spell: &mut SPELL, key: &str, value: &str|  {
+        let set_str_ok = |spell: &mut SPELL, key: &str, value: &str| {
             let set = spell.set_string_cp(key.into(), value.into(), cp());
             assert!(set.success, "set_string failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(exist.value);
         };
-        let set_str_failed = |spell: &mut SPELL, key: &str, value: &str|  {
+        let set_str_failed = |spell: &mut SPELL, key: &str, value: &str| {
             let set = spell.set_string_cp(key.into(), value.into(), cp());
             assert!(!set.success, "set_string failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(!exist.value);
         };
-        let set_num_ok = |spell: &mut SPELL, key: &str, value: u32|  {
+        let set_num_ok = |spell: &mut SPELL, key: &str, value: u32| {
             let set = spell.set_u32_cp(key.into(), value, cp());
             assert!(set.success, "set_u32 failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(exist.value);
         };
-        let set_num_failed = |spell: &mut SPELL, key: &str, value: u32|  {
+        let set_num_failed = |spell: &mut SPELL, key: &str, value: u32| {
             let set = spell.set_u32_cp(key.into(), value, cp());
             assert!(!set.success, "set_u32 failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(!exist.value);
         };
-        let remove_ok = |spell: &mut SPELL, key: &str|  {
+        let remove_ok = |spell: &mut SPELL, key: &str| {
             let remove = spell.remove_key_cp(key.into(), cp());
             assert!(remove.success, "remove failed: {}", remove.error);
             let exist = spell.exists(key.into());
             assert!(!exist.value);
         };
-        let remove_failed = |spell: &mut SPELL, key: &str|  {
+        let remove_failed = |spell: &mut SPELL, key: &str| {
             let remove = spell.remove_key_cp(key.into(), cp());
             assert!(!remove.success, "remove failed: {}", remove.error);
             let exist = spell.exists(key.into());
@@ -459,19 +470,19 @@ mod tests {
         let cp = || other_call_params();
 
         type SPELL = marine_test_env::spell::ModuleInterface;
-        let set_str_failed = |spell: &mut SPELL, key: &str, value: &str|  {
+        let set_str_failed = |spell: &mut SPELL, key: &str, value: &str| {
             let set = spell.set_string_cp(key.into(), value.into(), cp());
             assert!(!set.success, "set_string failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(!exist.value);
         };
-        let set_num_failed = |spell: &mut SPELL, key: &str, value: u32|  {
+        let set_num_failed = |spell: &mut SPELL, key: &str, value: u32| {
             let set = spell.set_u32_cp(key.into(), value, cp());
             assert!(!set.success, "set_u32 failed: {}", set.error);
             let exist = spell.exists(key.into());
             assert!(!exist.value);
         };
-        let remove_failed = |spell: &mut SPELL, key: &str|  {
+        let remove_failed = |spell: &mut SPELL, key: &str| {
             let remove = spell.remove_key_cp(key.into(), cp());
             assert!(!remove.success, "remove failed: {}", remove.error);
             let exist = spell.exists(key.into());
@@ -500,9 +511,12 @@ mod tests {
     }
     fn spell_call_params() -> CallParameters {
         CallParameters {
-            init_peer_id: "worker-id".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "worker-id".to_string(),
+                id: "spell_spell-id_0".to_string(),
+                ..<_>::default()
+            },
             service_creator_peer_id: "worker-id".to_string(),
-            particle_id: "spell_spell-id_0".to_string(),
             service_id: "spell-id".to_string(),
             worker_id: "worker-id".to_string(),
             host_id: "host-id".to_string(),
@@ -512,9 +526,12 @@ mod tests {
 
     fn host_call_params() -> CallParameters {
         CallParameters {
-            init_peer_id: "host-id".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "host-id".to_string(),
+                id: "some-particle".to_string(),
+                ..<_>::default()
+            },
             service_creator_peer_id: "worker-id".to_string(),
-            particle_id: "some-particle".to_string(),
             service_id: "spell-id".to_string(),
             worker_id: "worker-id".to_string(),
             host_id: "host-id".to_string(),
@@ -524,9 +541,12 @@ mod tests {
 
     fn worker_call_params() -> CallParameters {
         CallParameters {
-            init_peer_id: "worker-id".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "worker-id".to_string(),
+                id: "some-particle".to_string(),
+                ..<_>::default()
+            },
             service_creator_peer_id: "worker-id".to_string(),
-            particle_id: "some-particle".to_string(),
             service_id: "spell-id".to_string(),
             worker_id: "worker-id".to_string(),
             host_id: "host-id".to_string(),
@@ -536,9 +556,12 @@ mod tests {
 
     fn other_call_params() -> CallParameters {
         CallParameters {
-            init_peer_id: "other-worker-id".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "other-worker-id".to_string(),
+                id: "some-particle".to_string(),
+                ..<_>::default()
+            },
             service_creator_peer_id: "worker-id".to_string(),
-            particle_id: "some-particle".to_string(),
             service_id: "spell-id".to_string(),
             worker_id: "worker-id".to_string(),
             host_id: "host-id".to_string(),

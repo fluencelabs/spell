@@ -100,7 +100,7 @@ pub fn store_error(error: LastError, error_idx: u32, particle_timestamp: u64) ->
             (?, ?, ?, ?, ?, ?, ?)
         "#,
         )?;
-        statement.bind(1, call_parameters.particle_id.as_str())?;
+        statement.bind(1, call_parameters.particle.id.as_str())?;
         statement.bind(2, particle_timestamp as i64)?;
         statement.bind(3, error_idx as i64)?;
         statement.bind(4, error.error_code as i64)?;
@@ -199,6 +199,7 @@ pub fn get_all_errors() -> AllErrorsResult {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
+    use marine_rs_sdk::ParticleParameters;
     use marine_rs_sdk_test::marine_test;
     use uuid::Uuid;
 
@@ -217,12 +218,15 @@ mod tests {
 
     fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
         marine_rs_sdk_test::CallParameters {
-            init_peer_id: "folex".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "folex".to_string(),
+                id: particle_id,
+                ..<_>::default()
+            },
             service_creator_peer_id: "folex".to_string(),
             service_id,
             host_id: "".to_string(),
             worker_id: "".to_string(),
-            particle_id,
             tetraplets: vec![],
         }
     }
