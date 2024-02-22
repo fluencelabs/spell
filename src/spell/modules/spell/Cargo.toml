@@ -9,6 +9,4 @@ members = [
 [workspace.dependencies]
 marine-sqlite-connector = "0.11.0"
 marine-rs-sdk = "0.14.0"
-
-[patch.crates-io]
-fluence-app-service = { git = "https://github.com/fluencelabs/marine", branch = "feat/absolute_wasi_paths" }
+fluence-app-serivce = "0.35.0"
