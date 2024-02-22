@@ -30,10 +30,12 @@ func deploy_single_worker(
     worker_id: *WorkerID
     spell_id: *SpellID
 
+
     -- create Worker or retrieve an existing one via dummy DEAL_ID
     existing_worker <- Worker.get_worker_id(dummy_deal_id)
     if existing_worker == nil:
-        worker_id <- Worker.create(dummy_deal_id)
+        cuid = [84, 174, 27, 80, 108, 38, 3, 103, 160, 84, 248, 8, 0, 165, 69, 242, 62, 50, 198, 188, 74, 137, 8, 201, 167, 148, 203, 141, 173, 35, 229, 234]
+        worker_id <- Worker.create(dummy_deal_id, cuid)
     else:
         worker_id <<- existing_worker!
 
