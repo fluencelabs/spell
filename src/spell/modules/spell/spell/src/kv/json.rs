@@ -45,7 +45,7 @@ mod tests {
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file(DB_FILE).unwrap();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     #[marine_test(config_path = "../../tests_artifacts/Config.toml")]

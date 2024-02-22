@@ -5,8 +5,6 @@ set -o errexit
 set -o pipefail
 
 cd "$(dirname "$0")"
-mkdir -p tests_artifacts/tmp
-mkdir -p tests_artifacts/storage
 
 # build spell.wasm
 marine build --release

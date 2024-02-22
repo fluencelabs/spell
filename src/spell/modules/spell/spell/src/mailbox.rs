@@ -98,7 +98,7 @@ mod tests {
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file(DB_FILE).unwrap();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
