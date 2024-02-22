@@ -214,7 +214,7 @@ mod tests {
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file(DB_FILE).ok();
+ //       std::fs::remove_file(DB_FILE).ok();
     }
 
     fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
@@ -235,7 +235,7 @@ mod tests {
     #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_store_error(spell: marine_test_env::spell::ModuleInterface) {
         use marine_test_env::spell::LastError;
-
+        println!("gg =  {:?}", std::fs::canonicalize(DB_FILE).ok());
         println!("test_store_error started");
 
         let timestamp = 123;
@@ -251,6 +251,8 @@ mod tests {
         };
 
         let store = spell.store_error_cp(error.clone(), error_idx, timestamp, cp);
+        println!("gg =  {:?}", std::fs::canonicalize(".").ok());
+        println!("gg =  {:?}", std::fs::canonicalize(DB_FILE).ok());
         assert!(store.success, "{}", store.error);
 
         let errors = spell.get_all_errors();
