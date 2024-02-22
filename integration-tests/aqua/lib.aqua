@@ -24,8 +24,9 @@ func get_worker_id() -> string:
     worker_id: *string
     deal_id <- get_deal_id()
     existing_worker <- Worker.get_worker_id(deal_id)
+    cuid = [84, 174, 27, 80, 108, 38, 3, 103, 160, 84, 248, 8, 0, 165, 69, 242, 62, 50, 198, 188, 74, 137, 8, 201, 167, 148, 203, 141, 173, 35, 229, 234]
     if existing_worker == nil:
-        worker_id <- Worker.create(deal_id)
+        worker_id <- Worker.create(deal_id, [cuid])
     else:
         worker_id <<- existing_worker!
     <- worker_id!
