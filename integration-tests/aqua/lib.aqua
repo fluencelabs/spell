@@ -115,7 +115,7 @@ func get_counter(spell_id: string) -> U32Value:
         worker_id <- get_worker_id()
         on worker_id:
             Spell spell_id
-            count <- Spell.get_u32("counter")
+            count <- Spell.get_u32("hw_counter")
     <- count
 
 -- For a test we want to retrive these values at the same time
@@ -159,7 +159,7 @@ func get_trigger_event(spell_id: string) -> ?TriggerEvent, ?string:
       worker_id <- get_worker_id()
       on worker_id:
         Spell spell_id
-        result <- Spell.get_string("trigger")
+        result <- Spell.get_string("hw_trigger")
         if result.success:
             if result.absent == false:
                 trigger <- TriggerEventJson.parse(result.value)

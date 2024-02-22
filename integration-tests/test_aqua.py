@@ -31,7 +31,7 @@ def simple_script():
 def store_triggers_script():
     return '''
     (seq
-        (call %init_peer_id% ("getDataSrv" "trigger") [] trigger)
+        (call %init_peer_id% ("getDataSrv" "hw_trigger") [] trigger)
         (seq
             (call %init_peer_id% ("json" "stringify") [trigger] trigger_str)
             (call %init_peer_id% ("spell" "list_push_string") ["triggers" trigger_str])
