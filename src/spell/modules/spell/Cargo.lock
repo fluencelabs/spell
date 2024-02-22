@@ -791,7 +791,7 @@ dependencies = [
  "eyre",
  "fluence-spell-dtos",
  "fstrings",
- "marine-rs-sdk",
+ "marine-rs-sdk 0.12.0",
  "marine-rs-sdk-test",
  "marine-sqlite-connector",
  "serde",
@@ -814,7 +814,7 @@ name = "fluence-spell-dtos"
 version = "0.7.2"
 dependencies = [
  "eyre",
- "marine-rs-sdk",
+ "marine-rs-sdk 0.12.0",
  "marine-sqlite-connector",
  "serde",
  "thiserror",
@@ -1347,6 +1347,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "marine-call-parameters"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05495180730abae04abe209386ce367309a82110edb65fcdb1f3080f819bc1a0"
+dependencies = [
+ "marine-macro 0.14.0",
+ "marine-rs-sdk-main 0.14.0",
+ "serde",
+]
+
+[[package]]
 name = "marine-core"
 version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1442,6 +1453,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "marine-macro"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f502185316f584a9373cceb6ff24a11d260dfd39505c817056bc127cd1a96a08"
+dependencies = [
+ "marine-macro-impl 0.14.0",
+ "marine-rs-sdk-main 0.14.0",
+]
+
+[[package]]
 name = "marine-macro-impl"
 version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1459,6 +1480,19 @@ name = "marine-macro-impl"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57c8cd8a228856db057bd4a32c6e2708848b2b1db7552be0a6063d534cafb4e2"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "marine-macro-impl"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e50fbc0e70ee4cde7802f0748acfb197d7770c7feffb980ce8c29bddd007519e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1520,7 +1554,20 @@ dependencies = [
  "marine-call-parameters 0.12.0",
  "marine-macro 0.12.0",
  "marine-rs-sdk-main 0.12.0",
- "marine-timestamp-macro",
+ "marine-timestamp-macro 0.12.0",
+ "serde",
+]
+
+[[package]]
+name = "marine-rs-sdk"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f93d2bd852fea1fea8097c195044430347eda98fd6a3752119b549192d5ac4ba"
+dependencies = [
+ "marine-call-parameters 0.14.0",
+ "marine-macro 0.14.0",
+ "marine-rs-sdk-main 0.14.0",
+ "marine-timestamp-macro 0.14.0",
  "serde",
 ]
 
@@ -1539,6 +1586,16 @@ name = "marine-rs-sdk-main"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6cba9000500575b4965ec44e44bbbfd056d121be1195969ce1a5cc146646c37b"
+dependencies = [
+ "log",
+ "serde",
+]
+
+[[package]]
+name = "marine-rs-sdk-main"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b79c165fc21438b069babeec5ae36ba0eade5e08fb1d92dabbe6b41014ce841"
 dependencies = [
  "log",
  "serde",
@@ -1572,7 +1629,7 @@ dependencies = [
  "marine-call-parameters 0.10.3",
  "marine-core",
  "marine-module-interface",
- "marine-rs-sdk",
+ "marine-rs-sdk 0.12.0",
  "marine-rs-sdk-main 0.12.0",
  "marine-utils",
  "marine-wasm-backend-traits",
@@ -1590,12 +1647,12 @@ dependencies = [
 
 [[package]]
 name = "marine-sqlite-connector"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb21d5419382307d97677d92c267f714a77549658270ada5d84496bfd74314e9"
+checksum = "1c4d82c7e8c07f59aa526271b810c97ec7f79d14a77725025618a79b0b1d9051"
 dependencies = [
  "bytesize",
- "marine-rs-sdk",
+ "marine-rs-sdk 0.14.0",
 ]
 
 [[package]]
@@ -1634,6 +1691,16 @@ name = "marine-timestamp-macro"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47ec0d664570661ecba1feba2dda610ab63f23733edf189dcde7b5ed23966144"
+dependencies = [
+ "chrono",
+ "quote",
+]
+
+[[package]]
+name = "marine-timestamp-macro"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d03f267ac0a29f543ef12a1a519ff8d98e74ac66e1c580f2930d41ce2c50507d"
 dependencies = [
  "chrono",
  "quote",
