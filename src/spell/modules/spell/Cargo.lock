@@ -3590,7 +3590,3 @@ dependencies = [
  "cc",
  "pkg-config",
 ]
-
-[[patch.unused]]
-name = "marine-sqlite-connector"
-version = "0.10.0"

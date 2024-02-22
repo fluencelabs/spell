@@ -104,7 +104,7 @@ pub fn get_trigger_config() -> TriggerConfigValue {
 mod tests {
     use marine_rs_sdk_test::marine_test;
 
-    use crate::schema::DB_FILE;
+    const DB_FILE: &str = "./tests_artifacts/spell.sqlite";
 
     #[ctor::ctor]
     /// usage of 'ctor' makes this function run only once
@@ -114,7 +114,7 @@ mod tests {
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
-        std::fs::remove_file(DB_FILE).ok();
+        std::fs::remove_file(DB_FILE).unwrap();
     }
 
     #[marine_test(config_path = "../tests_artifacts/Config.toml")]

@@ -5,10 +5,10 @@ total_memory_limit = "Infinity"
 name = "sqlite3"
 mem_pages_count = 100
 logger_enabled = false
-
 [module.wasi]
-preopened_files = []
-mapped_dirs = { "storage" = "../tests_artifacts" }
+mapped_dirs = { "/storage" = "./tests_artifacts" }
 
 [[module]]
 name = "spell"
+[module.wasi]
+mapped_dirs = { "/storage" = "./tests_artifacts" }
