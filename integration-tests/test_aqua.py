@@ -31,7 +31,7 @@ def simple_script():
 def store_triggers_script():
     return '''
     (seq
-        (call %init_peer_id% ("getDataSrv" "hw_trigger") [] trigger)
+        (call %init_peer_id% ("getDataSrv" "trigger") [] trigger)
         (seq
             (call %init_peer_id% ("json" "stringify") [trigger] trigger_str)
             (call %init_peer_id% ("spell" "list_push_string") ["triggers" trigger_str])
@@ -481,6 +481,7 @@ class TestSpellStatus:
         assert len(statuses) == 1
         assert statuses[0] == last_status
 
+@pytest.mark.skip(reason = "kv-restrictions weren't merged")
 class TestSpellKvPermissions:
     """
     1. Create two spells on one worker (should be able to change w_ and hw_ keys and can't change any other keys on each other)
