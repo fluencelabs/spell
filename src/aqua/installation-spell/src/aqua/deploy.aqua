@@ -25,7 +25,7 @@ func deploy_single_worker(
     dummy_deal_id: string
 ) -> SpellID, WorkerID:
     -- prepare spell arguments
-    init_args = WorkerSpellArgs(ipfs = ipfs, worker_def_cid = worker_definition, deal_id = dummy_deal_id)
+    init_args = WorkerSpellArgs(ipfs = ipfs, h_worker_def_cid = worker_definition, deal_id = dummy_deal_id)
 
     worker_id: *WorkerID
     spell_id: *SpellID
@@ -46,7 +46,7 @@ func deploy_single_worker(
             -- If spell already exists, update 'worker_def_cid' arg in its KV
             app_cid <- Json.stringify(worker_definition)
             Spell resolved_spell_id
-            Spell.set_string("worker_def_cid", app_cid)
+            Spell.set_string("h_worker_def_cid", app_cid)
             spell_id <<- resolved_spell_id
         otherwise:
             -- Create new spell, 'worker_def_cid' will be passed in init_args

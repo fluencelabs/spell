@@ -481,7 +481,6 @@ class TestSpellStatus:
         assert len(statuses) == 1
         assert statuses[0] == last_status
 
-@pytest.mark.skip(reason = "kv-restrictions weren't merged")
 class TestSpellKvPermissions:
     """
     1. Create two spells on one worker (should be able to change w_ and hw_ keys and can't change any other keys on each other)
