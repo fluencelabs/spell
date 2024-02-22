@@ -8,7 +8,7 @@ logger_enabled = false
 
 [module.wasi]
 preopened_files = []
-mapped_dirs = { "tmp" = "./tmp", "storage" = "./storage" }
+mapped_dirs = { "tmp" = ".", "storage" = "." }
 
 [[module]]
 name = "spell"
