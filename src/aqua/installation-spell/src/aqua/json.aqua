@@ -2,7 +2,6 @@ aqua Json declares *
 
 import JsonString from "./types.aqua"
 import WorkerDefinition from "./config.aqua"
-import ModuleConfig from "@fluencelabs/aqua-lib/builtin.aqua"
 import TriggerConfig from "@fluencelabs/spell/spell_service.aqua"
 import Status from "./types.aqua"
 
@@ -12,9 +11,6 @@ service WDJson("json"):
 
 service JsonStr("json"):
     parse(s: JsonString) -> string
-
-service ModuleConfigJson("json"):
-    parse(json: JsonString) -> ModuleConfig
 
 service TriggerConfigJson("json"):
     parse(json: JsonString) -> TriggerConfig

@@ -6,11 +6,14 @@ import Spell from "@fluencelabs/spell/spell_service.aqua"
 import PeerSpell from "@fluencelabs/spell/api.aqua"
 import Srv from "@fluencelabs/aqua-lib/builtin.aqua"
 
-import WDJson, ModuleConfigJson, TriggerConfigJson, JsonStr from "./json.aqua"
+import WDJson, TriggerConfigJson, JsonStr from "./json.aqua"
 import SpellDefinition, Service from "./config.aqua"
 import Multiaddr, CID from "./types.aqua"
 import log from "./log.aqua"
 import "./status.aqua"
+
+service DistExt("dist"):
+    add_module_bytes_from_vault(name: string, module_path: string) -> string
 
 func blueprint_key(service_name: string) -> string:
     <- Op.concat_strings("blueprint:", service_name)
@@ -142,13 +145,14 @@ func download_service(s: Service, ipfs: Multiaddr) -> []Hash:
     hashes: *Hash
     for m <- s.modules:
         get_wasm <- get_from(HOST_PEER_ID, m.wasm, ipfs)
-        json_cfg <- cat_from(HOST_PEER_ID, m.config, ipfs)
-        if get_wasm.success && json_cfg.success:
-            cfg <- ModuleConfigJson.parse(json_cfg.contents)
+        if get_wasm.success:
             on HOST_PEER_ID:
-                hashes <<- Dist.add_module_from_vault(get_wasm.path, cfg)
+                try:
+                    hashes <<- DistExt.add_module_bytes_from_vault(m.name, get_wasm.path)
+                catch e:
+                    log([s.name, "error adding module", m.name, e])
         else:
-            log([s.name, "error retrieving module", ["wasm", m.wasm, get_wasm], ["config", m.config, json_cfg]])
+            log([s.name, "error retrieving module", m.name, ["wasm", m.wasm, get_wasm]])
     <- hashes
 
 func install(ipfs: Multiaddr, worker_def_cid: CID):
