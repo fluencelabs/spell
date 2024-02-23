@@ -141,8 +141,8 @@ pub fn get_errors(particle_id: String) -> Vec<LastErrorEntry> {
             r.context("error fetching error row from sqlite")
                 .transpose()
         })
-        .filter_map(|r| r.ok())
-        .collect()
+            .filter_map(|r| r.ok())
+            .collect()
     };
 
     result.unwrap_or_default()
@@ -169,17 +169,17 @@ pub fn get_all_errors() -> AllErrorsResult {
             r.context("error fetching error row from sqlite")
                 .transpose()
         })
-        .filter_map(|r| r.ok())
-        .fold(HashMap::new(), |mut hm, (particle_id, error)| {
-            hm.entry(particle_id).or_insert(Vec::new()).push(error);
-            hm
-        })
-        .into_iter()
-        .map(|(particle_id, errors)| ParticleErrors {
-            particle_id,
-            errors,
-        })
-        .collect()
+            .filter_map(|r| r.ok())
+            .fold(HashMap::new(), |mut hm, (particle_id, error)| {
+                hm.entry(particle_id).or_insert(Vec::new()).push(error);
+                hm
+            })
+            .into_iter()
+            .map(|(particle_id, errors)| ParticleErrors {
+                particle_id,
+                errors,
+            })
+            .collect()
     };
 
     match result {
@@ -204,6 +204,7 @@ mod tests {
     use uuid::Uuid;
 
     use crate::schema::DEFAULT_MAX_ERR_PARTICLES;
+
     const DB_FILE: &str = "./tests_artifacts/spell.sqlite";
 
     #[ctor::ctor]
@@ -214,7 +215,7 @@ mod tests {
 
     /// after_each macro copy-pastes this function into every test
     fn after_each() {
- //       std::fs::remove_file(DB_FILE).ok();
+        std::fs::remove_file(DB_FILE).ok();
     }
 
     fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
@@ -288,7 +289,7 @@ mod tests {
                     },
                     error_idx,
                     timestamp,
-                    cp
+                    cp,
                 )
                 .success
         );
