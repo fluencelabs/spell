@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use crate::auth::roles::Role;
+use std::collections::HashSet;
 
 /// Keys parsing module to determine the available rights.
 ///
@@ -23,26 +23,32 @@ use crate::auth::roles::Role;
 /// Note that everyone have READ rights
 ///
 pub fn parse_permission(key: &str) -> HashSet<Role> {
-     match key.split_once('_') {
+    match key.split_once('_') {
         Some(("h", _)) => HashSet::from([Role::Host]),
         Some(("w", _)) => HashSet::from([Role::Worker]),
         Some(("hw", _)) => HashSet::from([Role::Host, Role::Worker]),
-         _ => HashSet::new()
+        _ => HashSet::new(),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
     use crate::auth::keys::parse_permission;
     use crate::auth::roles::Role;
+    use std::collections::HashSet;
 
     #[test]
     fn test_key_parse() {
         let data = vec![
             ("h_worker_def_cid", HashSet::from([Role::Host])),
-            ("w_fellow_spell_last_ping_timestamp", HashSet::from([Role::Worker])),
-            ("hw_artificial_mailbox", HashSet::from([Role::Host, Role::Worker])),
+            (
+                "w_fellow_spell_last_ping_timestamp",
+                HashSet::from([Role::Worker]),
+            ),
+            (
+                "hw_artificial_mailbox",
+                HashSet::from([Role::Host, Role::Worker]),
+            ),
             ("wh_count", HashSet::new()),
             ("hword_count", HashSet::new()),
             ("worker_settings", HashSet::new()),

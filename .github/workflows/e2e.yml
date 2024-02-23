@@ -55,6 +55,7 @@ jobs:
       - snapshot
     uses: fluencelabs/nox/.github/workflows/build.yml@master
     with:
+      ref: feature/net-759
       cargo-dependencies: |
         [
           {
@@ -92,6 +93,7 @@ jobs:
 
     uses: fluencelabs/nox/.github/workflows/tests.yml@master
     with:
+      ref: feature/net-759
       cargo-dependencies: |
         [
           {

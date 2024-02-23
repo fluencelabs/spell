@@ -100,7 +100,7 @@ pub fn store_error(error: LastError, error_idx: u32, particle_timestamp: u64) ->
             (?, ?, ?, ?, ?, ?, ?)
         "#,
         )?;
-        statement.bind(1, call_parameters.particle_id.as_str())?;
+        statement.bind(1, call_parameters.particle.id.as_str())?;
         statement.bind(2, particle_timestamp as i64)?;
         statement.bind(3, error_idx as i64)?;
         statement.bind(4, error.error_code as i64)?;
@@ -141,8 +141,8 @@ pub fn get_errors(particle_id: String) -> Vec<LastErrorEntry> {
             r.context("error fetching error row from sqlite")
                 .transpose()
         })
-        .filter_map(|r| r.ok())
-        .collect()
+            .filter_map(|r| r.ok())
+            .collect()
     };
 
     result.unwrap_or_default()
@@ -169,17 +169,17 @@ pub fn get_all_errors() -> AllErrorsResult {
             r.context("error fetching error row from sqlite")
                 .transpose()
         })
-        .filter_map(|r| r.ok())
-        .fold(HashMap::new(), |mut hm, (particle_id, error)| {
-            hm.entry(particle_id).or_insert(Vec::new()).push(error);
-            hm
-        })
-        .into_iter()
-        .map(|(particle_id, errors)| ParticleErrors {
-            particle_id,
-            errors,
-        })
-        .collect()
+            .filter_map(|r| r.ok())
+            .fold(HashMap::new(), |mut hm, (particle_id, error)| {
+                hm.entry(particle_id).or_insert(Vec::new()).push(error);
+                hm
+            })
+            .into_iter()
+            .map(|(particle_id, errors)| ParticleErrors {
+                particle_id,
+                errors,
+            })
+            .collect()
     };
 
     match result {
@@ -199,10 +199,13 @@ pub fn get_all_errors() -> AllErrorsResult {
 #[test_env_helpers::after_each]
 #[cfg(test)]
 mod tests {
+    use marine_rs_sdk::ParticleParameters;
     use marine_rs_sdk_test::marine_test;
     use uuid::Uuid;
 
-    use crate::schema::{DB_FILE, DEFAULT_MAX_ERR_PARTICLES};
+    use crate::schema::DEFAULT_MAX_ERR_PARTICLES;
+
+    const DB_FILE: &str = "./tests_artifacts/spell.sqlite";
 
     #[ctor::ctor]
     /// usage of 'ctor' makes this function run only once
@@ -217,12 +220,15 @@ mod tests {
 
     fn cp(service_id: String, particle_id: String) -> marine_rs_sdk_test::CallParameters {
         marine_rs_sdk_test::CallParameters {
-            init_peer_id: "folex".to_string(),
+            particle: ParticleParameters {
+                init_peer_id: "folex".to_string(),
+                id: particle_id,
+                ..<_>::default()
+            },
             service_creator_peer_id: "folex".to_string(),
             service_id,
             host_id: "".to_string(),
             worker_id: "".to_string(),
-            particle_id,
             tetraplets: vec![],
         }
     }
@@ -230,8 +236,6 @@ mod tests {
     #[marine_test(config_path = "../tests_artifacts/Config.toml")]
     fn test_store_error(spell: marine_test_env::spell::ModuleInterface) {
         use marine_test_env::spell::LastError;
-
-        println!("test_store_error started");
 
         let timestamp = 123;
         let error_idx = 321;
@@ -285,7 +289,7 @@ mod tests {
                     },
                     error_idx,
                     timestamp,
-                    cp
+                    cp,
                 )
                 .success
         );

@@ -9,7 +9,7 @@ marine build --release
 
 # copy .wasm to artifacts
 mkdir -p artifacts
-cp ../target/wasm32-wasi/release/spell.wasm artifacts/
+cp ../target/wasm32-wasi/release/spell.wasm artifacts
 
 # generate Aqua bindings
 PROJECT_DIR="$(pwd)/../../../../.."
@@ -27,4 +27,6 @@ fi
 cd ./artifacts
 tar --exclude="spell.tar.gz" -f spell.tar.gz -zcv ./*
 mkdir -p ../../spell-distro/spell-service
-cp -v spell.wasm sqlite3.wasm Config.toml ../../spell-distro/spell-service/
+cp -v spell.wasm sqlite3.wasm Config.toml ./../../spell-distro/spell-service/
+
+
