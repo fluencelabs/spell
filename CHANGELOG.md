@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.4](https://github.com/fluencelabs/spell/compare/spell-v0.7.3...spell-v0.7.4) (2024-02-23)
+
+
+### Features
+
+* **storage:** move state to persistent storage ([#277](https://github.com/fluencelabs/spell/issues/277)) ([ae9ac0d](https://github.com/fluencelabs/spell/commit/ae9ac0d60de3a0e55491c2360e7b4b65d0d144e4))
+
 ## [0.7.3](https://github.com/fluencelabs/spell/compare/spell-v0.7.2...spell-v0.7.3) (2024-02-22)
 
 
