@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.6](https://github.com/fluencelabs/spell/compare/spell-v0.7.5...spell-v0.7.6) (2024-02-24)
+
+
+### Bug Fixes
+
+* update aqua-lib in IS ([#288](https://github.com/fluencelabs/spell/issues/288)) ([d400f13](https://github.com/fluencelabs/spell/commit/d400f1345ac4fccf44c7855f1f0bb2f16904911c))
+
 ## [0.7.5](https://github.com/fluencelabs/spell/compare/spell-v0.7.4...spell-v0.7.5) (2024-02-24)
 
 
