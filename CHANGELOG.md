@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.5](https://github.com/fluencelabs/spell/compare/spell-v0.7.4...spell-v0.7.5) (2024-02-24)
+
+
+### Features
+
+* remove module configs from worker definition ([#284](https://github.com/fluencelabs/spell/issues/284)) ([d5bebfc](https://github.com/fluencelabs/spell/commit/d5bebfc9ff09740d9181d3951d68286890edba9c))
+
 ## [0.7.4](https://github.com/fluencelabs/spell/compare/spell-v0.7.3...spell-v0.7.4) (2024-02-23)
 
 
