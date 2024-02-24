@@ -1,6 +1,6 @@
 {
   "name": "@fluencelabs/spell",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "Aqua API for Spells",
   "files": [
     "api.aqua",
