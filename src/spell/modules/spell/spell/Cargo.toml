@@ -19,7 +19,7 @@ cid = "0.10.0"
 thiserror = "1.0.37"
 fstrings = "0.2.3"
 serde = "1.0.149"
-serde_json = "1.0.89"
+serde_json = "1.0.113"
 
 [dev-dependencies]
 marine-rs-sdk-test = "0.16.0"
