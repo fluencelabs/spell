@@ -19,8 +19,7 @@ func upload_worker_config(ipfs: Multiaddr, config: LocalWorkerConfig) -> CID:
         modules: *Module
         for m <- s.modules:
             wasm <- IpfsClient.upload(ipfs, m.wasm)
-            cfg <- IpfsClient.upload_string(ipfs, m.config)
-            modules <<- Module(wasm = wasm, config = cfg)
+            modules <<- Module(name = m.name, wasm = wasm)
         services <<- Service(name = s.name, modules = modules, total_memory_limit = s.total_memory_limit)
 
     for sp <- config.spells:

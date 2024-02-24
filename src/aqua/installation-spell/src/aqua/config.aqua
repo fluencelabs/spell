@@ -16,8 +16,8 @@ data LocalSpell:
     init_args: ⊤
 
 data LocalModule:
+    name: string
     wasm: Path
-    config: string
 
 data LocalService:
     name: string
@@ -41,8 +41,8 @@ data LocalAppDeployConfig:
 
 -- uploaded DTOs
 data Module:
+    name: string
     wasm: CID
-    config: CID
 
 data Service:
     name: string
