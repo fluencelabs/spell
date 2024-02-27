@@ -15,7 +15,7 @@ marine-rs-sdk = { workspace = true }
 marine-sqlite-connector = { workspace = true }
 
 eyre = "0.6.8"
-cid = "0.10.0"
+cid = "0.11.0"
 thiserror = "1.0.37"
 fstrings = "0.2.3"
 serde = "1.0.149"
