@@ -4,8 +4,8 @@
   "description": "Special spell that installs services from App Config",
   "main": "index.js",
   "engines": {
-    "node": ">=18",
-    "pnpm": ">=8"
+    "node": "21.7.1",
+    "pnpm": "8.15.5"
   },
   "files": [
     "src/aqua/*"
