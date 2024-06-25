@@ -3,6 +3,7 @@ name = "fluence-spell"
 version = "0.2.0"
 edition = "2018"
 publish = false
+license = "AGPL-v3-only"
 
 [[bin]]
 name = "spell"
