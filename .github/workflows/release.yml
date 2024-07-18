@@ -80,7 +80,7 @@ jobs:
         working-directory: ./src/spell/modules/spell/spell
         run: ./build.sh
 
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v2.4.1
         with:
           version: 8
 
@@ -167,7 +167,7 @@ jobs:
             --skip-published \
             --yes
 
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v2.4.1
         with:
           version: 8
 
