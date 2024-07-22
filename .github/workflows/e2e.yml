@@ -55,7 +55,6 @@ jobs:
       - snapshot
     uses: fluencelabs/nox/.github/workflows/build.yml@master
     with:
-      ref: restrict-effectors
       cargo-dependencies: |
         [
           {
@@ -93,7 +92,6 @@ jobs:
 
     uses: fluencelabs/nox/.github/workflows/tests.yml@master
     with:
-      ref: restrict-effectors
       cargo-dependencies: |
         [
           {
