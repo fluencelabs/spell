@@ -19,12 +19,16 @@ def make_key():
         return name
 
 
+
 def delete_key(name):
     with key_lock:
         c = delegator.run(f"fluence key remove {name} --no-input", block=True)
         if len(c.err) != 0:
             print(c.err)
         return name
+
+def get_key():
+        return 'integration-tests-key'
 
 
 def get_relays():
@@ -228,7 +232,7 @@ def with_spell(cls):
     old_setup_class = getattr(cls, "setup_class", None)
 
     def setup_class(cls):
-        key_pair_name = make_key()
+        key_pair_name = get_key()
         spell_id = create_spell(key_pair_name, air_script, config, dat, alias)
         cls.spell_id = spell_id
         cls.key_pair_name = key_pair_name
@@ -245,7 +249,7 @@ def with_spell(cls):
         if old_teardown_class is not None:
             old_teardown_class()
         destroy_spell(cls.key_pair_name, cls.spell_id)
-        delete_key(cls.key_pair_name)
+        #delete_key(cls.key_pair_name)
 
     cls.teardown_class = teardown_class
 
