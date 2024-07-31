@@ -30,3 +30,4 @@ services:
     networks:
       nox:
         ipv4_address: 10.50.10.10
+
