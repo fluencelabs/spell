@@ -24,6 +24,10 @@ services:
       # - --bootstraps=/dns/nox-1/tcp/7771
       # 12D3KooWBM3SdXWqGaawQDGQ6JprtwswEg3FWGvGhmgmMez1vRbR
       - -k=hK62afickoeP2uZbmSkAYXxxqP8ozq16VRN7qfTP719EHC5V5tjrtW57BSjUr8GvsEXmJRbtejUWyPZ2rZMyQdq
+      - --enable-system-services=none
+      - --management-key=12D3KooWGLAmtTkqZqqKiSxXpb2j1SRjpbE2YgZZb4Unzn5VPj9p
+      - --dev-mode
     networks:
       nox:
         ipv4_address: 10.50.10.10
+

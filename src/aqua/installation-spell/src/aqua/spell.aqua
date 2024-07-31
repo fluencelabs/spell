@@ -161,11 +161,11 @@ func download_service(s: Service, ipfs: Multiaddr) -> []Hash:
     for m <- s.modules:
         get_wasm <- get_from(HOST_PEER_ID, m.wasm, ipfs)
         if get_wasm.success:
-            on HOST_PEER_ID:
-                try:
+            try:
+                on HOST_PEER_ID:
                     hashes <<- Dist.add_module_bytes_from_vault(m.name, get_wasm.path)
-                catch e:
-                    log([s.name, "error adding module", m.name, e])
+            catch e:
+                log([s.name, "error adding module", m.name, e])
         else:
             log([s.name, "error retrieving module", m.name, ["wasm", m.wasm, get_wasm]])
     <- hashes
