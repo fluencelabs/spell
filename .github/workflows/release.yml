@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Run release-please
         id: release
-        uses: google-github-actions/release-please-action@v3
+        uses: google-github-actions/release-please-action@v4
         with:
           token: ${{ secrets.FLUENCEBOT_RELEASE_PLEASE_PAT }}
           command: manifest
@@ -45,7 +45,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ fromJson(needs.release-please.outputs.pr).headBranchName }}
           token: ${{ secrets.FLUENCEBOT_RELEASE_PLEASE_PAT }}
@@ -54,7 +54,7 @@ jobs:
         uses: dsherret/rust-toolchain-file@v1
 
       - name: Install cargo-workspaces
-        uses: baptiste0928/cargo-install@v1.3.1
+        uses: baptiste0928/cargo-install@v3.1.1
         with:
           crate: cargo-workspaces
 
@@ -80,12 +80,12 @@ jobs:
         working-directory: ./src/spell/modules/spell/spell
         run: ./build.sh
 
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v4.0.0
         with:
           version: 8
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
@@ -103,7 +103,7 @@ jobs:
         working-directory: src/aqua/installation-spell
 
       - name: Commit version bump
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore: Bump spell version to ${{ steps.version.outputs.version }}'
           branch: ${{ fromJson(needs.release-please.outputs.pr).headBranchName }}
@@ -122,12 +122,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.FLUENCEBOT_RELEASE_PLEASE_PAT }}
 
       - name: Import secrets
-        uses: hashicorp/vault-action@v2.5.0
+        uses: hashicorp/vault-action@v3.0.0
         with:
           url: https://vault.fluence.dev
           path: jwt/github
@@ -144,7 +144,7 @@ jobs:
         uses: dsherret/rust-toolchain-file@v1
 
       - name: Install Marine
-        uses: baptiste0928/cargo-install@v1.3.1
+        uses: baptiste0928/cargo-install@v3.1.1
         with:
           crate: marine
 
@@ -153,7 +153,7 @@ jobs:
         run: ./build.sh
 
       - name: Install cargo-workspaces
-        uses: baptiste0928/cargo-install@v1.3.1
+        uses: baptiste0928/cargo-install@v3.1.1
         with:
           crate: cargo-workspaces
 
@@ -167,12 +167,12 @@ jobs:
             --skip-published \
             --yes
 
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v4.0.0
         with:
           version: 8
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
@@ -210,7 +210,7 @@ jobs:
           echo "found any?:" "${{ steps.status.outputs.found }}"
 
       - name: Import secrets
-        uses: hashicorp/vault-action@v2.5.0
+        uses: hashicorp/vault-action@v3.0.0
         with:
           url: https://vault.fluence.dev
           path: jwt/github
