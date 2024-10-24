@@ -6,7 +6,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ipfs-http-client": "^60.0.0",
-    "multiaddr": "^10.0.1"
+    "ipfs-http-client": "60.0.0",
+    "multiaddr": "10.0.1"
   }
 }
