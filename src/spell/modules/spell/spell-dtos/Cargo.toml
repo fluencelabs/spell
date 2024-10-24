@@ -11,6 +11,6 @@ license = "Apache-2.0"
 marine-rs-sdk = { workspace = true }
 marine-sqlite-connector = { workspace = true }
 
-thiserror = "1.0.37"
-eyre = "0.6.8"
-serde = "1.0.149"
+thiserror = "=1.0.37"
+eyre = "=0.6.8"
+serde = "=1.0.149"
