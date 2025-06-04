@@ -49,7 +49,7 @@ jobs:
           ref: ${{ inputs.ref }}
 
       - name: Import secrets
-        uses: hashicorp/vault-action@v2.5.0
+        uses: hashicorp/vault-action@v2.8.1
         with:
           url: https://vault.fluence.dev
           path: jwt/github
@@ -102,14 +102,14 @@ jobs:
           path: src/spell/modules/spell
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2.2.4
+        uses: pnpm/action-setup@v2.4.1
         with:
           version: 8
 
       - name: Setup node with self-hosted npm registry
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: "18.20.8"
           registry-url: "https://npm.fluence.dev"
           cache: "pnpm"
 
