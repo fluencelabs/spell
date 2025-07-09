@@ -15,15 +15,15 @@ fluence-spell-dtos = { path = "../spell-dtos", version = "0.7.0" }
 marine-rs-sdk = { workspace = true }
 marine-sqlite-connector = { workspace = true }
 
-eyre = "0.6.8"
-cid = "0.10.0"
-thiserror = "1.0.37"
-fstrings = "0.2.3"
-serde = "1.0.149"
-serde_json = "1.0.89"
+eyre = "=0.6.8"
+cid = "=0.10.0"
+thiserror = "=1.0.37"
+fstrings = "=0.2.3"
+serde = "=1.0.149"
+serde_json = "=1.0.89"
 
 [dev-dependencies]
-marine-rs-sdk-test = "0.16.0"
-uuid = "1.2.1"
-test-env-helpers = "0.2.2"
-ctor = "0.2.0"
+marine-rs-sdk-test = "=0.16.0"
+uuid = "=1.2.1"
+test-env-helpers = "=0.2.2"
+ctor = "=0.2.0"
